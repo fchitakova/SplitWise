@@ -1,4 +1,4 @@
-package main.splitwise.client;
+package splitwise.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,6 @@ public class ServerInputReader implements Runnable{
         this.serverInputReader = new BufferedReader(new InputStreamReader(inputStream));
     }
 
-    @Override
     public void run() {
        while(true){
            try {

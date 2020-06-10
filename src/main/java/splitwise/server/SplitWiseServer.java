@@ -1,4 +1,4 @@
-package main.splitwise.server;
+package splitwise.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -48,7 +48,7 @@ public class SplitWiseServer {
     }
 
     public String processClientInput(String input){
-        String inputProcessingResult = splitWiseController.processClientInput(input);
+        String inputProcessingResult = splitWiseController.processUserInput(input);
         return inputProcessingResult;
     }
 

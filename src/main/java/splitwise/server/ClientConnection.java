@@ -1,6 +1,7 @@
-package main.splitwise.server;
+package splitwise.server;
 
-import main.splitwise.server.exceptions.ClientConnectionException;
+
+import splitwise.server.exceptions.ClientConnectionException;
 
 import java.io.*;
 import java.net.Socket;
@@ -20,7 +21,6 @@ public class ClientConnection implements Runnable{
         this.splitWiseServer = splitWiseServer;
     }
 
-    @Override
     public void run() {
         //print info about commands
         try {
@@ -32,7 +32,7 @@ public class ClientConnection implements Runnable{
         }catch(ClientConnectionException e){
             //log it
         }finally {
-            ClientContextHolder.userInformation.remove();
+            UserContextHolder.usernameHolder.remove();
             closeSocketConnection();
         }
     }
