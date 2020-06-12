@@ -15,10 +15,15 @@ public interface SplitWiseConstants {
     String SPLIT_GROUP_COMMAND = "split-group %s %s %s";
     String GET_STATUS_COMMAND = "get-status";
     String PAYED_COMMAND = "payed %s %s";
+    String LOGOUT_COMMAND = "logout";
     String NOT_SUPPORTED_COMMAND = "Not supported command!";
     String INVALID_CREDENTIALS = "Invalid username or password!";
     String SUCCESSFUL_LOGIN = "Successful login!";
     String NO_NOTIFICATIONS_TO_SHOW =  "No notifications to show.";
+    String TAKEN_USERNAME = "Username is already taken.Try using another.";
+    String SUCCESSFUL_REGISTRATION = "Successful registration!";
+    String SERVER_STARTED = "Splitwise server started!";
+    String GOODBYE_MESSAGE = "Split Wise Server: GoodBye";
     String NOTIFICATIONS_TITLE = RED_STAR_SYMBOL+RED_STAR_SYMBOL+RED_STAR_SYMBOL+" Notifications " +
             RED_STAR_SYMBOL+RED_STAR_SYMBOL+RED_STAR_SYMBOL;
 

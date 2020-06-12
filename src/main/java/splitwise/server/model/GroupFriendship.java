@@ -1,10 +1,11 @@
 package splitwise.server.model;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class GroupFriendship implements Friendship {
+public class GroupFriendship implements Friendship, Serializable {
 
     private String groupName;
     private List<Friend> groupMembers;

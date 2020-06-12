@@ -1,10 +1,9 @@
 package splitwise.server.model;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
-public class User {
+
+public class User{
     private String username;
     private char[]password;
     private String fullName;
@@ -15,10 +14,7 @@ public class User {
         this.username = username;
         this.password = password;
         this.friendships = new ArrayList<>();
-    }
-
-    public void setFullName(String fullName){
-        this.fullName = fullName;
+        this.notifications = new ArrayDeque<>();
     }
 
     public String getUsername(){
@@ -27,7 +23,7 @@ public class User {
 
     public boolean checkCredentials(String username,char[]password)
     {
-        if(this.username.equals(username) && this.password.equals(password)){
+        if(this.username.equals(username) && Arrays.equals(this.password,password)){
             return true;
         }
         return false;

@@ -1,6 +1,8 @@
 package splitwise.server.model;
 
-public class Friend implements Friendship {
+import java.io.Serializable;
+
+public class Friend implements Friendship, Serializable {
     public static final double NEUTRAL_ACCOUNT_AMOUNT = 0.0;
     private String name;
     private Double account;

@@ -1,10 +1,16 @@
 package splitwise.server;
 
+import splitwise.server.commands.Command;
+import splitwise.server.model.User;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static splitwise.server.model.SplitWiseConstants.SERVER_STARTED;
+
 
 public class SplitWiseServer {
     public static final int SERVER_PORT = 8080;
@@ -12,7 +18,7 @@ public class SplitWiseServer {
     public static final String FAILED_SERVER_SOCKET_CREATION = "Server socket creation failed because of unexpected IOException during socket creation.";
     private ServerSocket serverSocket;
     private ExecutorService executorService;
-    private SplitWiseController splitWiseController;
+    private CommandFactory commandFactory;
 
     public static void main(String[]args){
         SplitWiseServer splitWiseServer;
@@ -32,10 +38,11 @@ public class SplitWiseServer {
     public SplitWiseServer(int port) throws IOException{
         serverSocket = new ServerSocket(port);
         executorService = Executors.newFixedThreadPool(MAXIMUM_CONNECTIONS_COUNT);
-        splitWiseController = new SplitWiseController();
+        commandFactory = new CommandFactory(new UserService());
     }
 
     public void start(){
+        System.out.println(SERVER_STARTED);
         while(true){
             try{
                 Socket clientSocket = this.serverSocket.accept();
@@ -45,11 +52,13 @@ public class SplitWiseServer {
                 //log it to server console
             }
         }
+      //  this.executorService.shutdown();
     }
 
     public String processClientInput(String input){
-        String inputProcessingResult = splitWiseController.processUserInput(input);
-        return inputProcessingResult;
+        Command command = commandFactory.createCommand(input);
+        String commandExecutionResult = command.execute();
+        return commandExecutionResult;
     }
 
 }

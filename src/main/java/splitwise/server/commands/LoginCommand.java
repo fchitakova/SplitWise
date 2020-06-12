@@ -5,8 +5,8 @@ import splitwise.server.UserContextHolder;
 import splitwise.server.UserService;
 import splitwise.server.model.SplitWiseConstants;
 
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.Queue;
 
 public class LoginCommand extends Command{
     private String username;
@@ -34,14 +34,15 @@ public class LoginCommand extends Command{
         return successfulLoginResponse;
     }
 
+
     private String createSuccessfulLoginResponse(){
         StringBuilder response = new StringBuilder(SplitWiseConstants.SUCCESSFUL_LOGIN+'\n');
-        Queue<String> userNotifications = userService.getUserNotifications(username);
+        Deque<String> userNotifications = userService.getUserNotifications(username);
         String loginResponse = appendNotificationsToResponse(response,userNotifications);
         return loginResponse;
     }
 
-    private String appendNotificationsToResponse(StringBuilder response,Queue<String>notificationMessages) {
+    private String appendNotificationsToResponse(StringBuilder response,Deque<String>notificationMessages) {
         if(notificationMessages.size()==0) {
             response.append(SplitWiseConstants.NO_NOTIFICATIONS_TO_SHOW);
             return response.toString();

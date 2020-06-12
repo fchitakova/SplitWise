@@ -1,5 +1,6 @@
 package splitwise.server.model;
 
+
 public interface Friendship {
 
      void addToAccount(Double amount);

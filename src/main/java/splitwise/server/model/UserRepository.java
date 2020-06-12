@@ -1,6 +1,12 @@
 package splitwise.server.model;
 
 
+import java.util.List;
+import java.util.Optional;
+
 public interface UserRepository {
-    User getById(String username);
+    Optional<User> getById(String username);
+
+    void addUser(User user);
+
 }
