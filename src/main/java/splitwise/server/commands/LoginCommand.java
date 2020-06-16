@@ -28,8 +28,8 @@ public class LoginCommand extends Command{
 
     private void initializeCommandParameters(String command) {
         String[]commandParts = command.split("\\s+");
-        this.username = commandParts[1];
-        this.password = commandParts[2].toCharArray();
+        username = commandParts[1];
+        password = commandParts[2].toCharArray();
     }
 
     @Override

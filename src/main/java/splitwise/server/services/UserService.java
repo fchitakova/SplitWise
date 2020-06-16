@@ -14,6 +14,8 @@ public class UserService {
     private static final String FAILED_SERVICE_CREATION="""
                            User Service cannot be created because of unavailable persistence.
                            See logging.log for more information.""";
+    private static final String USER_REGISTRATION_FAILED = "User registration failed.";
+    private static final String SEE_LOG_FILE= "See logging.log for more information.";
 
     private static final String DB_FILE_PATH =  "src/main/resources/users.json";
 
@@ -59,12 +61,16 @@ public class UserService {
         return notifications;
     }
 
-     synchronized public void registerUser(String username,char[]password){
+     synchronized public void registerUser(String username,char[]password) throws UserServiceException {
          try {
              userRepository.addUser(new User(username,password));
          } catch (PersistenceException e) {
-
+             LOGGER.info(USER_REGISTRATION_FAILED+SEE_LOG_FILE);
+             LOGGER.error(USER_REGISTRATION_FAILED+e.getMessage(),e);
+             throw new UserServiceException(USER_REGISTRATION_FAILED,e);
          }
      }
+
+
 
 }

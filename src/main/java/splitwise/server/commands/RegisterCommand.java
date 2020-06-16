@@ -2,11 +2,13 @@ package splitwise.server.commands;
 
 
 import splitwise.server.UserContextHolder;
+import splitwise.server.exceptions.UserServiceException;
 import splitwise.server.services.UserService;
 
 public class RegisterCommand extends Command{
     public static final String TAKEN_USERNAME = "Username is already taken.Try using another.";
     public static final String SUCCESSFUL_REGISTRATION = "Successful registration!";
+    public static final String REGISTRATION_FAILED ="Registration attempt failed. Try again later.";
 
     private String username;
     private char[] password;
@@ -19,8 +21,8 @@ public class RegisterCommand extends Command{
 
     private void initializeCommandParameters(String command) {
         String[]commandParts = command.split("\\s+");
-        this.username = commandParts[1];
-        this.password = commandParts[2].toCharArray();
+        username = commandParts[1];
+        password = commandParts[2].toCharArray();
     }
 
 
@@ -30,9 +32,19 @@ public class RegisterCommand extends Command{
         if(isRegistered){
             return TAKEN_USERNAME;
         }
-        userService.registerUser(username,password);
-        UserContextHolder.usernameHolder.set(username);
+        String registrationResult = register();
+        return registrationResult;
+    }
 
+    private String register(){
+        try {
+            userService.registerUser(username,password);
+        } catch (UserServiceException e) {
+            return REGISTRATION_FAILED;
+        }
+        UserContextHolder.usernameHolder.set(username);
         return SUCCESSFUL_REGISTRATION;
     }
+
+
 }

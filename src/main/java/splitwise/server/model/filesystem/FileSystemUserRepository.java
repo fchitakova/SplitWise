@@ -84,7 +84,6 @@ public class FileSystemUserRepository implements UserRepository {
         String userId = user.getUsername();
         users.putIfAbsent(userId,user);
         saveUserData();
-
     }
 
     private void saveUserData()throws PersistenceException{
