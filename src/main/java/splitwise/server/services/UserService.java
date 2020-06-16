@@ -71,6 +71,10 @@ public class UserService {
          }
      }
 
+     synchronized public void sendNotification(String username,String notification){
+        userRepository.getById(username).ifPresent(user->user.pushNotification(notification));
+     }
+
 
 
 }
