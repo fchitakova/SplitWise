@@ -3,5 +3,6 @@ out/
 .idea_modules/
 *.iml
 *.class
+target/
 
 
