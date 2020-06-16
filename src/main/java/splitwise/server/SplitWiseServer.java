@@ -77,11 +77,11 @@ public class SplitWiseServer {
     public void start(){
         System.out.println(SERVER_STARTED);
         while(!serverSocket.isClosed()) {
-            submitClientConnection();
+            submitClientConnections();
         }
     }
 
-    private void submitClientConnection(){
+    private void submitClientConnections(){
          try {
             Socket clientSocket = getSocketConnection();
             ClientConnection clientConnection = new ClientConnection(clientSocket, this);

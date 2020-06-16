@@ -13,6 +13,7 @@ public class ClientConnection implements Runnable{
     private static final String ERROR_READING_SOCKET_INPUT = "Error reading client socket input.";
     private static final String ERROR_DURING_GETTING_SOCKET_IO_STREAMS = "Error occurred during getting client socket I/O streams.";
     private static final String ERROR_DURING_CLIENT_CONNECTION_CONSTRUCTION="ClientConnection cannot be constructed.";
+    private static final String WELCOME_MESSAGE = "Welcome to SplitWise!";
 
     private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
 
@@ -29,6 +30,7 @@ public class ClientConnection implements Runnable{
         }catch(IOException e){
             throw new ClientConnectionException(ERROR_DURING_CLIENT_CONNECTION_CONSTRUCTION+e.getMessage(),e);
         }
+        sendMessageToClient(WELCOME_MESSAGE);
     }
 
     private void initializeSocketIOStreams() throws IOException {
@@ -46,7 +48,7 @@ public class ClientConnection implements Runnable{
             try {
                 String userInput = readClientInput();
                 String serverResponse = splitWiseServer.processUserInput(userInput);
-                sendServerResponse(serverResponse);
+                sendMessageToClient(serverResponse);
             } catch (ClientConnectionException e) {
                 cleanUpConnectionResources();
                 LOGGER.info(e.getMessage());
@@ -65,7 +67,7 @@ public class ClientConnection implements Runnable{
         return input;
     }
 
-    private void sendServerResponse(String response) {
+    private void sendMessageToClient(String response) {
         socketOutputWriter.println(response);
     }
 

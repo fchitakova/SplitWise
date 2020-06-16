@@ -19,7 +19,7 @@ public class SplitWiseClient {
     private static final String FAIL_READING_SERVER_INPUT_ERROR_MESSAGE = "IO error occurred while trying to read server input stream.";
     private static final String FAILED_CLOSING_CONSOLE_READER_ERROR_MESSAGE = "IO error occurred while closing user input reader.";
     private static final String FAILED_READING_USER_INPUT_ERROR_MESSAGE ="IO error occurred while reading user input";
-
+    private static final String SERVER_RESPONSE_INDICATOR = "Server >>> ";
     private static final String LOGOUT_COMMAND = "logout";
 
     private static final Logger LOGGER = Logger.getLogger(SplitWiseClient.class);
@@ -79,7 +79,7 @@ public class SplitWiseClient {
         while(!socket.isClosed()) {
             try {
                 String serverResponse = serverInputReader.readLine();
-                System.out.println("Server >>> " + serverResponse);
+                System.out.println(SERVER_RESPONSE_INDICATOR + serverResponse);
             } catch (IOException e) {
                 endSession();
                 LOGGER.info(FAIL_READING_SERVER_INPUT_INFO_MESSAGE);
@@ -96,10 +96,10 @@ public class SplitWiseClient {
                 serverOutputWriter.println(command);
             } while (!command.equalsIgnoreCase(LOGOUT_COMMAND));
         }catch (IOException e){
-            endSession();
             LOGGER.info(FAILED_READING_USER_INPUT_INFO_MESSAGE);
             LOGGER.error(FAILED_READING_USER_INPUT_ERROR_MESSAGE,e);
         }
+        endSession();
     }
 
     private void endSession(){
