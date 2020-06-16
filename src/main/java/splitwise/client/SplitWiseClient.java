@@ -68,27 +68,24 @@ public class SplitWiseClient {
     }
 
     public void start(){
-        Thread serverInputReader = new Thread(() -> readServerInput());
         Thread userInputReader = new Thread(()->readUserInput());
-        serverInputReader.start();
+        Thread serverInputReader = new Thread(() -> readServerInput());
         userInputReader.start();
+        serverInputReader.start();
     }
 
 
-
     private void readServerInput() {
+        while(!socket.isClosed()) {
             try {
-                while(!socket.isClosed()) {
-                    String serverResponse = serverInputReader.readLine();
-                    System.out.println("Server >>> " + serverResponse);
-                }
+                String serverResponse = serverInputReader.readLine();
+                System.out.println("Server >>> " + serverResponse);
+            } catch (IOException e) {
+                endSession();
+                LOGGER.info(FAIL_READING_SERVER_INPUT_INFO_MESSAGE);
+                LOGGER.error(FAIL_READING_SERVER_INPUT_ERROR_MESSAGE, e);
             }
-            catch(IOException e){
-                 LOGGER.info(FAIL_READING_SERVER_INPUT_INFO_MESSAGE);
-                 LOGGER.error(FAIL_READING_SERVER_INPUT_ERROR_MESSAGE,e);
-            }finally{
-               endSession();
-            }
+        }
     }
 
     private void readUserInput(){
@@ -99,10 +96,9 @@ public class SplitWiseClient {
                 serverOutputWriter.println(command);
             } while (!command.equalsIgnoreCase(LOGOUT_COMMAND));
         }catch (IOException e){
+            endSession();
             LOGGER.info(FAILED_READING_USER_INPUT_INFO_MESSAGE);
             LOGGER.error(FAILED_READING_USER_INPUT_ERROR_MESSAGE,e);
-        }finally {
-            endSession();
         }
     }
 
@@ -126,7 +122,5 @@ public class SplitWiseClient {
             LOGGER.error(FAILED_CLOSING_CONSOLE_READER_ERROR_MESSAGE,e);
         }
     }
-
-
 
 }

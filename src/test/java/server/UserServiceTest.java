@@ -3,7 +3,7 @@ package server;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import splitwise.server.UserService;
+import splitwise.server.services.UserService;
 import splitwise.server.model.User;
 import splitwise.server.model.UserRepository;
 import splitwise.server.model.filesystem.FileSystemUserRepository;

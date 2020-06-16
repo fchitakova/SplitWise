@@ -1,4 +1,4 @@
-package splitwise.server;
+package splitwise.server.services;
 
 import splitwise.server.commands.*;
 
@@ -39,10 +39,12 @@ public class CommandFactory {
     private boolean inputMatchesCommandFormat(String input, String commandFormat){
         String[] inputParameters = getInputParameters(input);
         boolean parametersMatch = checkIfParametersCountMatch(inputParameters,commandFormat);
-        boolean formatMatch = String.format(commandFormat, inputParameters).equals(input);
 
-        if(parametersMatch && formatMatch){
-            return true;
+        if(parametersMatch){
+            boolean formatMatch = String.format(commandFormat, inputParameters).equals(input);
+            if(formatMatch){
+                return true;
+            }
         }
         return false;
     }

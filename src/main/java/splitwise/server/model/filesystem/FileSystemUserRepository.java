@@ -59,24 +59,17 @@ public class FileSystemUserRepository implements UserRepository {
         }
     }
 
-    synchronized private void loadUserData() throws PersistenceException{
-        FileReader reader = getDBFileReader();
-        Gson gson = getCustomGson(new FriendshipSerializer());
-        Map<String,User> usersFromJson = gson.fromJson(reader, USERS_COLLECTION_TYPE);
-        if(usersFromJson!=null){
-            users.putAll(usersFromJson);
-        }
-
-    }
-
-    private FileReader getDBFileReader() throws PersistenceException {
-        FileReader reader;
-        try {
-            reader = new FileReader(databaseFile);
-        } catch (FileNotFoundException e) {
+    synchronized private void loadUserData() throws PersistenceException {
+        try(FileReader reader = new FileReader(databaseFile)) {
+            Gson gson = getCustomGson(new FriendshipSerializer());
+            Map<String, User> usersFromJson = gson.fromJson(reader, USERS_COLLECTION_TYPE);
+            if (usersFromJson != null) {
+                users.putAll(usersFromJson);
+            }
+        } catch (IOException e) {
             throw new PersistenceException(FAILED_LOAD_OF_USER_DATA, e);
         }
-        return reader;
+
     }
 
 
@@ -94,21 +87,14 @@ public class FileSystemUserRepository implements UserRepository {
 
     }
 
-    private void saveUserData() throws PersistenceException{
-        FileWriter writer = getDBFileWriter();
-        Gson gson = getCustomGson(new FriendshipDeserializer());
-        String data = gson.toJson(users,USERS_COLLECTION_TYPE);
-        writeToDBFile(writer,data);
-    }
-
-    private FileWriter getDBFileWriter() throws PersistenceException{
-        FileWriter writer;
-        try{
-            writer = new FileWriter(databaseFile,false);
-        } catch (IOException e) {
+    private void saveUserData()throws PersistenceException{
+        try(FileWriter writer = new FileWriter(databaseFile,false)) {
+            Gson gson = getCustomGson(new FriendshipDeserializer());
+            String data = gson.toJson(users, USERS_COLLECTION_TYPE);
+            writeToDBFile(writer,data);
+        }catch(IOException e){
             throw new PersistenceException(FAILED_DATA_SAVING+CANNOT_CREATE_FILE_WRITER,e);
         }
-        return writer;
     }
 
     private void writeToDBFile(FileWriter writer,String data) throws PersistenceException {

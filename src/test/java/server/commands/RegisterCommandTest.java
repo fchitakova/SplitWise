@@ -3,7 +3,7 @@ package server.commands;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import splitwise.server.UserService;
+import splitwise.server.services.UserService;
 import splitwise.server.commands.RegisterCommand;
 
 import static org.junit.Assert.assertEquals;

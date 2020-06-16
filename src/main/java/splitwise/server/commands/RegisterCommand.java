@@ -2,7 +2,7 @@ package splitwise.server.commands;
 
 
 import splitwise.server.UserContextHolder;
-import splitwise.server.UserService;
+import splitwise.server.services.UserService;
 
 public class RegisterCommand extends Command{
     public static final String TAKEN_USERNAME = "Username is already taken.Try using another.";

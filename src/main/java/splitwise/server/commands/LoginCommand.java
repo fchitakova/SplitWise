@@ -2,7 +2,7 @@ package splitwise.server.commands;
 
 
 import splitwise.server.UserContextHolder;
-import splitwise.server.UserService;
+import splitwise.server.services.UserService;
 
 import java.util.Deque;
 import java.util.Iterator;

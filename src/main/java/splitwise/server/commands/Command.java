@@ -1,7 +1,7 @@
 package splitwise.server.commands;
 
 
-import splitwise.server.UserService;
+import splitwise.server.services.UserService;
 
 public abstract class Command {
       protected UserService userService;

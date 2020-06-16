@@ -1,7 +1,7 @@
 package splitwise.server.commands;
 
 
-import splitwise.server.UserService;
+import splitwise.server.services.UserService;
 
 public class InvalidCommand extends Command {
     public static final String NOT_SUPPORTED_COMMAND = "Not supported command!";

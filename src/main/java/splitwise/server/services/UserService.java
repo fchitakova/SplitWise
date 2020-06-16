@@ -1,4 +1,4 @@
-package splitwise.server;
+package splitwise.server.services;
 
 
 import org.apache.log4j.Logger;
