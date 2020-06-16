@@ -23,7 +23,7 @@ public class UserServiceTest {
     private static UserService userService;
 
     @BeforeClass
-    public static void setUp(){
+    public static void setUp() {
         userRepository = Mockito.mock(FileSystemUserRepository.class);
         userService = new UserService(userRepository);
     }

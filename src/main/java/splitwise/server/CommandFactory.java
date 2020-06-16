@@ -1,11 +1,18 @@
 package splitwise.server;
 
 import splitwise.server.commands.*;
-import splitwise.server.model.SplitWiseConstants;
 
-import static splitwise.client.SplitWiseClient.LOGOUT_COMMAND;
 
 public class CommandFactory {
+    public static final String LOGIN_COMMAND = "login %s %s";
+    public static final String REGISTER_COMMAND = "register %s %s";
+    public static final String ADD_FRIEND_COMMAND  = "add-friend %s";
+    //public String CREATE_GROUP_COMMAND = "create-group";
+    public String SPLIT_COMMAND = "split %s %s";
+    public String SPLIT_GROUP_COMMAND = "split-group %s %s %s";
+    public String GET_STATUS_COMMAND = "get-status";
+    public String PAYED_COMMAND = "payed %s %s";
+    public String LOGOUT_COMMAND = "logout";
 
     private UserService userService;
 
@@ -19,22 +26,22 @@ public class CommandFactory {
         if(input.equalsIgnoreCase(LOGOUT_COMMAND)){
             return new LogoutCommand(userService);
         }
-        if (inputMatchesCommandFormat(input, SplitWiseConstants.LOGIN_COMMAND)) {
+        if (inputMatchesCommandFormat(input, LOGIN_COMMAND)) {
             return new LoginCommand(input, userService);
         }
-        if (inputMatchesCommandFormat(input,SplitWiseConstants.REGISTER_COMMAND)) {
+        if (inputMatchesCommandFormat(input, REGISTER_COMMAND)) {
             return new RegisterCommand(input, userService);
         }
-        //other commands too
 
         return new InvalidCommand(input, userService);
     }
 
     private boolean inputMatchesCommandFormat(String input, String commandFormat){
-        String[] commandParameters = getInputParameters(input);
-        boolean parametersCountMatch = checkIfParametersCountMatch(commandParameters,commandFormat);
+        String[] inputParameters = getInputParameters(input);
+        boolean parametersMatch = checkIfParametersCountMatch(inputParameters,commandFormat);
+        boolean formatMatch = String.format(commandFormat, inputParameters).equals(input);
 
-        if (parametersCountMatch && String.format(commandFormat, commandParameters).equals(input)) {
+        if(parametersMatch && formatMatch){
             return true;
         }
         return false;

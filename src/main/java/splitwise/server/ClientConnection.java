@@ -1,14 +1,19 @@
 package splitwise.server;
 
 
-import splitwise.server.exceptions.ClientConnectionException;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
 
-public class ClientConnection implements Runnable{
 
-    public static final String ERROR_READING_SOCKET_INPUT = "Error reading socket input.";
+
+public class ClientConnection implements Runnable{
+    private static final String ERROR_READING_SOCKET_INPUT = "Error reading socket input.";
+    private static final String ERROR_DURING_GETTING_SOCKET_IO_STREAMS = "Error occurred during getting client socket I/O streams.";
+
+    private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
+
     private Socket socket;
     private BufferedReader socketInputReader;
     private PrintWriter socketOutputWriter;
@@ -16,47 +21,61 @@ public class ClientConnection implements Runnable{
 
     public ClientConnection(Socket socket,SplitWiseServer splitWiseServer) throws IOException {
         this.socket = socket;
-        this.socketInputReader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.socketOutputWriter =new PrintWriter(socket.getOutputStream(),true);
         this.splitWiseServer = splitWiseServer;
+        initializeSocketIOStreams();
     }
 
-    public void run() {
-        //print info about commands
+    private void initializeSocketIOStreams() throws IOException {
         try {
-            while(!socket.isClosed()) {
-                String clientInput = readClientInput();
-                String serverResponse = splitWiseServer.processClientInput(clientInput);
-                sendServerResponseToClient(serverResponse);
-            }
-        }catch(ClientConnectionException e){
-            //log it
+            socketInputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            socketOutputWriter = new PrintWriter(socket.getOutputStream(), true);
+        }catch (IOException e){
+            throw new IOException(ERROR_DURING_GETTING_SOCKET_IO_STREAMS,e);
         }finally {
-            UserContextHolder.usernameHolder.remove();
-            closeSocketConnection();
+            cleanUpConnectionResources();
         }
     }
 
 
-    private String readClientInput() throws ClientConnectionException {
+    public void run() {
+        try {
+            while (!socket.isClosed()) {
+                String userInput = readClientInput();
+                String serverResponse = splitWiseServer.processUserInput(userInput);
+                sendServerResponse(serverResponse);
+            }
+        } catch (IOException e) {
+            LOGGER.info(e.getMessage());
+            LOGGER.error(e.getMessage(),e);
+        }finally {
+            cleanUpConnectionResources();
+        }
+    }
+
+    private String readClientInput() throws IOException {
         String input;
         try{
             input = socketInputReader.readLine();
         }catch(IOException e){
-            throw new ClientConnectionException(ERROR_READING_SOCKET_INPUT,e);
+            throw  new IOException(ERROR_READING_SOCKET_INPUT,e);
         }
         return input;
     }
 
-    private void sendServerResponseToClient(String response) {
+    private void sendServerResponse(String response) {
         socketOutputWriter.println(response);
+    }
+
+    private void cleanUpConnectionResources(){
+        UserContextHolder.usernameHolder.remove();
+        closeSocketConnection();
     }
 
     private void closeSocketConnection(){
         try{
-            this.socket.close();
-        }catch (IOException e){
-            //log it with message Error closing client socket
+             socket.close();
+        }catch (IOException ioException){
+            LOGGER.error(SplitWiseServer.ERROR_CLOSING_SOCKET,ioException);
         }
     }
 

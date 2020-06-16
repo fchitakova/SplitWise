@@ -27,13 +27,13 @@ public class Friend implements Friendship, Serializable {
     public String getStatus() {
         StringBuilder userStatus = new StringBuilder(getName() + ": ");
         if (account > 0.0) {
-            userStatus.append(SplitWiseConstants.SHOULD_GIVE_MONEY + account + '\n');
+            userStatus.append(Constants.SHOULD_GIVE_MONEY + account + '\n');
         }
         if (account < 0.0) {
-            userStatus.append(SplitWiseConstants.SHOULD_TAKE_MONEY + account + '\n');
+            userStatus.append(Constants.SHOULD_TAKE_MONEY + account + '\n');
         }
         if (account == 0.0) {
-            userStatus.append(SplitWiseConstants.NEUTRAL_DEBT + '\n');
+            userStatus.append(Constants.NEUTRAL_DEBT + '\n');
         }
         return userStatus.toString();
     }

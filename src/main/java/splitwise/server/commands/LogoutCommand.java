@@ -1,9 +1,9 @@
 package splitwise.server.commands;
 
 import splitwise.server.UserService;
-import splitwise.server.model.SplitWiseConstants;
 
 public class LogoutCommand extends Command{
+    public static final String GOODBYE_MESSAGE = "Split Wise Server: GoodBye";
 
     public LogoutCommand(UserService userRepository) {
         super(userRepository);
@@ -11,6 +11,6 @@ public class LogoutCommand extends Command{
 
     @Override
     public String execute() {
-        return SplitWiseConstants.GOODBYE_MESSAGE;
+        return GOODBYE_MESSAGE;
     }
 }

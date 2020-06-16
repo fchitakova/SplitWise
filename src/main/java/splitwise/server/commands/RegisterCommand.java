@@ -3,9 +3,11 @@ package splitwise.server.commands;
 
 import splitwise.server.UserContextHolder;
 import splitwise.server.UserService;
-import splitwise.server.model.SplitWiseConstants;
 
 public class RegisterCommand extends Command{
+    public static final String TAKEN_USERNAME = "Username is already taken.Try using another.";
+    public static final String SUCCESSFUL_REGISTRATION = "Successful registration!";
+
     private String username;
     private char[] password;
 
@@ -26,11 +28,11 @@ public class RegisterCommand extends Command{
     public String execute() {
         boolean isRegistered = userService.checkIfRegistered(username);
         if(isRegistered){
-            return SplitWiseConstants.TAKEN_USERNAME;
+            return TAKEN_USERNAME;
         }
         userService.registerUser(username,password);
         UserContextHolder.usernameHolder.set(username);
 
-        return SplitWiseConstants.SUCCESSFUL_REGISTRATION;
+        return SUCCESSFUL_REGISTRATION;
     }
 }

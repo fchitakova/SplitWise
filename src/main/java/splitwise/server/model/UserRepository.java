@@ -1,12 +1,13 @@
 package splitwise.server.model;
 
 
-import java.util.List;
+import splitwise.server.exceptions.PersistenceException;
+
 import java.util.Optional;
 
 public interface UserRepository {
     Optional<User> getById(String username);
 
-    void addUser(User user);
+    void addUser(User user) throws PersistenceException;
 
 }
