@@ -29,6 +29,10 @@ public class User{
         return false;
     }
 
+    public void addFriend(String user) {
+        friendships.add(new Friend(user));
+    }
+
     public void pushNotification(String notification){
         this.notifications.push(notification);
     }

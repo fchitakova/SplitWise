@@ -71,10 +71,15 @@ public class UserService {
          }
      }
 
+     synchronized public void createFriendship(String initiatorUsername,String wantedFriendUsername) {
+         Optional<User> initiatorUser = userRepository.getById(initiatorUsername);
+         Optional<User> wantedFriend = userRepository.getById(wantedFriendUsername);
+         initiatorUser.ifPresent(user -> user.addFriend(initiatorUsername));
+         wantedFriend.ifPresent(user -> user.addFriend(wantedFriendUsername));
+     }
+
      synchronized public void sendNotification(String username,String notification){
         userRepository.getById(username).ifPresent(user->user.pushNotification(notification));
      }
-
-
 
 }

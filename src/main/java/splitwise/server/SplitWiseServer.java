@@ -86,6 +86,7 @@ public class SplitWiseServer {
             Socket clientSocket = getSocketConnection();
             ClientConnection clientConnection = new ClientConnection(clientSocket, this);
             executorService.execute(clientConnection);
+
         }catch (ServerSocketException | ClientConnectionException e){
             String logMessage =CONNECTION_CANNOT_BE_ESTABLISHED+e.getMessage();
             LOGGER.info(logMessage);
