@@ -1,14 +1,14 @@
 package splitwise.server.commands;
 
 
-import splitwise.server.UserContextHolder;
 import splitwise.server.exceptions.UserServiceException;
 import splitwise.server.services.UserService;
 
 public class RegisterCommand extends Command{
-    public static final String TAKEN_USERNAME = "Username is already taken.Try using another.";
     public static final String SUCCESSFUL_REGISTRATION = "Successful registration!";
     public static final String REGISTRATION_FAILED ="Registration attempt failed. Try again later.";
+    public static final String TAKEN_USERNAME = "Username is already taken. Try using another.";
+    public static final String ALREADY_LOGGED_IN = "Registration is not allowed when already logged in.";
 
     private String username;
     private char[] password;
@@ -28,6 +28,10 @@ public class RegisterCommand extends Command{
 
     @Override
     public String execute() {
+        if(isCurrentUserAlreadyLoggedIn()){
+            return ALREADY_LOGGED_IN;
+        }
+
         boolean isRegistered = userService.checkIfRegistered(username);
         if(isRegistered){
             return TAKEN_USERNAME;
@@ -36,13 +40,20 @@ public class RegisterCommand extends Command{
         return registrationResult;
     }
 
+    private boolean isCurrentUserAlreadyLoggedIn(){
+        String currentLoggedInUsername = userService.getCurrentlyLoggedInUserUsername();
+        return currentLoggedInUsername!=null;
+    }
+
     private String register(){
         try {
             userService.registerUser(username,password);
         } catch (UserServiceException e) {
             return REGISTRATION_FAILED;
         }
-        UserContextHolder.usernameHolder.set(username);
+
+        userService.setUserAsActive(username);
+
         return SUCCESSFUL_REGISTRATION;
     }
 

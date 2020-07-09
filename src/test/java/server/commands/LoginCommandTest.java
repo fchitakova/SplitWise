@@ -1,31 +1,25 @@
 package server.commands;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import splitwise.server.UserContextHolder;
 import splitwise.server.services.UserService;
 import splitwise.server.commands.LoginCommand;
+import static splitwise.server.commands.LoginCommand.*;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static server.TestConstants.TEST_USERNAME;
 import static server.TestConstants.TEST_PASSWORD1;
 import static server.TestConstants.LOGIN_COMMAND;
 
 
 public class LoginCommandTest {
-    private static String INVALID_CREDENTIALS = "Invalid username or password!";
-    String SUCCESSFUL_LOGIN_MESSAGE = "Successful login!";
-    String ANSI_RED = "\u001B[31m";
-    String ANSI_RESET = "\u001B[0m";
-    private String RED_STAR_SYMBOL = ANSI_RED + '*' + ANSI_RESET;
-    private String NOTIFICATIONS_TITLE = RED_STAR_SYMBOL+RED_STAR_SYMBOL+RED_STAR_SYMBOL+" Notifications " +
-            RED_STAR_SYMBOL+RED_STAR_SYMBOL+RED_STAR_SYMBOL;
-
 
     private static UserService userService;
     private static LoginCommand command;
@@ -36,8 +30,26 @@ public class LoginCommandTest {
         command = new LoginCommand(LOGIN_COMMAND,userService);
     }
 
+    @After
+    public void resetDependencies(){
+        reset(userService);
+    }
+
+
     @Test
-    public void testInvalidCredentialsMessageIsReturnedIfInvalidCredentialsAreProvided(){
+    public void testThatLoginAttemptWhenAlreadyLoggedInIsNotAllowed(){
+        when(userService.getCurrentlyLoggedInUserUsername()).thenReturn(TEST_USERNAME);
+
+        String assertMessage = "Login attempt when already logged in did not return right message.";
+        String expectedResult = ALREADY_LOGGED_IN;
+        String actualResult = command.execute();
+
+        assertEquals(assertMessage,expectedResult,actualResult);
+    }
+
+    @Test
+    public void testThatInvalidCredentialsMessageIsReturnedWhenInvalidCredentialsAreProvided(){
+        when(userService.getCurrentlyLoggedInUserUsername()).thenReturn(null);
         when(userService.checkCredentialsValidity(TEST_USERNAME,TEST_PASSWORD1)).thenReturn(false);
 
         String assertMessage = "Login attempt with invalid credentials did not return right invalid credentials message.";
@@ -49,25 +61,26 @@ public class LoginCommandTest {
 
 
     @Test
-    public void testLoginWithValidCredentialsChangeUserContext(){
+    public void testThatLoginWithValidCredentialsAddsUserToActiveClients(){
+        when(userService.getCurrentlyLoggedInUserUsername()).thenReturn(null);
         when(userService.checkCredentialsValidity(TEST_USERNAME,TEST_PASSWORD1)).thenReturn(true);
         when(userService.getUserNotifications(TEST_USERNAME)).thenReturn(new ArrayDeque<>());
 
-        String assertMessage = "Missed UserContextHolder update: Successful login did not set username in UserContextHolder to logged in user's username!";
+        String failureMessage = "Successful login did not set user as active!";
         command.execute();
-        String userContextAfterInvalidLoginAttempt = UserContextHolder.usernameHolder.get();
 
-        assertEquals(assertMessage,TEST_USERNAME,userContextAfterInvalidLoginAttempt);
+        verify(userService,description(failureMessage)).setUserAsActive(TEST_USERNAME);
     }
 
 
     @Test
     public void testThatNoNotificationsMessageIsReturnedWhenThereAreNotAnyNotifications(){
+        when(userService.getCurrentlyLoggedInUserUsername()).thenReturn(null);
         when(userService.checkCredentialsValidity(TEST_USERNAME,TEST_PASSWORD1)).thenReturn(true);
         when(userService.getUserNotifications(TEST_USERNAME)).thenReturn(new ArrayDeque<>());
 
         String assertMessage = "Not right login response is returned when there are not any notifications.";
-        String expectedLoginResponse = SUCCESSFUL_LOGIN_MESSAGE +"\nNo notifications to show.";
+        String expectedLoginResponse = SUCCESSFUL_LOGIN +"\nNo notifications to show.";
         String response = command.execute();
 
         assertEquals(assertMessage, expectedLoginResponse,response);
@@ -81,9 +94,10 @@ public class LoginCommandTest {
         testNotifications.push("second notification");
         when(userService.checkCredentialsValidity(TEST_USERNAME,TEST_PASSWORD1)).thenReturn(true);
         when(userService.getUserNotifications(TEST_USERNAME)).thenReturn(testNotifications);
+        when(userService.getCurrentlyLoggedInUserUsername()).thenReturn(null);
 
         String assertMessage = "Not right login response is returned when there are notifications.";
-        String expectedResponse = SUCCESSFUL_LOGIN_MESSAGE +'\n'+ NOTIFICATIONS_TITLE +
+        String expectedResponse = SUCCESSFUL_LOGIN +'\n'+ NOTIFICATIONS_TITLE +
                 "\nsecond notification\n\nfirst notification\n\n";
         String response = command.execute();
 

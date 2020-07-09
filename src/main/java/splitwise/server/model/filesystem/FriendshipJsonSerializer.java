@@ -9,7 +9,7 @@ import splitwise.server.model.Friendship;
 import java.lang.reflect.Type;
 
 
-public class FriendshipSerializer  implements JsonSerializer<Friendship> {
+public class FriendshipJsonSerializer implements JsonSerializer<Friendship> {
 
     private static final String friendshipType = "friendshipType";
     private static final String friendshipData = "friendshipData";
@@ -19,6 +19,7 @@ public class FriendshipSerializer  implements JsonSerializer<Friendship> {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty(friendshipType, friendship.getClass().getName());
         jsonObject.add(friendshipData, jsonSerializationContext.serialize(friendship));
+
         return jsonObject;
     }
 }

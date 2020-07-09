@@ -1,36 +1,33 @@
 package splitwise.server.services;
-
-
 import org.apache.log4j.Logger;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.exceptions.UserServiceException;
 import splitwise.server.model.User;
 import splitwise.server.model.UserRepository;
 import splitwise.server.model.filesystem.FileSystemUserRepository;
+import splitwise.server.server.ActiveClients;
 
 import java.util.*;
 
 public class UserService {
-    private static final String FAILED_SERVICE_CREATION="""
-                           User Service cannot be created because of unavailable persistence.
-                           See logging.log for more information.""";
-    private static final String USER_REGISTRATION_FAILED = "User registration failed.";
     private static final String SEE_LOG_FILE= "See logging.log for more information.";
+    private static final String FAILED_SERVICE_CREATION= "UserService cannot be created because of persistence error : ";
+    private static final String USER_REGISTRATION_FAILED = "User registration failed.";
 
     private static final String DB_FILE_PATH =  "src/main/resources/users.json";
 
     private static final Logger LOGGER =Logger.getLogger(UserService.class);
 
     private UserRepository userRepository;
+    private ActiveClients activeClients;
 
-    public UserService() throws UserServiceException {
+    public UserService(ActiveClients activeClients) throws UserServiceException {
         try {
             userRepository = new FileSystemUserRepository(DB_FILE_PATH);
         }catch (PersistenceException e) {
-            LOGGER.info(FAILED_SERVICE_CREATION+e.getMessage());
-            LOGGER.error(FAILED_SERVICE_CREATION+e.getMessage(),e);
-            throw new UserServiceException(FAILED_SERVICE_CREATION,e);
+            throw new UserServiceException(FAILED_SERVICE_CREATION + e.getMessage(),e);
         }
+        this.activeClients = activeClients;
     }
 
     public UserService(UserRepository userRepository) {
@@ -71,9 +68,11 @@ public class UserService {
          }
      }
 
+
      synchronized public void createFriendship(String initiatorUsername,String wantedFriendUsername) {
          Optional<User> initiatorUser = userRepository.getById(initiatorUsername);
          Optional<User> wantedFriend = userRepository.getById(wantedFriendUsername);
+
          initiatorUser.ifPresent(user -> user.addFriend(initiatorUsername));
          wantedFriend.ifPresent(user -> user.addFriend(wantedFriendUsername));
      }
@@ -81,5 +80,18 @@ public class UserService {
      synchronized public void sendNotification(String username,String notification){
         userRepository.getById(username).ifPresent(user->user.pushNotification(notification));
      }
+
+    public String getCurrentlyLoggedInUserUsername(){
+        String username = activeClients.getUsernameOfCurrentClientConnection();
+        return username;
+    }
+
+    public void setUserAsActive(String username){
+        activeClients.setUsernameForCurrentClientConnection(username);
+    }
+
+    public void logoutUser(){
+     this.activeClients.logoutClient();
+    }
 
 }

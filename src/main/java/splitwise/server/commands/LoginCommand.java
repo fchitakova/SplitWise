@@ -1,7 +1,6 @@
 package splitwise.server.commands;
 
 
-import splitwise.server.UserContextHolder;
 import splitwise.server.services.UserService;
 
 import java.util.Deque;
@@ -16,6 +15,7 @@ public class LoginCommand extends Command{
     public static final String RED_STAR_SYMBOL = ANSI_RED + '*' + ANSI_RESET;
     public static final String NOTIFICATIONS_TITLE = RED_STAR_SYMBOL+RED_STAR_SYMBOL+RED_STAR_SYMBOL+" Notifications " +
             RED_STAR_SYMBOL+RED_STAR_SYMBOL+RED_STAR_SYMBOL;
+    public static final String ALREADY_LOGGED_IN = "Already logged in. Logout first to log in another account.";
 
 
     private String username;
@@ -34,15 +34,25 @@ public class LoginCommand extends Command{
 
     @Override
     public String execute() {
+        if(isCurrentUserAlreadyLoggedIn()){
+            return ALREADY_LOGGED_IN;
+        }
+
         boolean validCredentials = userService.checkCredentialsValidity(username,password);
         if(!validCredentials) {
             return INVALID_CREDENTIALS;
         }
-        UserContextHolder.usernameHolder.set(username);
+
+        userService.setUserAsActive(username);
+
         String successfulLoginResponse = createSuccessfulLoginResponse();
         return successfulLoginResponse;
     }
 
+    private boolean isCurrentUserAlreadyLoggedIn(){
+        String currentLoggedInUsername = userService.getCurrentlyLoggedInUserUsername();
+        return currentLoggedInUsername!=null;
+    }
 
     private String createSuccessfulLoginResponse(){
         StringBuilder response = new StringBuilder(SUCCESSFUL_LOGIN+'\n');

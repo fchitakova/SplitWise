@@ -32,6 +32,9 @@ public class CommandFactory {
         if (inputMatchesCommandFormat(input, REGISTER_COMMAND)) {
             return new RegisterCommand(input, userService);
         }
+        if(inputMatchesCommandFormat(input, ADD_FRIEND_COMMAND)){
+            return new AddFriendCommand(input,userService);
+        }
 
         return new InvalidCommand(input, userService);
     }

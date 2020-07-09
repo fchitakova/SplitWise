@@ -19,11 +19,14 @@ public class SplitWiseClient {
     private static final String FAIL_READING_SERVER_INPUT_ERROR_MESSAGE = "IO error occurred while trying to read server input stream.";
     private static final String FAILED_CLOSING_CONSOLE_READER_ERROR_MESSAGE = "IO error occurred while closing user input reader.";
     private static final String FAILED_READING_USER_INPUT_ERROR_MESSAGE ="IO error occurred while reading user input";
+    private static final String SERVER_STOPPED = "server stopped";
+    private static final String SERVER_WENT_DOWN = "SplitWise server went down. Try connecting later.";
     private static final String SERVER_RESPONSE_INDICATOR = "Server >>> ";
-    private static final String LOGOUT_COMMAND = "logout";
+    private static final String EXIT_COMMAND = "exit";
 
     private static final Logger LOGGER = Logger.getLogger(SplitWiseClient.class);
 
+    private boolean stoppedByClient;
     private Socket socket;
     private BufferedReader userInputReader;
     private BufferedReader serverInputReader;
@@ -45,6 +48,8 @@ public class SplitWiseClient {
     public SplitWiseClient(String host,int port) throws IOException {
           createSocketConnection(host, port);
           initializeSocketIOStreams();
+
+          stoppedByClient = false;
           userInputReader = new BufferedReader(new InputStreamReader(System.in));
     }
 
@@ -68,39 +73,68 @@ public class SplitWiseClient {
     }
 
     public void start(){
-        Thread userInputReader = new Thread(()->readUserInput());
-        Thread serverInputReader = new Thread(() -> readServerInput());
-        userInputReader.start();
-        serverInputReader.start();
+        new Thread(()-> sendUserInputToServer()).start();
+        new Thread(() -> printServerResponse()).start();
     }
 
+    private void sendUserInputToServer(){
+        String command = getUserInput();
 
-    private void readServerInput() {
+        while(!exitCommandRead(command)) {
+            sendUserInputToServer(command);
+            command = getUserInput();
+        }
+
+        stoppedByClient = true;
+        endSession();
+    }
+
+    private void printServerResponse() {
         while(!socket.isClosed()) {
             try {
                 String serverResponse = serverInputReader.readLine();
-                System.out.println(SERVER_RESPONSE_INDICATOR + serverResponse);
+                printServerResponse(serverResponse);
             } catch (IOException e) {
-                endSession();
-                LOGGER.info(FAIL_READING_SERVER_INPUT_INFO_MESSAGE);
-                LOGGER.error(FAIL_READING_SERVER_INPUT_ERROR_MESSAGE, e);
+                if(!stoppedByClient){
+                    LOGGER.info(FAIL_READING_SERVER_INPUT_INFO_MESSAGE);
+                    LOGGER.error(FAIL_READING_SERVER_INPUT_ERROR_MESSAGE, e);
+                }
             }
         }
     }
 
-    private void readUserInput(){
-        try {
-            String command;
-            do {
-                command = userInputReader.readLine();
-                serverOutputWriter.println(command);
-            } while (!command.equalsIgnoreCase(LOGOUT_COMMAND));
+    private String getUserInput(){
+        String command = null;
+        try{
+            command = userInputReader.readLine();
+
         }catch (IOException e){
             LOGGER.info(FAILED_READING_USER_INPUT_INFO_MESSAGE);
             LOGGER.error(FAILED_READING_USER_INPUT_ERROR_MESSAGE,e);
         }
-        endSession();
+        return command;
     }
+
+    private void sendUserInputToServer(String input){
+        if(input!=null){
+            serverOutputWriter.println(input);
+        }
+    }
+
+    private boolean exitCommandRead(String command){
+        return command.equals(EXIT_COMMAND);
+    }
+
+    private void printServerResponse(String serverResponse) {
+        if (serverResponse.equals(SERVER_STOPPED)) {
+            System.out.println(SERVER_WENT_DOWN);
+            closeSocketConnection();
+        } else {
+            System.out.println(SERVER_RESPONSE_INDICATOR + serverResponse);
+        }
+    }
+
+
 
     private void endSession(){
         closeSocketConnection();
@@ -110,8 +144,8 @@ public class SplitWiseClient {
     private void closeSocketConnection(){
         try{
              socket.close();
-        }catch (IOException ioException){
-            LOGGER.error(FAILED_SOCKET_CLOSE_ERROR_MESSAGE,ioException);
+        }catch (IOException e){
+            LOGGER.error(FAILED_SOCKET_CLOSE_ERROR_MESSAGE,e);
         }
     }
 

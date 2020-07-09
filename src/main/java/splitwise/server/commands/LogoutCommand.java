@@ -11,6 +11,7 @@ public class LogoutCommand extends Command{
 
     @Override
     public String execute() {
+        userService.logoutUser();
         return GOODBYE_MESSAGE;
     }
 }

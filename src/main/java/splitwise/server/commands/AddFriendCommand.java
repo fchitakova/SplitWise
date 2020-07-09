@@ -1,19 +1,16 @@
 package splitwise.server.commands;
 
-import splitwise.server.UserContextHolder;
 import splitwise.server.services.UserService;
 
 public class AddFriendCommand extends Command{
     public static final String USER_NOT_FOUND = "%s is not found. Check friend's username and try again.";
-    public static final String LOGIN_OR_REGISTER="""
-           add-friend command can be invoked only by registered users.Please first login or register.""";
-
-    private static final String ADD_FRIEND_COMMAND = "add-friend %s";
 
     private String friendUsername;
 
-    public AddFriendCommand(String command,UserService userRepository) {
+    public AddFriendCommand(String command, UserService userRepository)
+    {
         super(userRepository);
+        initializeCommandParameters(command);
     }
 
     private void initializeCommandParameters(String command) {
@@ -23,10 +20,11 @@ public class AddFriendCommand extends Command{
 
     @Override
     public String execute() {
-        String friendshipInitiatorUsername = UserContextHolder.usernameHolder.get();
+        String friendshipInitiatorUsername = userService.getCurrentlyLoggedInUserUsername();
 
-        boolean isInitiatorLoggedIn = friendshipInitiatorUsername.equals(UserContextHolder.INITIAL_VALUE);
-        if(!isInitiatorLoggedIn){
+        boolean isFriendshipInitiatorLoggedIn = friendshipInitiatorUsername != null;
+
+        if(!isFriendshipInitiatorLoggedIn){
             return LOGIN_OR_REGISTER;
         }
         boolean isFriendRegistered = userService.checkIfRegistered(friendUsername);
@@ -34,11 +32,8 @@ public class AddFriendCommand extends Command{
         if(!isFriendRegistered){
             return USER_NOT_FOUND;
         }
-       // userService.createFriendship(friendshipInitiatorUsername,friendUsername);
 
-
-
-
+        userService.createFriendship(friendshipInitiatorUsername,friendUsername);
         return null;
     }
 }

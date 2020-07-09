@@ -7,7 +7,7 @@ import splitwise.server.model.Friendship;
 import java.lang.reflect.Type;
 
 
-public class FriendshipDeserializer implements JsonDeserializer<Friendship> {
+public class FriendshipJsonDeserializer implements JsonDeserializer<Friendship> {
 
     private static final String friendshipType = "friendshipType";
     private static final String friendshipData = "friendshipData";
