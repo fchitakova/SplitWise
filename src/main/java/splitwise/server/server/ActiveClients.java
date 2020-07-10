@@ -1,8 +1,10 @@
 package splitwise.server.server;
 
 import org.apache.log4j.Logger;
+import splitwise.server.server.connection.ClientConnectionInfo;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,18 +52,17 @@ public class ActiveClients {
 
     public void sendMessageToAll(String message) {
         for(ClientConnectionInfo clientConnection:activeClients.values()) {
-           sendMessageToActiveClient(clientConnection,message);
+           sendMessageToClient(clientConnection,message);
         }
     }
 
-    private void sendMessageToActiveClient(ClientConnectionInfo clientConnection,String message){
+    private void sendMessageToClient(ClientConnectionInfo clientConnection,String message){
         Socket clientSocket= clientConnection.getSocket();
         String username = clientConnection.getUsername();
-
         String exceptionMessage = "Could not send message to client with username:"+username+ ". ";
 
         try {
-            clientSocket.getOutputStream().write(message.getBytes());
+            new PrintWriter(clientSocket.getOutputStream(),true).println(message);
         }catch(IOException e){
             LOGGER.info(exceptionMessage+SEE_LOG_FILE);
             LOGGER.error(exceptionMessage,e);

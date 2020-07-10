@@ -1,4 +1,4 @@
-package splitwise.server.server;
+package splitwise.server.server.connection;
 
 import java.net.Socket;
 

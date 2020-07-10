@@ -3,6 +3,7 @@ package splitwise.server.server;
 import org.apache.log4j.Logger;
 import splitwise.server.commands.Command;
 import splitwise.server.exceptions.*;
+import splitwise.server.server.connection.ClientConnection;
 import splitwise.server.services.CommandFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -53,8 +54,10 @@ public class SplitWiseServer {
     private void acceptClientConnections(){
          try {
             Socket clientSocket = getSocketConnection();
-            ClientConnection clientConnection = new ClientConnection(clientSocket, this,activeClients);
-            executorService.execute(clientConnection);
+            if(clientSocket!=null) {
+                ClientConnection clientConnection = new ClientConnection(clientSocket, this, activeClients);
+                executorService.execute(clientConnection);
+            }
 
         }catch (ServerSocketException | ClientConnectionException e){
             String logMessage = CONNECTION_CANNOT_BE_ESTABLISHED+"Reason: "+e.getMessage();
@@ -64,21 +67,21 @@ public class SplitWiseServer {
     }
 
     private Socket getSocketConnection() throws ServerSocketException {
+        Socket socket = null;
         try {
-            Socket socket = serverSocket.accept();
-            return socket;
+            socket = serverSocket.accept();
         } catch (IOException e) {
             if(!serverSocket.isClosed()) {
                 throw new ServerSocketException(SOCKET_ACCEPT_ERROR, e);
             }
         }
-        return null;
+        return socket;
     }
 
 
     public void stop(){
         notifyActiveUsersForShutdown();
-        executorService.shutdown();
+        executorService.shutdownNow();
         try {
             serverSocket.close();
         } catch (IOException e) {

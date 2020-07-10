@@ -1,8 +1,10 @@
-package splitwise.server.server;
+package splitwise.server.server.connection;
 
 
 import org.apache.log4j.Logger;
 import splitwise.server.exceptions.ClientConnectionException;
+import splitwise.server.server.ActiveClients;
+import splitwise.server.server.SplitWiseServer;
 
 import java.io.*;
 import java.net.Socket;
