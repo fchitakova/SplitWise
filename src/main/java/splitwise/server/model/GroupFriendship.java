@@ -2,6 +2,7 @@ package splitwise.server.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,20 @@ public class GroupFriendship implements Friendship, Serializable {
     @Override
     public String getName() {
         return groupName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GroupFriendship)) return false;
+        GroupFriendship that = (GroupFriendship) o;
+        return groupName.equals(that.groupName) &&
+                groupMembers.equals(that.groupMembers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(groupName, groupMembers);
     }
 }
 

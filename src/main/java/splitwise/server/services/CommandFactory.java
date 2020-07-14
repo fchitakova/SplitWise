@@ -22,7 +22,6 @@ public class CommandFactory {
 
 
     public Command createCommand(String input) {
-
         if(input.equalsIgnoreCase(LOGOUT_COMMAND)){
             return new LogoutCommand(userService);
         }

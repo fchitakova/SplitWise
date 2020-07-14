@@ -7,38 +7,38 @@ public class User{
     private String username;
     private char[]password;
     private String fullName;
-    private List<Friendship> friendships;
+    private final Set<Friendship> friendships;
     private Deque<String> notifications;
 
     public User(String username,char[]password){
         this.username = username;
         this.password = password;
-        this.friendships = new ArrayList<>();
+        this.friendships = new HashSet<>();
         this.notifications = new ArrayDeque<>();
     }
 
-    public String getUsername(){
+    public String getUsername() {
         return this.username;
     }
 
-    public boolean checkCredentials(String username,char[]password)
-    {
-        if(this.username.equals(username) && Arrays.equals(this.password,password)){
-            return true;
-        }
-        return false;
+    public boolean checkCredentials(String username, char[] password) {
+        return this.username.equals(username) && Arrays.equals(this.password, password);
     }
 
-    public void addFriend(String user) {
-        friendships.add(new Friend(user));
+    public boolean addFriend(String user) {
+        return friendships.add(new Friend(user));
     }
 
-    public void pushNotification(String notification){
+    public void pushNotification(String notification) {
         this.notifications.push(notification);
     }
 
-    public Deque<String> getNotifications(){
+    public Deque<String> getNotifications() {
         return this.notifications;
+    }
+
+    public void resetNotifications() {
+        this.notifications.clear();
     }
 
 }

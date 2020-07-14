@@ -34,39 +34,43 @@ public class LoginCommand extends Command{
 
     @Override
     public String execute() {
-        if(isCurrentUserAlreadyLoggedIn()){
+        if (isCurrentUserAlreadyLoggedIn()) {
             return ALREADY_LOGGED_IN;
         }
 
-        boolean validCredentials = userService.checkCredentialsValidity(username,password);
-        if(!validCredentials) {
+        boolean validCredentials = userService.checkCredentialsValidity(username, password);
+        if (!validCredentials) {
             return INVALID_CREDENTIALS;
         }
-
         userService.setUserAsActive(username);
+        String loginResponse = createSuccessfulLoginResponse();
+        clearNotifications();
 
-        String successfulLoginResponse = createSuccessfulLoginResponse();
-        return successfulLoginResponse;
-    }
-
-    private boolean isCurrentUserAlreadyLoggedIn(){
-        String currentLoggedInUsername = userService.getCurrentlyLoggedInUserUsername();
-        return currentLoggedInUsername!=null;
-    }
-
-    private String createSuccessfulLoginResponse(){
-        StringBuilder response = new StringBuilder(SUCCESSFUL_LOGIN+'\n');
-        Deque<String> userNotifications = userService.getUserNotifications(username);
-        String loginResponse = appendNotificationsToResponse(response,userNotifications);
         return loginResponse;
     }
 
-    private String appendNotificationsToResponse(StringBuilder response,Deque<String>notificationMessages) {
-        if(notificationMessages.size()==0) {
+    private boolean isCurrentUserAlreadyLoggedIn() {
+        String currentLoggedInUsername = userService.getCurrentSessionsUsername();
+        return currentLoggedInUsername != null;
+    }
+
+    private String createSuccessfulLoginResponse() {
+        StringBuilder response = new StringBuilder(SUCCESSFUL_LOGIN + '\n');
+        Deque<String> userNotifications = userService.getUserNotifications(username);
+        String loginResponse = appendNotificationsToResponse(response, userNotifications);
+        return loginResponse;
+    }
+
+    private void clearNotifications() {
+        userService.resetNotifications(username);
+    }
+
+    private String appendNotificationsToResponse(StringBuilder response, Deque<String> notificationMessages) {
+        if (notificationMessages.size() == 0) {
             response.append(NO_NOTIFICATIONS_TO_SHOW);
             return response.toString();
         }
-        response.append(NOTIFICATIONS_TITLE+'\n');
+        response.append(NOTIFICATIONS_TITLE + '\n');
         Iterator<String> iterator = notificationMessages.iterator();
         while (iterator.hasNext()) {
             response.append(iterator.next() + "\n\n");

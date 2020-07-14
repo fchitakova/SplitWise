@@ -32,40 +32,49 @@ public class ActiveClients {
     public String getUsernameOfCurrentClientConnection(){
         ClientConnectionInfo currentConnectionInfo = activeClients.get(Thread.currentThread());
 
-        System.out.println(currentConnectionInfo);
-
         String username = currentConnectionInfo.getUsername();
 
         return username;
     }
 
-    public void setUsernameForCurrentClientConnection(String username){
+    public void setUsernameForCurrentClientConnection(String username) {
         ClientConnectionInfo clientConnectionInfo = this.activeClients.get(Thread.currentThread());
         clientConnectionInfo.setUsername(username);
     }
 
-    public void logoutClient(){
+    public void logoutClient() {
         ClientConnectionInfo clientConnectionInfo = this.activeClients.get(Thread.currentThread());
         clientConnectionInfo.setUsername(null);
     }
 
+    public boolean isActive(String username) {
+        return activeClients.values().stream().anyMatch(clientConnection -> clientConnection.hasUsername(username));
+    }
 
     public void sendMessageToAll(String message) {
-        for(ClientConnectionInfo clientConnection:activeClients.values()) {
-           sendMessageToClient(clientConnection,message);
+        for (ClientConnectionInfo clientConnection : activeClients.values()) {
+            sendMessageToClient(clientConnection, message);
         }
     }
 
-    private void sendMessageToClient(ClientConnectionInfo clientConnection,String message){
-        Socket clientSocket= clientConnection.getSocket();
+    public void sendMessageToUser(String username, String message) {
+        for (ClientConnectionInfo clientConnectionInfo : activeClients.values()) {
+            if (clientConnectionInfo.hasUsername(username)) {
+                sendMessageToClient(clientConnectionInfo, message);
+            }
+        }
+    }
+
+    private void sendMessageToClient(ClientConnectionInfo clientConnection, String message) {
+        Socket clientSocket = clientConnection.getSocket();
         String username = clientConnection.getUsername();
-        String exceptionMessage = "Could not send message to client with username:"+username+ ". ";
+        String exceptionMessage = "Could not send message to client with username:" + username + ". ";
 
         try {
-            new PrintWriter(clientSocket.getOutputStream(),true).println(message);
-        }catch(IOException e){
-            LOGGER.info(exceptionMessage+SEE_LOG_FILE);
-            LOGGER.error(exceptionMessage,e);
+            new PrintWriter(clientSocket.getOutputStream(), true).println(message);
+        } catch (IOException e) {
+            LOGGER.info(exceptionMessage + SEE_LOG_FILE);
+            LOGGER.error(exceptionMessage, e);
         }
     }
 

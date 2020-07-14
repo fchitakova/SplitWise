@@ -27,14 +27,32 @@ public class SplitWiseApplication
     private static CommandFactory commandFactory;
 
 
-    public static void main(String[]args) {
-        activeClients = new ActiveClients();
-        if (instantiateUserService() && instantiateServerSocket()){
-            commandFactory = new CommandFactory(userService);
-            SplitWiseServer splitWiseServer = new SplitWiseServer(serverSocket,activeClients,commandFactory);
+    public static void main(String[] args) {
+        if (initializeSplitWiseDependencies()) {
+            SplitWiseServer splitWiseServer = new SplitWiseServer(serverSocket, activeClients, commandFactory);
             splitWiseServer.start();
-        }else{
+        } else {
             LOGGER.info(MISSING_DEPENDENCIES_MESSAGE);
+        }
+    }
+
+    private static boolean initializeSplitWiseDependencies() {
+        activeClients = new ActiveClients();
+        if (instantiateServerSocket() && instantiateUserService()) {
+            commandFactory = new CommandFactory(userService);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean instantiateServerSocket() {
+        try {
+            serverSocket = new ServerSocket(SERVER_PORT);
+            return true;
+        } catch (IOException e) {
+            LOGGER.info(FAILED_SERVER_SOCKET_CREATION + SEE_LOGS_FILE_FOR_MORE_INFO);
+            LOGGER.fatal(FAILED_SERVER_SOCKET_CREATION, e);
+            return false;
         }
 
     }
@@ -50,16 +68,5 @@ public class SplitWiseApplication
         }
     }
 
-    private static boolean instantiateServerSocket(){
-        try {
-            serverSocket = new ServerSocket(SERVER_PORT);
-            return true;
-        } catch (IOException e) {
-            LOGGER.info(FAILED_SERVER_SOCKET_CREATION + SEE_LOGS_FILE_FOR_MORE_INFO);
-            LOGGER.fatal(FAILED_SERVER_SOCKET_CREATION, e);
-            return false;
-        }
-
-    }
 
 }

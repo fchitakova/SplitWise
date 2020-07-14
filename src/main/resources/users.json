@@ -1,1 +1,38 @@
-{"fifi2":{"username":"fifi2","password":["a","a","a"],"friendships":[],"notifications":[]},"fifi3":{"username":"fifi3","password":["a","b","c"],"friendships":[],"notifications":[]},"fifi":{"username":"fifi","password":["a","b","c"],"friendships":[],"notifications":[]},"miro":{"username":"miro","password":["o","o","o"],"friendships":[],"notifications":[]}}
+{
+  "fifi": {
+    "username": "fifi",
+    "password": [
+      "a",
+      "b",
+      "c"
+    ],
+    "friendships": [
+      {
+        "friendshipType": "splitwise.server.model.Friend",
+        "friendshipData": {
+          "name": "miro",
+          "account": 0.0
+        }
+      }
+    ],
+    "notifications": []
+  },
+  "miro": {
+    "username": "miro",
+    "password": [
+      "o",
+      "o",
+      "o"
+    ],
+    "friendships": [
+      {
+        "friendshipType": "splitwise.server.model.Friend",
+        "friendshipData": {
+          "name": "fifi",
+          "account": 0.0
+        }
+      }
+    ],
+    "notifications": []
+  }
+}

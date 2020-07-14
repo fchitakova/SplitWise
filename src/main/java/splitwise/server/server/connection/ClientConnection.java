@@ -3,10 +3,12 @@ package splitwise.server.server.connection;
 
 import org.apache.log4j.Logger;
 import splitwise.server.exceptions.ClientConnectionException;
-import splitwise.server.server.ActiveClients;
 import splitwise.server.server.SplitWiseServer;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 
@@ -24,16 +26,14 @@ public class ClientConnection extends Thread{
     private BufferedReader socketInputReader;
     private PrintWriter socketOutputWriter;
     private SplitWiseServer splitWiseServer;
-    private ActiveClients activeClients;
 
-    public ClientConnection(Socket socket,SplitWiseServer splitWiseServer,ActiveClients activeClients) throws ClientConnectionException{
+    public ClientConnection(Socket socket, SplitWiseServer splitWiseServer) throws ClientConnectionException {
         this.socket = socket;
-        this.activeClients = activeClients;
         this.splitWiseServer = splitWiseServer;
         try {
             initializeSocketIOStreams();
-        }catch(IOException e){
-            throw new ClientConnectionException(ERROR_DURING_CLIENT_CONNECTION_CONSTRUCTION+"Reason: "+e.getMessage(),e);
+        } catch (IOException e) {
+            throw new ClientConnectionException(ERROR_DURING_CLIENT_CONNECTION_CONSTRUCTION + "Reason: " + e.getMessage(), e);
         }
         sendMessageToClient(WELCOME_MESSAGE);
     }
@@ -50,20 +50,20 @@ public class ClientConnection extends Thread{
 
     @Override
     public void run() {
-        activeClients.addClient(socket);
+        splitWiseServer.addActiveClientConnection(socket);
 
         while (!socket.isClosed()) {
-           handleClientCommunication();
+            processClientCommands();
         }
-        activeClients.removeClient();
+        splitWiseServer.removeClientConnection();
     }
 
-    private void handleClientCommunication(){
+    private void processClientCommands() {
         try {
             String userInput = readClientInput();
-            if(userInput == null){
+            if (userInput == null) {
                 closeSocketConnection();
-            }else {
+            } else {
                 String serverResponse = splitWiseServer.executeUserCommand(userInput);
                 sendMessageToClient(serverResponse);
             }

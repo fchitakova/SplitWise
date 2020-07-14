@@ -10,12 +10,14 @@ import splitwise.server.model.Friendship;
 import splitwise.server.model.User;
 import splitwise.server.model.UserRepository;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class FileSystemUserRepository implements UserRepository {
     private static final String FAILED_DB_FILE_CREATION="IO error during DB file creation";
@@ -32,85 +34,77 @@ public class FileSystemUserRepository implements UserRepository {
 
     private static Type USERS_COLLECTION_TYPE = new TypeToken<Map<String,User>>(){}.getType();
 
-    private ConcurrentMap<String,User> users;
+    private final Map<String, User> users;
     private File databaseFile;
 
-    /**
-     * Constructs FileSystemRepository using given database file path.
-     *
-     * @throws PersistenceException if database file cannot be created or accessed .
-     *
-     */
+
     public FileSystemUserRepository(String dbFilePath) throws PersistenceException {
-        users = new ConcurrentHashMap<>();
-        synchronized (this) {
-            accessDBFile(dbFilePath);
-            loadUserData();
-        }
+        users = new HashMap<>();
+        accessDBFile(dbFilePath);
+        loadUserData();
     }
 
-     synchronized private void accessDBFile(String dbFilePath) throws PersistenceException{
+    private void accessDBFile(String dbFilePath) throws PersistenceException {
         try {
             databaseFile = new File(dbFilePath);
             databaseFile.createNewFile();
-        }catch(IOException e){
-           throw new PersistenceException(FAILED_DB_FILE_CREATION,e);
+        } catch (IOException e) {
+            throw new PersistenceException(FAILED_DB_FILE_CREATION, e);
         }
     }
 
     synchronized private void loadUserData() throws PersistenceException {
-        try(FileReader reader = new FileReader(databaseFile)) {
-            Gson gson = getCustomGson(new FriendshipJsonSerializer());
-            Map<String, User> usersFromJson = gson.fromJson(reader, USERS_COLLECTION_TYPE);
-            if (usersFromJson != null) {
-                users.putAll(usersFromJson);
+        try (FileReader reader = new FileReader(databaseFile)) {
+            {
+                GsonBuilder gsonBuilder = new GsonBuilder();
+                gsonBuilder.registerTypeAdapter(Friendship.class, new FriendshipJsonDeserializer());
+                Gson gson = gsonBuilder.create();
+                Map<String, User> usersFromJson = gson.fromJson(reader, USERS_COLLECTION_TYPE);
+                if (usersFromJson != null) {
+                    users.putAll(usersFromJson);
+                }
             }
         } catch (IOException e) {
             throw new PersistenceException(CANNOT_FIND_DB_FILE, e);
-        }catch(JsonSyntaxException e){
-            throw new PersistenceException(CANNOT_LOAD_USER_DATA,e);
-        }
-
-    }
-
-
-    private Gson getCustomGson(Object typeAdapter){
-        GsonBuilder jsonBuilder = new GsonBuilder();
-        jsonBuilder.registerTypeAdapter(Friendship.class, typeAdapter);
-        Gson gson = jsonBuilder.create();
-        return gson;
-    }
-
-    synchronized public void addUser(User user) throws PersistenceException {
-        String userId = user.getUsername();
-        users.putIfAbsent(userId,user);
-        saveUserData();
-    }
-
-    private void saveUserData()throws PersistenceException{
-        try(FileWriter writer = new FileWriter(databaseFile,false)) {
-            Gson gson = getCustomGson(new FriendshipJsonDeserializer());
-            String data = gson.toJson(users, USERS_COLLECTION_TYPE);
-            writeToDBFile(writer,data);
-        }catch(IOException e){
-            throw new PersistenceException(FAILED_DATA_SAVING+CANNOT_CREATE_FILE_WRITER,e);
+        } catch (JsonSyntaxException e) {
+            throw new PersistenceException(CANNOT_LOAD_USER_DATA, e);
         }
     }
-
-    private void writeToDBFile(FileWriter writer,String data) throws PersistenceException {
-        try{
-            writer.write(data);
-        }catch(IOException e){
-            throw new PersistenceException(FAILED_DATA_SAVING+WRITING_TO_DB_FILE_FAILED,e);
-        }
-    }
-
 
 
     @Override
-    public Optional<User> getById(String username) {
+    synchronized public void addUser(User user) throws PersistenceException {
+        String userId = user.getUsername();
+        users.putIfAbsent(userId, user);
+        save();
+    }
+
+    synchronized public void save() throws PersistenceException {
+        try (FileWriter writer = new FileWriter(databaseFile, false)) {
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(Friendship.class, new FriendshipJsonSerializer());
+            String data = gsonBuilder.create().toJson(users, USERS_COLLECTION_TYPE);
+            System.out.println(data);
+            writeToDBFile(writer, data);
+        } catch (IOException e) {
+            throw new PersistenceException(FAILED_DATA_SAVING + CANNOT_CREATE_FILE_WRITER, e);
+        }
+    }
+
+    private void writeToDBFile(FileWriter writer, String data) throws PersistenceException {
+        try {
+            writer.write(data);
+        } catch (IOException e) {
+            throw new PersistenceException(FAILED_DATA_SAVING + WRITING_TO_DB_FILE_FAILED, e);
+        }
+    }
+
+
+    @Override
+    synchronized public Optional<User> getById(String username) {
         User user = this.users.get(username);
         return Optional.ofNullable(user);
     }
+
 
 }

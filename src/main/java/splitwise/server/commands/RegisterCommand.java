@@ -41,7 +41,7 @@ public class RegisterCommand extends Command{
     }
 
     private boolean isCurrentUserAlreadyLoggedIn(){
-        String currentLoggedInUsername = userService.getCurrentlyLoggedInUserUsername();
+        String currentLoggedInUsername = userService.getCurrentSessionsUsername();
         return currentLoggedInUsername!=null;
     }
 

@@ -4,32 +4,32 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import splitwise.server.exceptions.UserServiceException;
-import splitwise.server.services.UserService;
 import splitwise.server.model.User;
 import splitwise.server.model.UserRepository;
 import splitwise.server.model.filesystem.FileSystemUserRepository;
+import splitwise.server.server.ActiveClients;
+import splitwise.server.services.UserService;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-
-import static server.TestConstants.TEST_USERNAME;
-import static server.TestConstants.TEST_PASSWORD1;
-import static server.TestConstants.TEST_PASSWORD2;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+import static server.TestConstants.*;
 
 public class UserServiceTest {
     private static UserRepository userRepository;
     private static UserService userService;
+    private static ActiveClients activeClients;
 
     @BeforeClass
-    public static void setUp() {
+    public static void setUp() throws UserServiceException {
+        activeClients = Mockito.mock(ActiveClients.class);
         userRepository = Mockito.mock(FileSystemUserRepository.class);
-        userService = new UserService(userRepository);
+        userService = new UserService(activeClients);
+        userService.setUserRepository(userRepository);
     }
 
     @Test
@@ -90,7 +90,46 @@ public class UserServiceTest {
         Deque<String> notifications = userService.getUserNotifications(TEST_USERNAME);
         boolean assertCondition = notifications.containsAll(pushedNotifications);
 
-        assertTrue(assertMessage,assertCondition);
+        assertTrue(assertMessage, assertCondition);
+    }
+
+    @Test
+    public void testThatNotificationsForNotActiveUserArePushedToHisNotificationsQueue() {
+        User testUser = new User(TEST_USERNAME, TEST_PASSWORD1);
+        when(activeClients.isActive(TEST_USERNAME)).thenReturn(false);
+        when(userRepository.getById(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+
+        userService.sendNotification(testUser, "notification");
+
+        String assertMessage = "Notifications of not active user must be pushed in his notifications queue.";
+        boolean expectedAssertCondition = testUser.getNotifications().contains("notification");
+
+        assertTrue(assertMessage, expectedAssertCondition);
+    }
+
+    @Test
+    public void testThatNotificationsForActiveUserAreNotPushedToHisNotificationsQueue() {
+        User testUser = new User(TEST_USERNAME, TEST_PASSWORD1);
+        when(activeClients.isActive(TEST_USERNAME)).thenReturn(true);
+        when(userRepository.getById(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+
+        userService.sendNotification(testUser, "notification");
+
+        String assertMessage = "Notifications of active user must not be pushed in his notifications queue.";
+        boolean expectedAssertCondition = !testUser.getNotifications().contains("notification");
+
+        assertTrue(assertMessage, expectedAssertCondition);
+    }
+
+    @Test
+    public void testThatNotificationsOfActiveUserAreSentInRealTime() {
+        when(activeClients.isActive(TEST_USERNAME)).thenReturn(true);
+
+        userService.sendNotification(new User(TEST_USERNAME, TEST_PASSWORD1), "notification");
+
+        String failureMessage = "Notifications of active user must be send in real time.";
+
+        verify(activeClients, description(failureMessage)).sendMessageToUser(TEST_USERNAME, "notification");
     }
 
 

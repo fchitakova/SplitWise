@@ -1,10 +1,10 @@
 package splitwise.client;
 
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import org.apache.log4j.Logger;
 
 public class ConsoleInputReader implements Runnable {
     private static final String EXIT_COMMAND = "exit";
@@ -54,7 +54,7 @@ public class ConsoleInputReader implements Runnable {
     }
 
     private void sendUserInputToServer(String input){
-        if(input!=null){
+        if (input != null && !input.isBlank()) {
             serverOutputWriter.println(input);
         }
     }

@@ -1,6 +1,7 @@
 package splitwise.server.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Friend implements Friendship, Serializable {
     public static final double NEUTRAL_ACCOUNT_AMOUNT = 0.0;
@@ -39,4 +40,16 @@ public class Friend implements Friendship, Serializable {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Friend)) return false;
+        Friend friend = (Friend) o;
+        return name.equals(friend.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
 }

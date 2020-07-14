@@ -10,4 +10,5 @@ public interface UserRepository {
 
     void addUser(User user) throws PersistenceException;
 
+    void save() throws PersistenceException;
 }

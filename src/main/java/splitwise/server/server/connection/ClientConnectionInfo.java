@@ -6,19 +6,23 @@ public class ClientConnectionInfo {
     private Socket clientSocket;
     private String username;
 
-    public ClientConnectionInfo(Socket clientSocket){
+    public ClientConnectionInfo(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
 
-    public void setUsername(String username){
-        this.username = username;
-    }
-
-    public String getUsername(){
+    public String getUsername() {
         return this.username;
     }
 
-    public Socket getSocket(){
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public boolean hasUsername(String username) {
+        return this.username.equals(username);
+    }
+
+    public Socket getSocket() {
         return clientSocket;
     }
 
