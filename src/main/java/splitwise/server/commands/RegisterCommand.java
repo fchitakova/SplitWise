@@ -2,7 +2,7 @@ package splitwise.server.commands;
 
 
 import splitwise.server.exceptions.UserServiceException;
-import splitwise.server.services.UserService;
+import splitwise.server.services.AuthenticationService;
 
 public class RegisterCommand extends Command{
     public static final String SUCCESSFUL_REGISTRATION = "Successful registration!";
@@ -13,8 +13,11 @@ public class RegisterCommand extends Command{
     private String username;
     private char[] password;
 
-    public RegisterCommand(String command, UserService userRepository) {
-        super(userRepository);
+    private AuthenticationService authenticationService;
+
+    public RegisterCommand(String command, AuthenticationService authenticationService) {
+        super(authenticationService);
+        this.authenticationService = authenticationService;
         initializeCommandParameters(command);
     }
 
@@ -32,7 +35,7 @@ public class RegisterCommand extends Command{
             return ALREADY_LOGGED_IN;
         }
 
-        boolean isRegistered = userService.checkIfRegistered(username);
+        boolean isRegistered = authenticationService.checkIfRegistered(username);
         if(isRegistered){
             return TAKEN_USERNAME;
         }
@@ -43,8 +46,8 @@ public class RegisterCommand extends Command{
 
     private String register(){
         try {
-            userService.registerUser(username,password);
-            userService.setUserAsActive(username);
+            authenticationService.registerUser(username,password);
+            authenticationService.setUserAsActive(username);
         } catch (UserServiceException e) {
             return REGISTRATION_FAILED;
         }

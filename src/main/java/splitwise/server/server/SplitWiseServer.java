@@ -24,11 +24,11 @@ public class SplitWiseServer {
     private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
 
     private ServerSocket serverSocket;
-    private ActiveClients activeClients;
+    private ActiveUsers activeClients;
     private CommandFactory commandFactory;
     private ExecutorService executorService;
 
-    public SplitWiseServer(ServerSocket serverSocket, ActiveClients activeClients, CommandFactory commandFactory) {
+    public SplitWiseServer(ServerSocket serverSocket, ActiveUsers activeClients, CommandFactory commandFactory) {
         this.serverSocket = serverSocket;
         this.activeClients = activeClients;
         this.commandFactory = commandFactory;

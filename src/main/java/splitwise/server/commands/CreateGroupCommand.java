@@ -1,20 +1,10 @@
 package splitwise.server.commands;
 
 import splitwise.server.exceptions.UserServiceException;
-import splitwise.server.services.UserService;
-
-import java.lang.reflect.Array;
-import java.nio.charset.CoderMalfunctionError;
-import java.util.ArrayList;
+import splitwise.server.services.FriendshipCreator;
 import java.util.Arrays;
 
-/**
- * създава група, състояща се от няколко, вече регистрирани, потребители:
- *
- * $ create-group <group_name> <username> <username> ... <username>
- * Групите се създават от един потребител, като всяка група включва трима или повече потребители.
- * Можете да си представяте, че "приятелските" отношения са група от двама човека.
- */
+
 
 public class CreateGroupCommand extends Command {
     public static final String NOT_ENOUGH_PARTICIPANTS = "Group friendship can be established with at least 3 participants.";
@@ -25,9 +15,11 @@ public class CreateGroupCommand extends Command {
 
     private String groupName;
     private String[] participants;
+    private FriendshipCreator friendshipCreator;
 
-    public CreateGroupCommand(String command, UserService userService) {
-        super(userService);
+    public CreateGroupCommand(String command, FriendshipCreator friendshipCreator) {
+        super(friendshipCreator);
+        this.friendshipCreator = friendshipCreator;
         initializeCommandParameters(command);
 
     }
@@ -52,7 +44,7 @@ public class CreateGroupCommand extends Command {
         if (participants.length < 2) {
             return NOT_ENOUGH_PARTICIPANTS;
         }
-        if (!userService.checkIfRegistered(participants)) {
+        if (!friendshipCreator.checkIfRegistered(participants)) {
             return NOT_REGISTERED_PARTICIPANTS;
         }
 
@@ -63,7 +55,7 @@ public class CreateGroupCommand extends Command {
     private String createGroup(){
         String commandResult;
         try {
-            boolean isGroupCreated = userService.createGroupFriendship(groupName, Arrays.asList(participants));
+            boolean isGroupCreated = friendshipCreator.createGroupFriendship(groupName, Arrays.asList(participants));
             commandResult = isGroupCreated? SUCCESSFULLY_CREATE_GROUP: ALREADY_TAKEN_GROUP_NAME;
         } catch (UserServiceException e) {
             commandResult = GROUP_CREATION_FAILED;

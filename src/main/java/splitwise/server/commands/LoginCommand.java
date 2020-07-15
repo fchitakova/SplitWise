@@ -1,7 +1,7 @@
 package splitwise.server.commands;
 
 
-import splitwise.server.services.UserService;
+import splitwise.server.services.AuthenticationService;
 
 import java.util.Deque;
 import java.util.Iterator;
@@ -20,8 +20,11 @@ public class LoginCommand extends Command{
     private String username;
     private char[] password;
 
-    public LoginCommand(String command, UserService userRepository) {
-        super(userRepository);
+    private AuthenticationService authenticationService;
+
+    public LoginCommand(String command, AuthenticationService authenticationService) {
+        super(authenticationService);
+        this.authenticationService = authenticationService;
         initializeCommandParameters(command);
     }
 
@@ -37,14 +40,13 @@ public class LoginCommand extends Command{
             return ALREADY_LOGGED_IN;
         }
 
-        boolean validCredentials = userService.checkCredentialsValidity(username, password);
+        boolean validCredentials = authenticationService.checkCredentialsValidity(username, password);
 
         if (!validCredentials) {
             return INVALID_CREDENTIALS;
         }
-        userService.setUserAsActive(username);
+        authenticationService.setUserAsActive(username);
         String loginResponse = createSuccessfulLoginResponse();
-        clearNotifications();
 
         return loginResponse;
     }
@@ -52,13 +54,9 @@ public class LoginCommand extends Command{
 
     private String createSuccessfulLoginResponse() {
         StringBuilder response = new StringBuilder(SUCCESSFUL_LOGIN + '\n');
-        Deque<String> userNotifications = userService.getUserNotifications(username);
+        Deque<String> userNotifications = authenticationService.getUserNotifications(username);
         String loginResponse = appendNotificationsToResponse(response, userNotifications);
         return loginResponse;
-    }
-
-    private void clearNotifications() {
-        userService.resetNotifications(username);
     }
 
     private String appendNotificationsToResponse(StringBuilder response, Deque<String> notificationMessages) {

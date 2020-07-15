@@ -11,13 +11,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static splitwise.server.server.SplitWiseServer.SEE_LOG_FILE;
 
-public class ActiveClients {
+public class ActiveUsers {
 
-    private static Logger LOGGER = Logger.getLogger(ActiveClients.class);
+    private static Logger LOGGER = Logger.getLogger(ActiveUsers.class);
 
     private Map<Thread, ClientConnectionInfo> activeClients;
 
-    public ActiveClients(){
+    public ActiveUsers(){
         this.activeClients = new ConcurrentHashMap<>();
     }
 

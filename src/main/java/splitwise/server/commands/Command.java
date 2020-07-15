@@ -1,7 +1,7 @@
 package splitwise.server.commands;
 
 
-import splitwise.server.services.UserService;
+import splitwise.server.services.SplitWiseService;
 
 public abstract class Command {
       public static final String LOGIN_OR_REGISTER = """
@@ -10,12 +10,10 @@ public abstract class Command {
 
       protected String commandInvokerUsername;
       protected boolean isCommandInvokerLoggedIn;
-      protected UserService userService;
 
 
-      public Command(UserService userRepository) {
-            this.userService = userRepository;
-            commandInvokerUsername = userService.getCurrentSessionsUsername();
+      public Command(SplitWiseService splitWiseService) {
+            commandInvokerUsername = splitWiseService.getCurrentSessionsUsername();
             isCommandInvokerLoggedIn = (commandInvokerUsername != null);
       }
 
