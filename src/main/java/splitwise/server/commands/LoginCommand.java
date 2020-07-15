@@ -17,7 +17,6 @@ public class LoginCommand extends Command{
             RED_STAR_SYMBOL+RED_STAR_SYMBOL+RED_STAR_SYMBOL;
     public static final String ALREADY_LOGGED_IN = "Already logged in. Logout first to log in another account.";
 
-
     private String username;
     private char[] password;
 
@@ -34,11 +33,12 @@ public class LoginCommand extends Command{
 
     @Override
     public String execute() {
-        if (isCurrentUserAlreadyLoggedIn()) {
+        if (isCommandInvokerLoggedIn) {
             return ALREADY_LOGGED_IN;
         }
 
         boolean validCredentials = userService.checkCredentialsValidity(username, password);
+
         if (!validCredentials) {
             return INVALID_CREDENTIALS;
         }
@@ -49,10 +49,6 @@ public class LoginCommand extends Command{
         return loginResponse;
     }
 
-    private boolean isCurrentUserAlreadyLoggedIn() {
-        String currentLoggedInUsername = userService.getCurrentSessionsUsername();
-        return currentLoggedInUsername != null;
-    }
 
     private String createSuccessfulLoginResponse() {
         StringBuilder response = new StringBuilder(SUCCESSFUL_LOGIN + '\n');

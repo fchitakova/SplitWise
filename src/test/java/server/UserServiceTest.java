@@ -3,6 +3,7 @@ package server;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.exceptions.UserServiceException;
 import splitwise.server.model.User;
 import splitwise.server.model.UserRepository;
@@ -94,7 +95,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testThatNotificationsForNotActiveUserArePushedToHisNotificationsQueue() {
+    public void testThatNotificationsForNotActiveUserArePushedToHisNotificationsQueue() throws PersistenceException {
         User testUser = new User(TEST_USERNAME, TEST_PASSWORD1);
         when(activeClients.isActive(TEST_USERNAME)).thenReturn(false);
         when(userRepository.getById(TEST_USERNAME)).thenReturn(Optional.of(testUser));
@@ -108,7 +109,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testThatNotificationsForActiveUserAreNotPushedToHisNotificationsQueue() {
+    public void testThatNotificationsForActiveUserAreNotPushedToHisNotificationsQueue() throws PersistenceException {
         User testUser = new User(TEST_USERNAME, TEST_PASSWORD1);
         when(activeClients.isActive(TEST_USERNAME)).thenReturn(true);
         when(userRepository.getById(TEST_USERNAME)).thenReturn(Optional.of(testUser));
@@ -122,7 +123,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testThatNotificationsOfActiveUserAreSentInRealTime() {
+    public void testThatNotificationsOfActiveUserAreSentInRealTime() throws PersistenceException {
         when(activeClients.isActive(TEST_USERNAME)).thenReturn(true);
 
         userService.sendNotification(new User(TEST_USERNAME, TEST_PASSWORD1), "notification");
@@ -131,6 +132,9 @@ public class UserServiceTest {
 
         verify(activeClients, description(failureMessage)).sendMessageToUser(TEST_USERNAME, "notification");
     }
+
+   // @Test
+    //public void testThatCreatingGroupFriendship
 
 
 }

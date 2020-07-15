@@ -11,10 +11,12 @@ import splitwise.server.services.UserService;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static server.TestConstants.*;
+import static splitwise.server.commands.RegisterCommand.*;
 import static splitwise.server.commands.RegisterCommand.ALREADY_LOGGED_IN;
-import static splitwise.server.commands.RegisterCommand.TAKEN_USERNAME;
 
 public class RegisterCommandTest {
+    public static String REGISTER_COMMAND = "register " + TEST_USERNAME + " testPassword";
+
     private static UserService userService;
     private static RegisterCommand registerCommand;
 
@@ -33,6 +35,7 @@ public class RegisterCommandTest {
     @Test
     public void testThatRegistrationAttemptWhenAlreadyLoggedInReturnsMessageThatThisIsNotAllowed(){
         when(userService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME);
+        registerCommand = new RegisterCommand(REGISTER_COMMAND,userService);
 
          String assertMessage = "Registration attempt when already logged in did not return response that this is not allowed.";
          String expectedResponse = ALREADY_LOGGED_IN;
@@ -44,6 +47,7 @@ public class RegisterCommandTest {
     @Test
     public void testThatRegistrationAttemptWithNotTakenUsernameCallsRegisterUser() throws UserServiceException {
         when(userService.getCurrentSessionsUsername()).thenReturn(null);
+        registerCommand = new RegisterCommand(REGISTER_COMMAND,userService);
         when(userService.checkIfRegistered(TEST_USERNAME)).thenReturn(false);
 
         registerCommand.execute();
@@ -56,6 +60,7 @@ public class RegisterCommandTest {
     @Test
     public void testThatRegistrationAttemptWithTakenUsernameReturnsTakenUsernameResponse() {
         when(userService.getCurrentSessionsUsername()).thenReturn(null);
+        registerCommand = new RegisterCommand(REGISTER_COMMAND,userService);
         when(userService.checkIfRegistered(TEST_USERNAME)).thenReturn(true);
 
         String assertMessage = "Registration attempt with taken username did not return right taken username response.";
@@ -66,7 +71,6 @@ public class RegisterCommandTest {
 
     @Test
     public void testThatRegistrationWithNonTakenUsernameReturnsSuccessfulRegistrationResponse(){
-        when(userService.getCurrentSessionsUsername()).thenReturn(null);
         when(userService.checkIfRegistered(TEST_USERNAME)).thenReturn(false);
 
         String assertMessage = "Registration attempt with idle username did not return right successful registration response";
@@ -77,7 +81,6 @@ public class RegisterCommandTest {
 
     @Test
     public void testWhenRegistrationFailDueToRepositoryExceptionReturnsRightMessage() throws UserServiceException {
-        when(userService.getCurrentSessionsUsername()).thenReturn(null);
         when(userService.checkIfRegistered(TEST_USERNAME)).thenReturn(false);
         doThrow(UserServiceException.class).when(userService).registerUser(TEST_USERNAME,TEST_PASSWORD1);
 
@@ -85,6 +88,21 @@ public class RegisterCommandTest {
         String response = registerCommand.execute();
 
         assertEquals(assertMessage,RegisterCommand.REGISTRATION_FAILED,response);
+    }
 
+    @Test
+    public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned() throws UserServiceException {
+       when(userService.getCurrentSessionsUsername()).thenReturn(null);
+       when(userService.checkIfRegistered(TEST_USERNAME)).thenReturn(false);
+       registerCommand = new RegisterCommand(REGISTER_COMMAND,userService);
+
+       doThrow(new UserServiceException("dummy message", new Throwable())).when(userService).registerUser(TEST_USERNAME,TEST_PASSWORD1);
+
+       String assertMessage = "When UserServiceException is thrown not right command failure response is returned";
+       String actualCommandResult = registerCommand.execute();
+
+       assertEquals(assertMessage,actualCommandResult,REGISTRATION_FAILED);
     }
 }
+
+

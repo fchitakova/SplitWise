@@ -25,8 +25,8 @@ public class User{
         return this.username.equals(username) && Arrays.equals(this.password, password);
     }
 
-    public boolean addFriend(String user) {
-        return friendships.add(new Friend(user));
+    public boolean addFriendship(Friendship friendship) {
+        return friendships.add(friendship);
     }
 
     public void pushNotification(String notification) {

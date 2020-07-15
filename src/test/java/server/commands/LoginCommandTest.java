@@ -37,6 +37,7 @@ public class LoginCommandTest {
     @Test
     public void testThatLoginAttemptWhenAlreadyLoggedInIsNotAllowed(){
         when(userService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME);
+        command = new LoginCommand(LOGIN_COMMAND,userService);
 
         String assertMessage = "Login attempt when already logged in did not return right message.";
         String expectedResult = ALREADY_LOGGED_IN;

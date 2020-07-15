@@ -28,7 +28,7 @@ public class RegisterCommand extends Command{
 
     @Override
     public String execute() {
-        if(isCurrentUserAlreadyLoggedIn()){
+        if (isCommandInvokerLoggedIn) {
             return ALREADY_LOGGED_IN;
         }
 
@@ -40,19 +40,14 @@ public class RegisterCommand extends Command{
         return registrationResult;
     }
 
-    private boolean isCurrentUserAlreadyLoggedIn(){
-        String currentLoggedInUsername = userService.getCurrentSessionsUsername();
-        return currentLoggedInUsername!=null;
-    }
 
     private String register(){
         try {
             userService.registerUser(username,password);
+            userService.setUserAsActive(username);
         } catch (UserServiceException e) {
             return REGISTRATION_FAILED;
         }
-
-        userService.setUserAsActive(username);
 
         return SUCCESSFUL_REGISTRATION;
     }

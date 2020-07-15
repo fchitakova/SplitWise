@@ -8,10 +8,15 @@ public abstract class Command {
               This command can be invoked only by logged in users. Please first login or register.""";
       public static final String START_SPLITTING = "You can start splitting!";
 
+      protected String commandInvokerUsername;
+      protected boolean isCommandInvokerLoggedIn;
       protected UserService userService;
+
 
       public Command(UserService userRepository) {
             this.userService = userRepository;
+            commandInvokerUsername = userService.getCurrentSessionsUsername();
+            isCommandInvokerLoggedIn = (commandInvokerUsername != null);
       }
 
       public abstract String execute();
