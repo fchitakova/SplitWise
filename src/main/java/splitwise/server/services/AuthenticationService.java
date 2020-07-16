@@ -2,9 +2,9 @@ package splitwise.server.services;
 
 import org.apache.log4j.Logger;
 import splitwise.server.exceptions.PersistenceException;
-import splitwise.server.exceptions.UserServiceException;
+import splitwise.server.exceptions.AuthenticationException;
 import splitwise.server.model.User;
-import splitwise.server.model.UserRepository;
+import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
 
 import java.util.ArrayDeque;
@@ -59,13 +59,13 @@ public class AuthenticationService extends SplitWiseService {
         }
     }
 
-    public void registerUser(String username, char[] password) throws UserServiceException {
+    public void registerUser(String username, char[] password) throws AuthenticationException {
         try {
             userRepository.addUser(new User(username, password));
         } catch (PersistenceException e) {
             LOGGER.info(USER_REGISTRATION_FAILED + SEE_LOG_FILE);
             LOGGER.error(USER_REGISTRATION_FAILED + e.getMessage(), e);
-            throw new UserServiceException(USER_REGISTRATION_FAILED, e);
+            throw new AuthenticationException(USER_REGISTRATION_FAILED, e);
         }
     }
 

@@ -1,7 +1,7 @@
 package splitwise.server.services;
 
 import splitwise.server.model.User;
-import splitwise.server.model.UserRepository;
+import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
 
 import java.util.Arrays;

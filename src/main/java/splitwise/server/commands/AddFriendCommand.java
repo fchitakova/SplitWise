@@ -1,6 +1,6 @@
 package splitwise.server.commands;
 
-import splitwise.server.exceptions.UserServiceException;
+import splitwise.server.exceptions.FriendshipException;
 import splitwise.server.services.FriendshipService;
 
 public class AddFriendCommand extends Command {
@@ -25,22 +25,23 @@ public class AddFriendCommand extends Command {
 
     @Override
     public String execute() {
-        if (!isCommandInvokerLoggedIn) {
-            return LOGIN_OR_REGISTER;
+        if (isCommandInvokerLoggedIn) {
+
+            if (!isFriendPresent()) {
+                return String.format(USER_NOT_FOUND, friendUsername);
+            }
+            String friendshipCreationResult = tryToCreateFriendship();
+            return friendshipCreationResult;
         }
-        if (!isFriendPresent()) {
-            return String.format(USER_NOT_FOUND, friendUsername);
-        }
-        String friendshipCreationResult = tryToCreateFriendship();
-        return friendshipCreationResult;
+        return LOGIN_OR_REGISTER;
     }
 
     private String tryToCreateFriendship(){
         String result;
         try {
             boolean friendshipEstablished = friendshipCreator.createFriendship(commandInvokerUsername, friendUsername);
-            result = friendshipEstablished ? ESTABLISHED_FRIENDSHIP:ALREADY_FRIENDS;
-        }catch (UserServiceException e){
+            result = friendshipEstablished ? ESTABLISHED_FRIENDSHIP : ALREADY_FRIENDS;
+        } catch (FriendshipException e) {
             result = FRIENDSHIP_CANNOT_BE_ESTABLISHED;
         }
         return result;

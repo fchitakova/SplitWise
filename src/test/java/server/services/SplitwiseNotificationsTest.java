@@ -4,10 +4,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import splitwise.server.exceptions.PersistenceException;
-import splitwise.server.exceptions.UserServiceException;
+import splitwise.server.exceptions.AuthenticationException;
 import splitwise.server.model.User;
-import splitwise.server.model.UserRepository;
-import splitwise.server.model.filesystem.FileSystemUserRepository;
+import splitwise.server.repository.UserRepository;
+import splitwise.server.repository.filesystem.FileSystemUserRepository;
 import splitwise.server.server.ActiveUsers;
 import splitwise.server.services.FriendshipService;
 import splitwise.server.services.SplitWiseService;
@@ -25,7 +25,7 @@ public class SplitwiseNotificationsTest {
     private static SplitWiseService splitWiseService;
 
     @BeforeClass
-    public static void setUp() throws UserServiceException {
+    public static void setUp() throws AuthenticationException {
         activeClients = Mockito.mock(ActiveUsers.class);
         userRepository = Mockito.mock(FileSystemUserRepository.class);
         splitWiseService = new FriendshipService(userRepository, activeClients);

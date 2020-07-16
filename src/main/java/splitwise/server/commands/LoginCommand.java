@@ -36,19 +36,18 @@ public class LoginCommand extends Command{
 
     @Override
     public String execute() {
-        if (isCommandInvokerLoggedIn) {
-            return ALREADY_LOGGED_IN;
+        if (!isCommandInvokerLoggedIn) {
+            boolean validCredentials = authenticationService.checkCredentialsValidity(username, password);
+
+            if (!validCredentials) {
+                return INVALID_CREDENTIALS;
+            }
+            authenticationService.setUserAsActive(username);
+            String loginResponse = createSuccessfulLoginResponse();
+
+            return loginResponse;
         }
-
-        boolean validCredentials = authenticationService.checkCredentialsValidity(username, password);
-
-        if (!validCredentials) {
-            return INVALID_CREDENTIALS;
-        }
-        authenticationService.setUserAsActive(username);
-        String loginResponse = createSuccessfulLoginResponse();
-
-        return loginResponse;
+        return ALREADY_LOGGED_IN;
     }
 
 

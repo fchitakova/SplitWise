@@ -4,8 +4,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import splitwise.server.model.User;
-import splitwise.server.model.UserRepository;
-import splitwise.server.model.filesystem.FileSystemUserRepository;
+import splitwise.server.repository.UserRepository;
+import splitwise.server.repository.filesystem.FileSystemUserRepository;
 import splitwise.server.server.ActiveUsers;
 import splitwise.server.services.AuthenticationService;
 

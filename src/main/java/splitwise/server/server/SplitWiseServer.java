@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import splitwise.server.commands.Command;
 import splitwise.server.exceptions.ClientConnectionException;
 import splitwise.server.server.connection.ClientConnection;
-import splitwise.server.commands.CommandFactory;
+import splitwise.server.services.CommandFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;

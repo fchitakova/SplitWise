@@ -40,8 +40,9 @@ public class CreateGroupCommandTest {
 
     @Test
     public void testThatCreateGroupWithNotEnoughMembersReturnsNotAllowedResponse() {
-        String createGroupCommandWith2Participants = "create-group myGroup " + TEST_USERNAME1;
+        String createGroupCommandWith2Participants = "create-group myGroup " + TEST_USERNAME2;
         when(friendshipService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME1);
+        when(friendshipService.checkIfRegistered(TEST_USERNAME2)).thenReturn(true);
 
         createGroupCommand = new CreateGroupCommand(createGroupCommandWith2Participants, friendshipService);
 

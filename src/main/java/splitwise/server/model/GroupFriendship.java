@@ -28,9 +28,9 @@ public class GroupFriendship implements Friendship, Serializable {
     }
 
     @Override
-    public void addToAccount(Double amount) {
+    public void split(Double amount) {
         Double debtPart = amount / groupMembers.size();
-        groupMembers.forEach(member -> member.addToAccount(debtPart));
+        groupMembers.forEach(member -> member.split(debtPart));
     }
 
     @Override
@@ -40,8 +40,12 @@ public class GroupFriendship implements Friendship, Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GroupFriendship)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof GroupFriendship)) {
+            return false;
+        }
         GroupFriendship that = (GroupFriendship) o;
         return groupName.equals(that.groupName) &&
                 groupMembers.equals(that.groupMembers);
@@ -50,6 +54,11 @@ public class GroupFriendship implements Friendship, Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(groupName, groupMembers);
+    }
+
+    @Override
+    public List<String> getFriendshipMembersUsernames() {
+        return groupMembers.stream().map(groupMember -> groupMember.getName()).collect(Collectors.toList());
     }
 }
 

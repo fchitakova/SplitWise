@@ -1,7 +1,8 @@
-package splitwise.server.model;
+package splitwise.server.repository;
 
 
 import splitwise.server.exceptions.PersistenceException;
+import splitwise.server.model.User;
 
 import java.util.Optional;
 

@@ -1,4 +1,4 @@
-package splitwise.server.model.filesystem;
+package splitwise.server.repository.filesystem;
 
 
 import com.google.gson.*;

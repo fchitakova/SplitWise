@@ -1,6 +1,7 @@
 package splitwise.server.model;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 public class Friend implements Friendship, Serializable {
@@ -15,8 +16,8 @@ public class Friend implements Friendship, Serializable {
 
 
     @Override
-    public void addToAccount(Double amount) {
-        account = account+ (amount/2);
+    public void split(Double amount) {
+        account = account + amount / 2;
     }
 
     @Override
@@ -39,11 +40,24 @@ public class Friend implements Friendship, Serializable {
         return userStatus.toString();
     }
 
+    @Override
+    public List<String> getFriendshipMembersUsernames() {
+        return List.of(name);
+    }
+
+    public Double getAccount() {
+        return account;
+    }
+
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Friend)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Friend)) {
+            return false;
+        }
         Friend friend = (Friend) o;
         return name.equals(friend.name);
     }

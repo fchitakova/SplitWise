@@ -1,4 +1,4 @@
-package splitwise.server.model.filesystem;
+package splitwise.server.repository.filesystem;
 
 
 import com.google.gson.Gson;
@@ -8,7 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.model.Friendship;
 import splitwise.server.model.User;
-import splitwise.server.model.UserRepository;
+import splitwise.server.repository.UserRepository;
 
 import java.io.File;
 import java.io.FileReader;

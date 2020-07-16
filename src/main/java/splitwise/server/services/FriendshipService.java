@@ -1,12 +1,12 @@
 package splitwise.server.services;
 
 import org.apache.log4j.Logger;
+import splitwise.server.exceptions.FriendshipException;
 import splitwise.server.exceptions.PersistenceException;
-import splitwise.server.exceptions.UserServiceException;
 import splitwise.server.model.Friend;
 import splitwise.server.model.GroupFriendship;
 import splitwise.server.model.User;
-import splitwise.server.model.UserRepository;
+import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
 
 import java.util.List;
@@ -32,9 +32,8 @@ public class FriendshipService extends SplitWiseService {
     /**
      * This method assumes that both users represented by their usernames are already registered.
      * Returns true if friendship is successfully created.
-     * @throws UserServiceException
      */
-    public boolean createFriendship(String addingUsername, String addedUsername) throws UserServiceException {
+    public boolean createFriendship(String addingUsername, String addedUsername) throws FriendshipException {
         User addingUser = userRepository.getById(addingUsername).get();
         User addedUser = userRepository.getById(addedUsername).get();
 
@@ -49,7 +48,7 @@ public class FriendshipService extends SplitWiseService {
             } catch (PersistenceException e) {
                 LOGGER.info(FRIENDSHIP_CREATION_FAILED + SEE_LOG_FILE);
                 LOGGER.error(FRIENDSHIP_CREATION_FAILED, e);
-                throw new UserServiceException(ERROR_ESTABLISHING_FRIENDSHIP, e);
+                throw new FriendshipException(ERROR_ESTABLISHING_FRIENDSHIP, e);
             }
             return true;
         }
@@ -59,9 +58,8 @@ public class FriendshipService extends SplitWiseService {
     /**
      * This method assumes that all participating users are already registered.
      * Returns true if the group friendship is successfully created.
-     * @throws UserServiceException
      */
-    public boolean createGroupFriendship(String groupName, List<String> membersUsernames) throws UserServiceException {
+    public boolean createGroupFriendship(String groupName, List<String> membersUsernames) throws FriendshipException {
         List<User> members = membersUsernames.stream().map(username -> userRepository.getById(username).get()).collect(Collectors.toList());
         boolean groupCanBeCreated = !isAnyUserAlreadyMemberOfAGroupWithSameName(groupName, members);
         if (!groupCanBeCreated) {
@@ -73,14 +71,14 @@ public class FriendshipService extends SplitWiseService {
         } catch (PersistenceException e) {
             LOGGER.info(GROUP_CREATION_FAILED + SEE_LOG_FILE);
             LOGGER.error(GROUP_CREATION_FAILED, e);
-            throw new UserServiceException(ERROR_DURING_GROUP_CREATION, e);
+            throw new FriendshipException(ERROR_DURING_GROUP_CREATION, e);
         }
 
         return true;
     }
 
     private boolean isAnyUserAlreadyMemberOfAGroupWithSameName(String groupName, List<User> participants) {
-        return participants.stream().anyMatch(participant -> participant.isPartOfGroup(groupName));
+        return participants.stream().anyMatch(participant -> participant.isPartOfFriendship(groupName));
     }
 
     private void addGroupMember(User memberToAdd, String groupName, List<String> members) {

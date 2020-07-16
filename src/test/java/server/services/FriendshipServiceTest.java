@@ -1,14 +1,13 @@
 package server.services;
 
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-import splitwise.server.exceptions.UserServiceException;
+import splitwise.server.exceptions.AuthenticationException;
 import splitwise.server.model.GroupFriendship;
 import splitwise.server.model.User;
-import splitwise.server.model.UserRepository;
+import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
 import splitwise.server.services.FriendshipService;
 
@@ -19,7 +18,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static server.TestConstants.*;
 import static splitwise.server.services.FriendshipService.ADDED_TO_GROUP_NOTIFICATION;
@@ -48,7 +46,7 @@ public class FriendshipServiceTest {
     }
 
     @Test
-    public void testThatIfFriendshipIsEstablishedNotificationIsSentToAddedFriend() throws UserServiceException {
+    public void testThatIfFriendshipIsEstablishedNotificationIsSentToAddedFriend() throws AuthenticationException {
         friendshipService.createFriendship(TEST_USERNAME1, TEST_USERNAME2);
 
         String assertMessage = "Notification is not sent to added friend after establishing friendship.";
@@ -59,7 +57,7 @@ public class FriendshipServiceTest {
     }
 
     @Test
-    public void testThatGroupCannotBeCreatedIfAnyOfTheUsersAlreadyParticipatesInGroupWithSameName() throws UserServiceException {
+    public void testThatGroupCannotBeCreatedIfAnyOfTheUsersAlreadyParticipatesInGroupWithSameName() throws AuthenticationException {
         stubUsers.get(0).addFriendship(new GroupFriendship(GROUP_NAME, List.of(TEST_USERNAME2, TEST_USERNAME3)));
 
         String assertMessage = "Group creation is not allowed when any of the members already participates in another group with the same name.";
@@ -71,7 +69,7 @@ public class FriendshipServiceTest {
 
      @Test
      @Ignore
-     public void testThatSuccessfulGroupCreationSendsNotificationsToAllNonActiveParticipatingUsers() throws UserServiceException {
+     public void testThatSuccessfulGroupCreationSendsNotificationsToAllNonActiveParticipatingUsers() throws AuthenticationException {
          stubUsers = new ArrayList<>();
          stubUsers.add(new User(TEST_USERNAME1, TEST_PASSWORD1));
          stubUsers.add(new User(TEST_USERNAME2, TEST_PASSWORD1));

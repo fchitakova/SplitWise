@@ -5,7 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import splitwise.server.commands.RegisterCommand;
-import splitwise.server.exceptions.UserServiceException;
+import splitwise.server.exceptions.AuthenticationException;
 import splitwise.server.services.AuthenticationService;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +45,7 @@ public class RegisterCommandTest {
     }
 
     @Test
-    public void testThatRegistrationAttemptWithNotTakenUsernameCallsRegisterUser() throws UserServiceException {
+    public void testThatRegistrationAttemptWithNotTakenUsernameCallsRegisterUser() throws AuthenticationException {
         when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
         registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
         when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
@@ -80,9 +80,9 @@ public class RegisterCommandTest {
     }
 
     @Test
-    public void testWhenRegistrationFailDueToRepositoryExceptionReturnsRightMessage() throws UserServiceException {
+    public void testWhenRegistrationFailDueToRepositoryExceptionReturnsRightMessage() throws AuthenticationException {
         when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
-        doThrow(UserServiceException.class).when(authenticationService).registerUser(TEST_USERNAME1,TEST_PASSWORD1);
+        doThrow(AuthenticationException.class).when(authenticationService).registerUser(TEST_USERNAME1,TEST_PASSWORD1);
 
         String assertMessage="Not right message is returner when userService.registerUser() throws exception.";
         String response = registerCommand.execute();
@@ -91,12 +91,12 @@ public class RegisterCommandTest {
     }
 
     @Test
-    public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned() throws UserServiceException {
+    public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned() throws AuthenticationException {
        when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
        when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
        registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
 
-       doThrow(new UserServiceException("dummy message", new Throwable())).when(authenticationService).registerUser(TEST_USERNAME1,TEST_PASSWORD1);
+       doThrow(new AuthenticationException("dummy message", new Throwable())).when(authenticationService).registerUser(TEST_USERNAME1,TEST_PASSWORD1);
 
        String assertMessage = "When UserServiceException is thrown not right command failure response is returned";
        String actualCommandResult = registerCommand.execute();

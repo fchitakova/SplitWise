@@ -1,7 +1,7 @@
 package splitwise.server.commands;
 
 
-import splitwise.server.exceptions.UserServiceException;
+import splitwise.server.exceptions.AuthenticationException;
 import splitwise.server.services.AuthenticationService;
 
 public class RegisterCommand extends Command{
@@ -31,16 +31,15 @@ public class RegisterCommand extends Command{
 
     @Override
     public String execute() {
-        if (isCommandInvokerLoggedIn) {
-            return ALREADY_LOGGED_IN;
+        if (!isCommandInvokerLoggedIn) {
+            boolean isRegistered = authenticationService.checkIfRegistered(username);
+            if (isRegistered) {
+                return TAKEN_USERNAME;
+            }
+            String registrationResult = register();
+            return registrationResult;
         }
-
-        boolean isRegistered = authenticationService.checkIfRegistered(username);
-        if(isRegistered){
-            return TAKEN_USERNAME;
-        }
-        String registrationResult = register();
-        return registrationResult;
+        return ALREADY_LOGGED_IN;
     }
 
 
@@ -48,7 +47,7 @@ public class RegisterCommand extends Command{
         try {
             authenticationService.registerUser(username,password);
             authenticationService.setUserAsActive(username);
-        } catch (UserServiceException e) {
+        } catch (AuthenticationException e) {
             return REGISTRATION_FAILED;
         }
 

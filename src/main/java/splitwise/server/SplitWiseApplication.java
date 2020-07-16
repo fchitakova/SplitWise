@@ -1,14 +1,15 @@
 package splitwise.server;
 
 import org.apache.log4j.Logger;
-import splitwise.server.commands.CommandFactory;
+import splitwise.server.services.CommandFactory;
 import splitwise.server.exceptions.PersistenceException;
-import splitwise.server.model.UserRepository;
-import splitwise.server.model.filesystem.FileSystemUserRepository;
+import splitwise.server.repository.UserRepository;
+import splitwise.server.repository.filesystem.FileSystemUserRepository;
 import splitwise.server.server.ActiveUsers;
 import splitwise.server.server.SplitWiseServer;
 import splitwise.server.services.AuthenticationService;
 import splitwise.server.services.FriendshipService;
+import splitwise.server.services.MoneySplitService;
 import splitwise.server.services.SplitWiseService;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class SplitWiseApplication
         try {
             userRepository = new FileSystemUserRepository(DB_FILE_PATH);
             commandFactory = new CommandFactory(new AuthenticationService(userRepository, activeUsers),
-                    new FriendshipService(userRepository, activeUsers));
+                    new FriendshipService(userRepository, activeUsers),new MoneySplitService(userRepository,activeUsers));
         } catch (PersistenceException e) {
             LOGGER.info(USER_REPOSITORY_CREATION_FAILED+e.getMessage());
             LOGGER.error(USER_REPOSITORY_CREATION_FAILED+e.getMessage(),e);
