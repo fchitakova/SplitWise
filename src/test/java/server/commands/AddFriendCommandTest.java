@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import splitwise.server.commands.AddFriendCommand;
 import splitwise.server.exceptions.UserServiceException;
-import splitwise.server.services.FriendshipCreator;
+import splitwise.server.services.FriendshipService;
 
 
 import static org.junit.Assert.assertEquals;
@@ -16,14 +16,14 @@ import static splitwise.server.commands.AddFriendCommand.FRIENDSHIP_CANNOT_BE_ES
 import static splitwise.server.commands.AddFriendCommand.USER_NOT_FOUND;
 
 public class AddFriendCommandTest {
-    public static String ADD_FRIEND_COMMAND = "add-friend " + TEST_USERNAME;
+    public static String ADD_FRIEND_COMMAND = "add-friend " + TEST_USERNAME1;
 
-    private static FriendshipCreator friendshipCreator;
+    private static FriendshipService friendshipCreator;
     private static AddFriendCommand addFriendCommand;
 
     @BeforeClass
     public static void setUp() {
-        friendshipCreator = Mockito.mock(FriendshipCreator.class);
+        friendshipCreator = Mockito.mock(FriendshipService.class);
     }
 
     @After
@@ -50,10 +50,10 @@ public class AddFriendCommandTest {
     public void addingNotExistingUserShouldReturnNotRegisteredMessage() {
         when(friendshipCreator.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME2);
         addFriendCommand = new AddFriendCommand(ADD_FRIEND_COMMAND, friendshipCreator);
-        when(friendshipCreator.checkIfRegistered(TEST_USERNAME)).thenReturn(false);
+        when(friendshipCreator.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
 
         String assertMessage = "Adding not registered user should return right message.";
-        String expectedResult = String.format(USER_NOT_FOUND, TEST_USERNAME);
+        String expectedResult = String.format(USER_NOT_FOUND, TEST_USERNAME1);
         String actualResult = addFriendCommand.execute();
 
         assertEquals(assertMessage, expectedResult, actualResult);
@@ -62,8 +62,8 @@ public class AddFriendCommandTest {
     @Test
     public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned() throws UserServiceException {
         when(friendshipCreator.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME2);
-        when(friendshipCreator.checkIfRegistered(TEST_USERNAME)).thenReturn(true);
-        doThrow(new UserServiceException("dummy message", new Throwable())).when(friendshipCreator).createFriendship(TEST_USERNAME2,TEST_USERNAME);
+        when(friendshipCreator.checkIfRegistered(TEST_USERNAME1)).thenReturn(true);
+        doThrow(new UserServiceException("dummy message", new Throwable())).when(friendshipCreator).createFriendship(TEST_USERNAME2, TEST_USERNAME1);
         addFriendCommand = new AddFriendCommand(ADD_FRIEND_COMMAND, friendshipCreator);
 
         String assertMessage = "When UserServiceException is thrown not right command failure response is returned";

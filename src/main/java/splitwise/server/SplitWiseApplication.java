@@ -1,12 +1,15 @@
 package splitwise.server;
 
 import org.apache.log4j.Logger;
+import splitwise.server.commands.CommandFactory;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.model.UserRepository;
 import splitwise.server.model.filesystem.FileSystemUserRepository;
 import splitwise.server.server.ActiveUsers;
 import splitwise.server.server.SplitWiseServer;
-import splitwise.server.services.*;
+import splitwise.server.services.AuthenticationService;
+import splitwise.server.services.FriendshipService;
+import splitwise.server.services.SplitWiseService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -58,7 +61,8 @@ public class SplitWiseApplication
     private static boolean instantiateCommandFactory(){
         try {
             userRepository = new FileSystemUserRepository(DB_FILE_PATH);
-            commandFactory = new CommandFactory(getSplitWiseServices(userRepository,activeUsers));
+            commandFactory = new CommandFactory(new AuthenticationService(userRepository, activeUsers),
+                    new FriendshipService(userRepository, activeUsers));
         } catch (PersistenceException e) {
             LOGGER.info(USER_REPOSITORY_CREATION_FAILED+e.getMessage());
             LOGGER.error(USER_REPOSITORY_CREATION_FAILED+e.getMessage(),e);
@@ -67,11 +71,11 @@ public class SplitWiseApplication
         return true;
     }
 
-    private static List<SplitWiseService> getSplitWiseServices(UserRepository userRepository,ActiveUsers activeUsers){
+    private static List<SplitWiseService> getSplitWiseServices(UserRepository userRepository,ActiveUsers activeUsers) {
         List<SplitWiseService> services = new ArrayList<>();
 
-        services.add(new AuthenticationService(userRepository,activeUsers));
-        services.add(new FriendshipCreator(userRepository,activeUsers));
+        services.add(new AuthenticationService(userRepository, activeUsers));
+        services.add(new FriendshipService(userRepository, activeUsers));
 
         return services;
     }

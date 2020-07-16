@@ -12,19 +12,19 @@ import splitwise.server.server.ActiveUsers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FriendshipCreator extends SplitWiseService {
+public class FriendshipService extends SplitWiseService {
     public static final String START_SPLITTING = "You can start splitting!";
     public static final String RECEIVED_FRIENDSHIP_NOTIFICATION = "%s added you as a friend. " + START_SPLITTING;
-    public static final String ADDED_TO_GROUP_NOTIFICATION = "You have been added to group %s with participants: %s ."+START_SPLITTING;
+    public static final String ADDED_TO_GROUP_NOTIFICATION = "You have been added to group %s with participants: %s ." + START_SPLITTING;
     public static final String FRIENDSHIP_CREATION_FAILED = "Creating friendship failed due to persistence error.";
     public static final String GROUP_CREATION_FAILED = "Creating group failed due to persistence error.";
     public static final String ERROR_ESTABLISHING_FRIENDSHIP = "Error during establishing friendship.";
     public static final String ERROR_DURING_GROUP_CREATION = "Error during establishing friendship.";
 
 
-    private static final Logger LOGGER = Logger.getLogger(FriendshipCreator.class);
+    private static final Logger LOGGER = Logger.getLogger(FriendshipService.class);
 
-    public FriendshipCreator(UserRepository userRepository, ActiveUsers activeUsers){
+    public FriendshipService(UserRepository userRepository, ActiveUsers activeUsers) {
         this.userRepository = userRepository;
         this.activeUsers = activeUsers;
     }
@@ -61,33 +61,37 @@ public class FriendshipCreator extends SplitWiseService {
      * Returns true if the group friendship is successfully created.
      * @throws UserServiceException
      */
-    public boolean createGroupFriendship(String groupName, List<String> participants) throws UserServiceException {
-        boolean isGroupCreated = participants.stream().allMatch(participant -> addParticipantToGroup(groupName, participant, participants));
-        if (isGroupCreated) {
-            try {
-                userRepository.save();
-            } catch (PersistenceException e) {
-                LOGGER.info(GROUP_CREATION_FAILED + SEE_LOG_FILE);
-                LOGGER.error(GROUP_CREATION_FAILED, e);
-                throw new UserServiceException(ERROR_DURING_GROUP_CREATION, e);
-            }
+    public boolean createGroupFriendship(String groupName, List<String> membersUsernames) throws UserServiceException {
+        List<User> members = membersUsernames.stream().map(username -> userRepository.getById(username).get()).collect(Collectors.toList());
+        boolean groupCanBeCreated = !isAnyUserAlreadyMemberOfAGroupWithSameName(groupName, members);
+        if (!groupCanBeCreated) {
+            return false;
         }
-        return isGroupCreated;
+        members.stream().forEach(member -> addGroupMember(member, groupName, membersUsernames));
+        try {
+            userRepository.save();
+        } catch (PersistenceException e) {
+            LOGGER.info(GROUP_CREATION_FAILED + SEE_LOG_FILE);
+            LOGGER.error(GROUP_CREATION_FAILED, e);
+            throw new UserServiceException(ERROR_DURING_GROUP_CREATION, e);
+        }
+
+        return true;
     }
 
-    private boolean addParticipantToGroup(String groupName, String currentParticipantUsername, List<String> participants) {
-        List<String> participantsWithoutCurrent = participants.stream().
-                filter(username -> (!username.equals(currentParticipantUsername))).collect(Collectors.toList());
+    private boolean isAnyUserAlreadyMemberOfAGroupWithSameName(String groupName, List<User> participants) {
+        return participants.stream().anyMatch(participant -> participant.isPartOfGroup(groupName));
+    }
 
-        User participant = userRepository.getById(currentParticipantUsername).get();
-        boolean addedToGroup = participant.addFriendship(new GroupFriendship(groupName, participantsWithoutCurrent));
-        if(addedToGroup){
-            String addedToGroupNotification = String.format(ADDED_TO_GROUP_NOTIFICATION,groupName,
-                    participantsWithoutCurrent.stream().collect(Collectors.joining(", ")));
+    private void addGroupMember(User memberToAdd, String groupName, List<String> members) {
+        List<String> participantsWithoutCurrent = members.stream().
+                filter(username -> (!username.equals(memberToAdd))).collect(Collectors.toList());
 
-            sendNotification(participant,addedToGroupNotification);
-        }
 
-        return addedToGroup;
+        memberToAdd.addFriendship(new GroupFriendship(groupName, participantsWithoutCurrent));
+        String addedToGroupNotification = String.format(ADDED_TO_GROUP_NOTIFICATION, groupName,
+                participantsWithoutCurrent.stream().collect(Collectors.joining(", ")));
+
+        sendNotification(memberToAdd, addedToGroupNotification);
     }
 }

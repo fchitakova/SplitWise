@@ -1,7 +1,8 @@
 package splitwise.server.commands;
 
 import splitwise.server.exceptions.UserServiceException;
-import splitwise.server.services.FriendshipCreator;
+import splitwise.server.services.FriendshipService;
+
 import java.util.Arrays;
 
 
@@ -15,9 +16,9 @@ public class CreateGroupCommand extends Command {
 
     private String groupName;
     private String[] participants;
-    private FriendshipCreator friendshipCreator;
+    private FriendshipService friendshipCreator;
 
-    public CreateGroupCommand(String command, FriendshipCreator friendshipCreator) {
+    public CreateGroupCommand(String command, FriendshipService friendshipCreator) {
         super(friendshipCreator);
         this.friendshipCreator = friendshipCreator;
         initializeCommandParameters(command);
@@ -32,15 +33,20 @@ public class CreateGroupCommand extends Command {
     }
 
     private void initializeGroupParticipants(String[] commandParts) {
-        participants = new String[commandParts.length - 2];
+        participants = new String[commandParts.length - 1];
 
-       for(int i = 0;i < participants.length;i++) {
-           participants[i] = commandParts[i + 2];
+        participants[0] = commandInvokerUsername;
+        for (int i = 1; i < participants.length; i++) {
+            participants[i] = commandParts[i + 1];
         }
     }
 
     @Override
     public String execute() {
+        if (!isCommandInvokerLoggedIn) {
+            return LOGIN_OR_REGISTER;
+        }
+
         if (participants.length < 2) {
             return NOT_ENOUGH_PARTICIPANTS;
         }

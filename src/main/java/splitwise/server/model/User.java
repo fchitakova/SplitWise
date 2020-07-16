@@ -1,9 +1,10 @@
 package splitwise.server.model;
 
+import java.io.Serializable;
 import java.util.*;
 
 
-public class User{
+public class User implements Serializable {
     private String username;
     private char[]password;
     private String fullName;
@@ -27,6 +28,10 @@ public class User{
 
     public boolean addFriendship(Friendship friendship) {
         return friendships.add(friendship);
+    }
+
+    public boolean isPartOfGroup(String groupName){
+        return friendships.stream().anyMatch(friendship -> friendship.getName().equals(groupName));
     }
 
     public void pushNotification(String notification) {
