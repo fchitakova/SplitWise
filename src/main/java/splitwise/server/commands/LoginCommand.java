@@ -4,7 +4,6 @@ package splitwise.server.commands;
 import splitwise.server.services.AuthenticationService;
 
 import java.util.Deque;
-import java.util.Iterator;
 
 public class LoginCommand extends Command{
     public static final String INVALID_CREDENTIALS = "Invalid username or password!";
@@ -64,9 +63,8 @@ public class LoginCommand extends Command{
             return response.toString();
         }
         response.append(NOTIFICATIONS_TITLE + '\n');
-        Iterator<String> iterator = notificationMessages.iterator();
-        while (iterator.hasNext()) {
-            response.append(iterator.next() + "\n\n");
+        for (String notification : notificationMessages) {
+            response.append(notification + "\n\n");
         }
         return response.toString();
     }

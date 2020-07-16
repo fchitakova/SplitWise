@@ -30,13 +30,20 @@ public class User implements Serializable {
         return friendships.add(friendship);
     }
 
-    public boolean isPartOfFriendship(String groupName){
+    public boolean isPartOfFriendship(String groupName) {
         return friendships.stream().anyMatch(friendship -> friendship.getName().equals(groupName));
     }
 
-    public Set<Friendship> getFriendships(){
-        return friendships;
+
+    public Friendship getSpecificFriendship(String friendshipId) {
+        for (Friendship friendship : friendships) {
+            if (friendship.getName().equals(friendshipId)) {
+                return friendship;
+            }
+        }
+        return null;
     }
+
 
     public void pushNotification(String notification) {
         this.notifications.push(notification);

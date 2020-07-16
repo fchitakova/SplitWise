@@ -41,7 +41,7 @@ public class Friend implements Friendship, Serializable {
     }
 
     @Override
-    public List<String> getFriendshipMembersUsernames() {
+    public List<String> getMembersUsernames() {
         return List.of(name);
     }
 

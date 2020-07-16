@@ -14,5 +14,5 @@ public interface Friendship {
 
      String getStatus();
 
-     List<String> getFriendshipMembersUsernames();
+     List<String> getMembersUsernames();
 }

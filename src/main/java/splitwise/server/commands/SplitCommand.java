@@ -58,8 +58,7 @@ public class SplitCommand extends Command {
             return COMMAND_FAILED;
         }
         String splittingResult = createSplittingResponse();
-        // "Splitted"//Splitted 5 LV between you and Hristo Hristov.
-        return null;
+        return splittingResult;
     }
 
 

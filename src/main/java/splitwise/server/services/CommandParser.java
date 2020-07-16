@@ -38,7 +38,7 @@ public class CommandParser {
     }
 
     private static boolean hasMinimumNumberOfParameters(String[]commandArguments, int minimumNumberOfParameters) {
-        return commandArguments.length > minimumNumberOfParameters;
+        return commandArguments.length >= minimumNumberOfParameters;
     }
 
     public static boolean startsWithCreateGroupCommand(String command) {

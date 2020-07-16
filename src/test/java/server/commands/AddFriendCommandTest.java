@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import splitwise.server.commands.AddFriendCommand;
 import splitwise.server.exceptions.AuthenticationException;
+import splitwise.server.exceptions.FriendshipException;
 import splitwise.server.services.FriendshipService;
 
 
@@ -60,7 +61,7 @@ public class AddFriendCommandTest {
     }
 
     @Test
-    public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned() throws AuthenticationException {
+    public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned() throws FriendshipException {
         when(friendshipCreator.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME2);
         when(friendshipCreator.checkIfRegistered(TEST_USERNAME1)).thenReturn(true);
         doThrow(new AuthenticationException("dummy message", new Throwable())).when(friendshipCreator).createFriendship(TEST_USERNAME2, TEST_USERNAME1);

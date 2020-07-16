@@ -57,7 +57,7 @@ public class GroupFriendship implements Friendship, Serializable {
     }
 
     @Override
-    public List<String> getFriendshipMembersUsernames() {
+    public List<String> getMembersUsernames() {
         return groupMembers.stream().map(groupMember -> groupMember.getName()).collect(Collectors.toList());
     }
 }

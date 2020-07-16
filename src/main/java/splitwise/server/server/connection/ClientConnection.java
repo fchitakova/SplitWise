@@ -53,15 +53,15 @@ public class ClientConnection extends Thread{
         splitWiseServer.addActiveClientConnection(socket);
 
         while (!socket.isClosed()) {
-            processClientCommands();
+            handleClientCommands();
         }
         splitWiseServer.removeClientConnection();
     }
 
-    private void processClientCommands() {
+    private void handleClientCommands() {
         try {
             String userInput = readClientInput();
-            if (userInput == null) {
+            if (userHasClosedConnection(userInput)) {
                 closeSocketConnection();
             } else {
                 String serverResponse = splitWiseServer.executeUserCommand(userInput);
@@ -74,12 +74,16 @@ public class ClientConnection extends Thread{
         }
     }
 
+    private boolean userHasClosedConnection(String userInput) {
+        return userInput == null;
+    }
+
     private String readClientInput() throws ClientConnectionException {
         String input;
-        try{
+        try {
             input = socketInputReader.readLine();
-        }catch(IOException e){
-            throw new ClientConnectionException(ERROR_READING_SOCKET_INPUT,e);
+        } catch (IOException e) {
+            throw new ClientConnectionException(ERROR_READING_SOCKET_INPUT, e);
         }
         return input;
     }

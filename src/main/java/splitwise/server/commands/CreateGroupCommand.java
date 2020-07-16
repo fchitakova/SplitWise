@@ -1,6 +1,5 @@
 package splitwise.server.commands;
 
-import splitwise.server.exceptions.AuthenticationException;
 import splitwise.server.exceptions.FriendshipException;
 import splitwise.server.services.FriendshipService;
 
