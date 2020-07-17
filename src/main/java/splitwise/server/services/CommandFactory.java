@@ -35,9 +35,11 @@ public class CommandFactory {
         if (match(input, LOGIN_COMMAND)) {
             return new LoginCommand(input, authenticationService);
         }
+
         if (match(input, REGISTER_COMMAND)) {
             return new RegisterCommand(input, authenticationService);
         }
+
         if (match(input, ADD_FRIEND_COMMAND)) {
             return new AddFriendCommand(input, friendshipService);
         }
@@ -49,6 +51,7 @@ public class CommandFactory {
         if (matchCreateGroupCommandFormat(input)) {
             return new CreateGroupCommand(input, friendshipService);
         }
+
         if (matchSplitCommand(input)) {
             return new SplitCommand(input, moneySplitService);
         }
