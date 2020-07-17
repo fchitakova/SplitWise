@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class Friend implements Friendship, Serializable {
-    String SHOULD_TAKE_MONEY = "You owe %s %s LV ";
-    String SHOULD_GIVE_MONEY = "%s owes you %s LV";
+    public static final String SHOULD_TAKE_MONEY = "You owe %s %s LV ";
+    public static final String SHOULD_GIVE_MONEY = "%s owes you %s LV";
     public static final double NEUTRAL_ACCOUNT_AMOUNT = 0.0;
     private String name;
     private Double account;
@@ -19,7 +19,7 @@ public class Friend implements Friendship, Serializable {
 
     @Override
     public void split(Double amount) {
-        account = account + amount / 2;
+        account = account + amount;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class Friend implements Friendship, Serializable {
         StringBuilder userStatus = new StringBuilder();
 
         if (account > 0.0) {
-            userStatus.append(String.format(SHOULD_GIVE_MONEY, Double.toString(account)));
+            userStatus.append(String.format(SHOULD_GIVE_MONEY, getName(), Double.toString(account)));
         }
         if (account < 0.0) {
             userStatus.append(String.format(SHOULD_TAKE_MONEY, getName(), Double.toString(-account)));

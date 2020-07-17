@@ -62,22 +62,24 @@ public class User implements Serializable {
     }
 
     public String getSplittingStatus() {
-        StringBuilder splittingStatus = new StringBuilder();
-        splittingStatus.append("Friends:\n");
-        for (Friendship friendship : friendships) {
-            if (friendship instanceof Friend && !friendship.getStatus().isBlank()) {
-                splittingStatus.append(RED_STAR_SYMBOL + friendship.getStatus() + '\n');
-            }
-        }
+        StringBuilder friendsStatus = new StringBuilder("Friends:\n");
+        StringBuilder groupsStatus = new StringBuilder("\nGroups:\n");
 
-        splittingStatus.append("\nGroups:\n");
         for (Friendship friendship : friendships) {
-            if (friendship instanceof GroupFriendship) {
-                splittingStatus.append(RED_STAR_SYMBOL + friendship.getName() + ":\n");
-                splittingStatus.append(friendship.getStatus());
+            String friendshipStatus = friendship.getStatus();
+            if (friendshipHasOutstandingAccounts(friendshipStatus)) {
+                if (friendship instanceof Friend) {
+                    friendsStatus.append(RED_STAR_SYMBOL + friendship.getStatus() + '\n');
+                } else {
+                    groupsStatus.append(RED_STAR_SYMBOL + friendship.getName() + ":\n" + friendshipStatus);
+                }
             }
         }
-        return splittingStatus.toString();
+        return friendsStatus.append("\n" + groupsStatus).toString();
+    }
+
+    private boolean friendshipHasOutstandingAccounts(String friendshipStatus) {
+        return !friendshipStatus.isBlank();
     }
 
 }

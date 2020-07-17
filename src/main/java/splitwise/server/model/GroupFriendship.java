@@ -25,14 +25,12 @@ public class GroupFriendship implements Friendship, Serializable {
                 groupStatus.append(friendsStatus + '\n');
             }
         }
-
         return groupStatus.toString();
     }
 
     @Override
     public void split(Double amount) {
-        Double debtPart = amount / groupMembers.size();
-        groupMembers.forEach(member -> member.split(debtPart));
+        groupMembers.forEach(member -> member.split(amount));
     }
 
     @Override

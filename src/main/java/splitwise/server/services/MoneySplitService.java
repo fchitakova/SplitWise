@@ -28,9 +28,12 @@ public class MoneySplitService extends SplitWiseService {
 
     public void split(String splitterUsername, String friendshipName, Double amount, String splitReason) throws MoneySplitException {
         User splitter = userRepository.getById(splitterUsername).get();
-        split(splitter, friendshipName, (-amount));
 
         List<String> friendshipMembers = getFriendshipParticipants(splitter, friendshipName);
+
+        Double splitAmount = calculateSplitAmount(amount, friendshipMembers);
+        split(splitter, friendshipName, splitAmount);
+
         boolean isGroupFriendship = isGroupFriendship(friendshipMembers);
         if (!isGroupFriendship) {
             friendshipName = splitterUsername;
@@ -38,7 +41,7 @@ public class MoneySplitService extends SplitWiseService {
 
         for (String memberUsername : friendshipMembers) {
             User groupMember = userRepository.getById(memberUsername).get();
-            split(groupMember, friendshipName, amount);
+            split(groupMember, friendshipName, (-splitAmount));
 
             String notification = isGroupFriendship ?
                     String.format(SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, friendshipName, splitReason) :
@@ -47,6 +50,14 @@ public class MoneySplitService extends SplitWiseService {
 
         }
         saveChanges();
+    }
+
+    private Double calculateSplitAmount(Double amount, List<String> friendshipMembers) {
+        boolean isGroupFriendship = isGroupFriendship(friendshipMembers);
+        if (isGroupFriendship) {
+            return amount / friendshipMembers.size();
+        }
+        return amount / 2;
     }
 
     private void split(User user, String friendshipName, Double amount) {
