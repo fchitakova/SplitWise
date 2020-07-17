@@ -50,20 +50,16 @@ public class Friend implements Friendship, Serializable {
         return List.of(name);
     }
 
-    public Double getAccount() {
-        return account;
-    }
-
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object other) {
+        if (this == other) {
             return true;
         }
-        if (!(o instanceof Friend)) {
+        if (!(other instanceof Friend)) {
             return false;
         }
-        Friend friend = (Friend) o;
+        Friend friend = (Friend) other;
         return name.equals(friend.name);
     }
 

@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 
 
 public class FriendshipJsonSerializer implements JsonSerializer<Friendship> {
-
     private static final String friendshipType = "friendshipType";
     private static final String friendshipData = "friendshipData";
 

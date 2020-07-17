@@ -31,28 +31,33 @@ public class RegisterCommand extends Command{
 
     @Override
     public String execute() {
-        if (!isCommandInvokerLoggedIn) {
-            boolean isRegistered = authenticationService.checkIfRegistered(username);
-            if (isRegistered) {
+        if (isLoginAllowed()) {
+            if (isUsernameFree()) {
+                String commandResult = register();
+                return commandResult;
+            } else {
                 return TAKEN_USERNAME;
             }
-            String registrationResult = register();
-            return registrationResult;
         }
         return ALREADY_LOGGED_IN;
     }
 
+    private boolean isLoginAllowed() {
+        return !isCommandInvokerLoggedIn;
+    }
 
-    private String register(){
+    private boolean isUsernameFree() {
+        return !authenticationService.checkIfRegistered(username);
+    }
+
+    private String register() {
         try {
-            authenticationService.registerUser(username,password);
+            authenticationService.registerUser(username, password);
             authenticationService.setUserAsActive(username);
         } catch (AuthenticationException e) {
             return REGISTRATION_FAILED;
         }
-
         return SUCCESSFUL_REGISTRATION;
     }
-
 
 }

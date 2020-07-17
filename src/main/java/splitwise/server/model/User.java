@@ -35,13 +35,13 @@ public class User implements Serializable {
     }
 
 
-    public Friendship getSpecificFriendship(String friendshipName) {
+    public Optional<Friendship> getSpecificFriendship(String friendshipName) {
         for (Friendship friendship : friendships) {
             if (friendship.getName().equals(friendshipName)) {
-                return friendship;
+                return Optional.of(friendship);
             }
         }
-        return null;
+        return Optional.ofNullable(null);
     }
 
 

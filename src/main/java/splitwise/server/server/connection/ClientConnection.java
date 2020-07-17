@@ -12,11 +12,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 
-
 public class ClientConnection extends Thread{
     private static final String ERROR_READING_SOCKET_INPUT = "Error reading client socket input.";
     private static final String ERROR_DURING_GETTING_SOCKET_IO_STREAMS = "Error occurred during getting client socket I/O streams.";
-    private static final String ERROR_DURING_CLIENT_CONNECTION_CONSTRUCTION="ClientConnection cannot be constructed.";
     private static final String WELCOME_MESSAGE = "Welcome to SplitWise!";
     private static final String ERROR_CLOSING_SOCKET = "Cannot close client socket connection because of I/O exception.";
 
@@ -28,23 +26,20 @@ public class ClientConnection extends Thread{
     private SplitWiseServer splitWiseServer;
 
     public ClientConnection(Socket socket, SplitWiseServer splitWiseServer) throws ClientConnectionException {
-        this.socket = socket;
+        setUpSocketConnection(socket);
         this.splitWiseServer = splitWiseServer;
-        try {
-            initializeSocketIOStreams();
-        } catch (IOException e) {
-            throw new ClientConnectionException(ERROR_DURING_CLIENT_CONNECTION_CONSTRUCTION + "Reason: " + e.getMessage(), e);
-        }
+
         sendMessageToClient(WELCOME_MESSAGE);
     }
 
-    private void initializeSocketIOStreams() throws IOException {
+    private void setUpSocketConnection(Socket socket) throws ClientConnectionException {
+        this.socket = socket;
         try {
             socketInputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             socketOutputWriter = new PrintWriter(socket.getOutputStream(), true);
-        }catch (IOException e){
+        } catch (IOException e) {
             closeSocketConnection();
-            throw new IOException(ERROR_DURING_GETTING_SOCKET_IO_STREAMS,e);
+            throw new ClientConnectionException(ERROR_DURING_GETTING_SOCKET_IO_STREAMS, e);
         }
     }
 
@@ -52,51 +47,52 @@ public class ClientConnection extends Thread{
     public void run() {
         splitWiseServer.addActiveClientConnection(socket);
 
-        while (!socket.isClosed()) {
-            handleClientCommands();
+        while (isConnectionAlive()) {
+            processClientCommands();
         }
+
         splitWiseServer.removeClientConnection();
     }
 
-    private void handleClientCommands() {
-        try {
-            String userInput = readClientInput();
-            if (userHasClosedConnection(userInput)) {
-                closeSocketConnection();
-            } else {
-                String serverResponse = splitWiseServer.executeUserCommand(userInput);
-                sendMessageToClient(serverResponse);
-            }
-        } catch (ClientConnectionException e) {
-            closeSocketConnection();
-            LOGGER.info(e.getMessage());
-            LOGGER.error(e.getMessage(), e);
+    private boolean isConnectionAlive() {
+        return !socket.isClosed();
+    }
+
+    private void processClientCommands() {
+        String userInput = readClientInput();
+
+        if (isValid(userInput) && isConnectionAlive()) {
+            String serverResponse = splitWiseServer.executeUserCommand(userInput);
+            sendMessageToClient(serverResponse);
         }
     }
 
-    private boolean userHasClosedConnection(String userInput) {
-        return userInput == null;
-    }
-
-    private String readClientInput() throws ClientConnectionException {
-        String input;
+    private String readClientInput() {
+        String input = "";
         try {
             input = socketInputReader.readLine();
         } catch (IOException e) {
-            throw new ClientConnectionException(ERROR_READING_SOCKET_INPUT, e);
+            closeSocketConnection();
+            LOGGER.info(ERROR_READING_SOCKET_INPUT);
+            LOGGER.error(ERROR_READING_SOCKET_INPUT, e);
         }
         return input;
     }
+
+    private boolean isValid(String userInput) {
+        return userInput != null;
+    }
+
 
     private void sendMessageToClient(String response) {
         socketOutputWriter.println(response);
     }
 
-    private void closeSocketConnection(){
-        try{
-             socket.close();
-        }catch (IOException e){
-            LOGGER.error(ERROR_CLOSING_SOCKET,e);
+    private void closeSocketConnection() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            LOGGER.error(ERROR_CLOSING_SOCKET, e);
         }
     }
 

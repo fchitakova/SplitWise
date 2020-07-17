@@ -38,7 +38,7 @@ public class SplitCommandTest {
     @Test
     public void testThatSplittingWithNonFriendUserReturnsNotAllowedResponse() {
         when(moneySplitService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME1);
-        when(moneySplitService.isMoneySharingAllowed(TEST_USERNAME1, TEST_USERNAME2)).thenReturn(false);
+        when(moneySplitService.isMoneySharingAllowedBetween(TEST_USERNAME1, TEST_USERNAME2)).thenReturn(false);
         splitCommand = new SplitCommand(SPLIT_WITH_FRIEND_COMMAND, moneySplitService);
 
         String assertMessage = "Splitting with non friend user must return response indicating it is not allowed";
@@ -50,7 +50,7 @@ public class SplitCommandTest {
     @Test
     public void testThatSplittingInGroupInWhichInvokerIsNotMemberReturnsNotAllowedResponse() {
         when(moneySplitService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME1);
-        when(moneySplitService.isMoneySharingAllowed(TEST_USERNAME1, GROUP_NAME)).thenReturn(false);
+        when(moneySplitService.isMoneySharingAllowedBetween(TEST_USERNAME1, GROUP_NAME)).thenReturn(false);
         splitCommand = new SplitCommand(SPLIT_WITH_GROUP_COMMAND, moneySplitService);
 
         String assertMessage = "Splitting with group of which the invoker is not member must return response indicating it is not allowed";

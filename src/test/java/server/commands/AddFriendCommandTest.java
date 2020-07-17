@@ -5,7 +5,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import splitwise.server.commands.AddFriendCommand;
-import splitwise.server.exceptions.AuthenticationException;
 import splitwise.server.exceptions.FriendshipException;
 import splitwise.server.services.FriendshipService;
 
@@ -64,7 +63,7 @@ public class AddFriendCommandTest {
     public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned() throws FriendshipException {
         when(friendshipCreator.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME2);
         when(friendshipCreator.checkIfRegistered(TEST_USERNAME1)).thenReturn(true);
-        doThrow(new AuthenticationException("dummy message", new Throwable())).when(friendshipCreator).createFriendship(TEST_USERNAME2, TEST_USERNAME1);
+        doThrow(new FriendshipException("dummy message", new Throwable())).when(friendshipCreator).createFriendship(TEST_USERNAME2, TEST_USERNAME1);
         addFriendCommand = new AddFriendCommand(ADD_FRIEND_COMMAND, friendshipCreator);
 
         String assertMessage = "When UserServiceException is thrown not right command failure response is returned";

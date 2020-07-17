@@ -22,8 +22,10 @@ public class GroupFriendship implements Friendship, Serializable {
     @Override
     public String getStatus() {
         StringBuilder groupStatus = new StringBuilder(RED_STAR_SYMBOL + getName() + '\n');
+
         Function<Friend, String> getFriendStatus = friend -> friend.getStatus() + '\n';
         groupMembers.forEach(member -> groupStatus.append(getFriendStatus.apply(member)));
+
         return groupStatus.toString();
     }
 
@@ -48,14 +50,14 @@ public class GroupFriendship implements Friendship, Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object other) {
+        if (this == other) {
             return true;
         }
-        if (!(o instanceof GroupFriendship)) {
+        if (!(other instanceof GroupFriendship)) {
             return false;
         }
-        GroupFriendship that = (GroupFriendship) o;
+        GroupFriendship that = (GroupFriendship) other;
         return groupName.equals(that.groupName) &&
                 groupMembers.equals(that.groupMembers);
     }

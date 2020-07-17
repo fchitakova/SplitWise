@@ -48,12 +48,12 @@ public class MoneySplitService extends SplitWiseService {
     }
 
     private void split(User user, String friendshipName, Double amount) {
-        Friendship friendship = user.getSpecificFriendship(friendshipName);
+        Friendship friendship = user.getSpecificFriendship(friendshipName).get();
         friendship.split(amount);
     }
 
     private List<String> getFriendshipParticipants(User splitter, String friendshipName) {
-        Friendship friendship = splitter.getSpecificFriendship(friendshipName);
+        Friendship friendship = splitter.getSpecificFriendship(friendshipName).get();
         return friendship.getMembersUsernames();
     }
 
@@ -64,11 +64,11 @@ public class MoneySplitService extends SplitWiseService {
 
     public void payOff(String usernameToWhomIsPaid, Double amount, String debtorUsername) throws MoneySplitException {
         User paidUser = userRepository.getById(usernameToWhomIsPaid).get();
-        Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(debtorUsername);
+        Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(debtorUsername).get();
         paidUserSideFriendship.payOff(debtorUsername, amount);
 
         User debtor = userRepository.getById(debtorUsername).get();
-        Friendship debtorSideFriendship = debtor.getSpecificFriendship(usernameToWhomIsPaid);
+        Friendship debtorSideFriendship = debtor.getSpecificFriendship(usernameToWhomIsPaid).get();
         debtorSideFriendship.payOff(usernameToWhomIsPaid, amount);
 
         saveChanges();
@@ -76,13 +76,13 @@ public class MoneySplitService extends SplitWiseService {
 
     public void groupPayOff(String usernameToWhomIsPaid, Double amount, String debtorUsername, String groupName) throws MoneySplitException {
         User paidUser = userRepository.getById(usernameToWhomIsPaid).get();
-        Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(groupName);
+        Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(groupName).get();
         paidUserSideFriendship.payOff(debtorUsername, amount);
 
         List<String> groupMembersUsernames = paidUserSideFriendship.getMembersUsernames();
         for (String username : groupMembersUsernames) {
             User groupMember = userRepository.getById(username).get();
-            Friendship friendship = groupMember.getSpecificFriendship(groupName);
+            Friendship friendship = groupMember.getSpecificFriendship(groupName).get();
             friendship.payOff(debtorUsername, amount);
         }
 

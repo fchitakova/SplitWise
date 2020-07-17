@@ -18,11 +18,11 @@ public class CreateGroupCommand extends Command {
 
     private String groupName;
     private String[] participants;
-    private FriendshipService friendshipCreator;
+    private FriendshipService friendshipService;
 
     public CreateGroupCommand(String command, FriendshipService friendshipCreator) {
         super(friendshipCreator);
-        this.friendshipCreator = friendshipCreator;
+        this.friendshipService = friendshipCreator;
         initializeCommandParameters(command);
 
     }
@@ -46,24 +46,33 @@ public class CreateGroupCommand extends Command {
     @Override
     public String execute() {
         if (isCommandInvokerLoggedIn) {
-            if (participants.length < MINIMUM_COUNT_OF_GROUP_MEMBERS) {
+            if (enoughGroupMembersArePresent()) {
+                if (allGroupMembersAreRegistered()) {
+                    String commandResult = createGroup();
+                    return commandResult;
+                } else {
+                    return NOT_REGISTERED_PARTICIPANTS;
+                }
+            } else {
                 return NOT_ENOUGH_PARTICIPANTS;
             }
-            if (!friendshipCreator.checkIfRegistered(participants)) {
-                return NOT_REGISTERED_PARTICIPANTS;
-            }
-
-            String commandResult = createGroup();
-            return commandResult;
         }
         return LOGIN_OR_REGISTER;
     }
 
-    private String createGroup(){
+    private boolean enoughGroupMembersArePresent() {
+        return participants.length >= MINIMUM_COUNT_OF_GROUP_MEMBERS;
+    }
+
+    private boolean allGroupMembersAreRegistered() {
+        return friendshipService.checkIfRegistered(participants);
+    }
+
+    private String createGroup() {
         String commandResult;
         try {
-            boolean isGroupCreated = friendshipCreator.createGroupFriendship(groupName, Arrays.asList(participants));
-            commandResult = isGroupCreated? SUCCESSFULLY_CREATE_GROUP: ALREADY_TAKEN_GROUP_NAME;
+            boolean isGroupCreated = friendshipService.createGroupFriendship(groupName, Arrays.asList(participants));
+            commandResult = isGroupCreated ? SUCCESSFULLY_CREATE_GROUP : ALREADY_TAKEN_GROUP_NAME;
         } catch (FriendshipException e) {
             commandResult = GROUP_CREATION_FAILED;
         }

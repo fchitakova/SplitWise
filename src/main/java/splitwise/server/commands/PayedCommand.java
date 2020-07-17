@@ -41,19 +41,18 @@ public class PayedCommand extends Command {
 
     @Override
     public String execute() {
-        if (!isCommandInvokerLoggedIn) {
-            return LOGIN_OR_REGISTER;
-        }
-        if (isPayedInGroup) {
-            if (moneySplitService.isMoneySharingAllowedBetween(commandInvokerUsername, groupName)) {
-                //    moneySplitService.groupPayOff(commandInvokerUsername, amount, debtorUsername, groupName);
+        if (isCommandInvokerLoggedIn) {
+            if (isPayedInGroup) {
+                if (moneySplitService.isMoneySharingAllowedBetween(commandInvokerUsername, groupName)) {
+                    //    moneySplitService.groupPayOff(commandInvokerUsername, amount, debtorUsername, groupName);
+                }
+            } else {
+                if (moneySplitService.isMoneySharingAllowedBetween(commandInvokerUsername, debtorUsername)) {
+                    //  moneySplitService.payOff(commandInvokerUsername, amount, debtorUsername);
+                }
             }
-        } else {
-            if (moneySplitService.isMoneySharingAllowedBetween(commandInvokerUsername, debtorUsername)) {
-                //  moneySplitService.payOff(commandInvokerUsername, amount, debtorUsername);
-            }
         }
-        return null;
+        return LOGIN_OR_REGISTER;
     }
 
 

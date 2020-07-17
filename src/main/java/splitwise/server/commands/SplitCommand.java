@@ -41,15 +41,15 @@ public class SplitCommand extends Command {
 
     @Override
     public String execute() {
-        if (!isCommandInvokerLoggedIn) {
-            return LOGIN_OR_REGISTER;
+        if (isCommandInvokerLoggedIn) {
+            String commandResult = isSplitAllowed() ? split() : createSplitNotAllowedResponse();
+            return commandResult;
         }
-        if (moneySplitService.isMoneySharingAllowed(commandInvokerUsername, friendshipName)) {
-            String splitResult = split();
-            return splitResult;
-        }
-        String splittingNotAllowed = createSplitNotAllowedResponse();
-        return splittingNotAllowed;
+        return LOGIN_OR_REGISTER;
+    }
+
+    private boolean isSplitAllowed() {
+        return moneySplitService.isMoneySharingAllowedBetween(commandInvokerUsername, friendshipName);
     }
 
     private String split() {

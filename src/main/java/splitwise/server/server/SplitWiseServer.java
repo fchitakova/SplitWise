@@ -37,16 +37,20 @@ public class SplitWiseServer {
         startServerAdministrationCommandExecutor();
     }
 
-    private void startServerAdministrationCommandExecutor(){
+    private void startServerAdministrationCommandExecutor() {
         new Thread(new ServerAdministrationCommandExecutor(this)).start();
     }
 
 
-    public void start(){
-            System.out.println(SERVER_STARTED);
-            while (!serverSocket.isClosed()) {
-                acceptClientConnections();
-            }
+    public void start() {
+        System.out.println(SERVER_STARTED);
+        while (isServerRunning()) {
+            acceptClientConnections();
+        }
+    }
+
+    private boolean isServerRunning() {
+        return !serverSocket.isClosed();
     }
 
 
@@ -56,11 +60,10 @@ public class SplitWiseServer {
             ClientConnection clientConnection = new ClientConnection(clientSocket, this);
             executorService.execute(clientConnection);
         } catch (IOException | ClientConnectionException e) {
-            if (serverSocket.isClosed()) {
-                return;
+            if (isServerRunning()) {
+                LOGGER.info(CONNECTION_CANNOT_BE_ESTABLISHED + SEE_LOG_FILE);
+                LOGGER.error(CONNECTION_CANNOT_BE_ESTABLISHED + "Reason: " + e.getMessage(), e);
             }
-            LOGGER.info(CONNECTION_CANNOT_BE_ESTABLISHED + SEE_LOG_FILE);
-            LOGGER.error(e.getMessage(), e);
         }
     }
 

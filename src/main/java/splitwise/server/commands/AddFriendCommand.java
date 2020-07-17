@@ -26,17 +26,21 @@ public class AddFriendCommand extends Command {
     @Override
     public String execute() {
         if (isCommandInvokerLoggedIn) {
-
-            if (!isFriendPresent()) {
+            if (isFriendPresent()) {
+                String commandResult = createFriendship();
+                return commandResult;
+            } else {
                 return String.format(USER_NOT_FOUND, friendUsername);
             }
-            String friendshipCreationResult = tryToCreateFriendship();
-            return friendshipCreationResult;
         }
         return LOGIN_OR_REGISTER;
     }
 
-    private String tryToCreateFriendship(){
+    private boolean isFriendPresent() {
+        return friendshipCreator.checkIfRegistered(friendUsername) && (!commandInvokerUsername.equals(friendUsername));
+    }
+
+    private String createFriendship() {
         String result;
         try {
             boolean friendshipEstablished = friendshipCreator.createFriendship(commandInvokerUsername, friendUsername);
@@ -45,11 +49,6 @@ public class AddFriendCommand extends Command {
             result = FRIENDSHIP_CANNOT_BE_ESTABLISHED;
         }
         return result;
-    }
-
-
-    private boolean isFriendPresent() {
-        return friendshipCreator.checkIfRegistered(friendUsername) && (!commandInvokerUsername.equals(friendUsername));
     }
 
 }

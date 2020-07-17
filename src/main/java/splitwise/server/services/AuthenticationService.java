@@ -25,11 +25,11 @@ public class AuthenticationService extends SplitWiseService {
 
     public boolean checkCredentialsValidity(String username, char[]password){
         Optional<User> user = userRepository.getById(username);
-        if(!user.isPresent()){
-            return false;
+        if (user.isPresent()) {
+            boolean validCredentials = user.get().checkCredentials(username, password);
+            return validCredentials;
         }
-        boolean validCredentials = user.get().checkCredentials(username,password);
-        return validCredentials;
+        return false;
     }
 
 

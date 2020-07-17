@@ -10,7 +10,6 @@ public class InvalidCommand extends Command {
         super(splitWiseService);
     }
 
-
     @Override
     public String execute() {
         return NOT_SUPPORTED_COMMAND;
