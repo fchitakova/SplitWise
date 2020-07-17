@@ -14,7 +14,7 @@ import java.util.List;
 
 public class MoneySplitService extends SplitWiseService {
     public static final String SPLITTING_FAILED = "Split command failed.";
-    public static final String SEE_STATUS = "You can view all splits status with get-status command.";
+    public static final String SEE_STATUS = "You can view the status of all splits with get-status command.";
     public static final String NOTIFICATION_FOR_FRIEND = "%s split %s LV with you. Splitting reason: %s. " + SEE_STATUS;
     public static final String NOTIFICATION_FOR_GROUP_MEMBERS = "%s split %s LV with you and other members of %s group. Splitting reason: %s. " + SEE_STATUS;
 
@@ -25,20 +25,26 @@ public class MoneySplitService extends SplitWiseService {
         this.activeUsers = activeUsers;
     }
 
-    public void split(String splitterUsername, String friendshipId, Double amount, String splitReason) throws MoneySplitException {
+    public void split(String splitterUsername, String friendshipName, Double amount, String splitReason) throws MoneySplitException {
         User splitter = userRepository.getById(splitterUsername).get();
-        split(splitter, friendshipId, (-amount));
-        sendNotificationToSplitter(splitter, friendshipId, amount, splitReason);
+        split(splitter, friendshipName, (-amount));
 
-        List<String> friendshipMembers = getFriendshipParticipants(splitter, friendshipId);
+        boolean isGroupFriendship = isGroupFriendship(splitter, friendshipName);
+        if (!isGroupFriendship) {
+            friendshipName = splitterUsername;
+        }
+
+        List<String> friendshipMembers = getFriendshipParticipants(splitter, friendshipName);
         for (String memberUsername : friendshipMembers) {
-            User groupMember = userRepository.getById(memberUsername).get();
 
-            boolean isSingleFriendship = !isGroupFriendship(splitter, friendshipId);
-            String friendshipName = isSingleFriendship ? splitterUsername : friendshipId;
+            User groupMember = userRepository.getById(memberUsername).get();
             split(groupMember, friendshipName, amount);
 
-            sendNotificationToFriendshipMember(groupMember, splitterUsername, friendshipId, amount, splitReason);
+            String notification = isGroupFriendship ?
+                    String.format(NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, friendshipName, splitReason) :
+                    String.format(NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
+            sendNotification(groupMember, notification);
+
         }
         saveChanges();
     }
@@ -58,15 +64,15 @@ public class MoneySplitService extends SplitWiseService {
         return splitter.getSpecificFriendship(friendshipId) instanceof GroupFriendship;
     }
 
-    private void sendNotificationToFriendshipMember(User groupMember, String splitterUsername, String friendshipId, Double amount, String splitReason) {
-        User splitter = userRepository.getById(splitterUsername).get();
-        boolean isGroupFriendship = isGroupFriendship(splitter, friendshipId);
-
-        String notification = isGroupFriendship ?
-                String.format(NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, friendshipId, splitReason) :
-                String.format(NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
-        sendNotification(groupMember, notification);
-    }
+//    private void sendNotificationToFriendshipMember(User groupMember, String splitterUsername, String friendshipId, Double amount, String splitReason) {
+//        User splitter = userRepository.getById(splitterUsername).get();
+//        boolean isGroupFriendship = isGroupFriendship(splitter, friendshipId);
+//
+//        String notification = isGroupFriendship ?
+//                String.format(NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, friendshipId, splitReason) :
+//                String.format(NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
+//        sendNotification(groupMember, notification);
+//    }
 
 
     private void saveChanges() throws MoneySplitException {

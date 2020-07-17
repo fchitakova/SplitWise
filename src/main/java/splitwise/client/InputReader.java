@@ -27,12 +27,12 @@ public class InputReader implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        while (applicationIsRunning()) {
             try {
                 String input = getInput();
                 print(input, System.out);
             } catch (IOException e) {
-                if (!application.isStopped()) {
+                if (applicationIsRunning()) {
                     LOGGER.info(INPUT_READING_FAILED + SEE_LOG_FILES);
                     LOGGER.error(INPUT_READING_FAILED + e.getMessage(), e);
                     return;
@@ -41,13 +41,17 @@ public class InputReader implements Runnable {
         }
     }
 
+    private boolean applicationIsRunning() {
+        return !application.isStopped();
+    }
+
     private String getInput() throws IOException {
         return reader.readLine();
     }
 
 
     private void print(String message, PrintStream stream) {
-        if (isServerStopped(message)) {
+        if (equalsApplicationStopped(message)) {
             stream.println(APPLICATION_IS_DOWN);
             application.stop();
         } else {
@@ -55,7 +59,7 @@ public class InputReader implements Runnable {
         }
     }
 
-    boolean isServerStopped(String serverResponse) {
-        return serverResponse.equals(APP_STOPPED);
+    boolean equalsApplicationStopped(String message) {
+        return message.equals(APP_STOPPED);
     }
 }

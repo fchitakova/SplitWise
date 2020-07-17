@@ -23,6 +23,7 @@ public class CommandProcessor implements Runnable {
     public CommandProcessor(BufferedReader inputReader, PrintWriter outputWriter, SplitWiseClientApplication application) {
         this.inputReader = inputReader;
         this.outputWriter = outputWriter;
+        this.application = application;
     }
 
     @Override
@@ -32,9 +33,8 @@ public class CommandProcessor implements Runnable {
             sendToServer(userInput);
             userInput = getUserInput();
         }
-
-        closeUserInputReader();
         application.stop();
+        closeUserInputReader();
     }
 
     private String getUserInput() {
