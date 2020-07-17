@@ -19,7 +19,7 @@ public class SplitWiseServer {
     public static final String CONNECTION_CANNOT_BE_ESTABLISHED = "Error during establishing client connection. ";
     public static final String SERVER_STARTED = "SplitWise server started!";
     public static final String CLOSING_SERVER_SOCKET_FAILED = "IO error while trying to close server socket.";
-    public static final String SERVER_STOPPED = "server stopped";
+    public static final String SERVER_STOPPED = "app stopped";
 
     private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
 

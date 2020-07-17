@@ -15,9 +15,7 @@ import java.util.List;
 public class MoneySplitService extends SplitWiseService {
     public static final String SPLITTING_FAILED = "Split command failed.";
     public static final String SEE_STATUS = "You can view all splits status with get-status command.";
-    public static final String NOTIFICATION_FOR_SPLITTER = "Split %s LV between you and %s for %s. " + SEE_STATUS;
-    public static final String NOTIFICATION_FOR_GROUP_SPLITTER = "Split %s LV between you and %s group members %s. " + SEE_STATUS;
-    public static final String NOTIFICATION_FOR_FRIEND = "% split %s LV with you. Splitting reason: %s. " + SEE_STATUS;
+    public static final String NOTIFICATION_FOR_FRIEND = "%s split %s LV with you. Splitting reason: %s. " + SEE_STATUS;
     public static final String NOTIFICATION_FOR_GROUP_MEMBERS = "%s split %s LV with you and other members of %s group. Splitting reason: %s. " + SEE_STATUS;
 
     private static final Logger LOGGER = Logger.getLogger(MoneySplitService.class);
@@ -33,16 +31,15 @@ public class MoneySplitService extends SplitWiseService {
         sendNotificationToSplitter(splitter, friendshipId, amount, splitReason);
 
         List<String> friendshipMembers = getFriendshipParticipants(splitter, friendshipId);
-        boolean isGroupFriendship = isGroupFriendship(splitter,friendshipId);
         for (String memberUsername : friendshipMembers) {
             User groupMember = userRepository.getById(memberUsername).get();
-            if(isGroupFriendship){
 
-            }
-          //  split(groupMember, friendshipId, amount);
+            boolean isSingleFriendship = !isGroupFriendship(splitter, friendshipId);
+            String friendshipName = isSingleFriendship ? splitterUsername : friendshipId;
+            split(groupMember, friendshipName, amount);
+
             sendNotificationToFriendshipMember(groupMember, splitterUsername, friendshipId, amount, splitReason);
         }
-
         saveChanges();
     }
 
@@ -56,15 +53,6 @@ public class MoneySplitService extends SplitWiseService {
         return friendship.getMembersUsernames();
     }
 
-    private void sendNotificationToSplitter(User splitter, String friendshipId, Double amount, String splitReason) {
-        boolean isGroupFriendship = isGroupFriendship(splitter, friendshipId);
-
-        String notification = isGroupFriendship ?
-                String.format(NOTIFICATION_FOR_GROUP_SPLITTER, amount, friendshipId, splitReason) :
-                String.format(NOTIFICATION_FOR_SPLITTER, amount, friendshipId, splitReason);
-
-        sendNotification(splitter, notification);
-    }
 
     private boolean isGroupFriendship(User splitter, String friendshipId) {
         return splitter.getSpecificFriendship(friendshipId) instanceof GroupFriendship;

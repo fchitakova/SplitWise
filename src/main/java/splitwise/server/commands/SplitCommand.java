@@ -9,6 +9,8 @@ public class SplitCommand extends Command {
     public static final String SPLITTING_IN_GROUP_IS_ALLOWED_ONLY_FOR_MEMBERS = "You must be part of the group to be allowed to split with its members!";
     public static final String SPLITTING_IS_ALLOWED_ONLY_WITH_FRIENDS = "You can split only with friends. Ensure that friendship is established before starting splitting.";
     public static final String COMMAND_FAILED = "Split command failed. try again later.";
+//    public static final String NOTIFICATION_FOR_SPLITTER = "Split %s LV between you and %s for %s. " + SEE_STATUS;
+  //  public static final String NOTIFICATION_FOR_GROUP_SPLITTER = "Split %s LV between you and %s group members %s. " + SEE_STATUS;
 
     private MoneySplitService moneySplitService;
     private boolean isGroupSplit;
@@ -57,8 +59,9 @@ public class SplitCommand extends Command {
         } catch (MoneySplitException e) {
             return COMMAND_FAILED;
         }
-        String splittingResult = createSplittingResponse();
-        return splittingResult;
+ //       String splittingResult = createSplittingResponse();
+   //     return splittingResult;
+        return null;
     }
 
 
@@ -70,13 +73,15 @@ public class SplitCommand extends Command {
         }
     }
 
-    private String createSplittingResponse() {
-        if (isGroupSplit) {
 
-        } else {
-            //
-        }
-        return null;
-    }
+    /*
+    private String createSplittingResponse() {
+        boolean isGroupFriendship = isGroupFriendship(splitter, friendshipId);
+
+        String notification = isGroupFriendship ?
+                String.format(NOTIFICATION_FOR_GROUP_SPLITTER, amount, friendshipId, splitReason) :
+                String.format(NOTIFICATION_FOR_SPLITTER, amount, friendshipId, splitReason);
+
+    }*/
 
 }
