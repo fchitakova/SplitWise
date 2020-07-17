@@ -34,6 +34,15 @@ public class GroupFriendship implements Friendship, Serializable {
     }
 
     @Override
+    public void payOff(String username, Double amount) {
+        for (Friend friend : groupMembers) {
+            if (friend.getName().equals(username)) {
+                friend.payOff(username, amount);
+            }
+        }
+    }
+
+    @Override
     public String getName() {
         return groupName;
     }

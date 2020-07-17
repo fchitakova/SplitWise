@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import splitwise.server.exceptions.MoneySplitException;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.model.Friendship;
-import splitwise.server.model.GroupFriendship;
 import splitwise.server.model.User;
 import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
@@ -48,13 +47,13 @@ public class MoneySplitService extends SplitWiseService {
         saveChanges();
     }
 
-    private void split(User user, String friendshipId, Double amount) {
-        Friendship friendship = user.getSpecificFriendship(friendshipId);
+    private void split(User user, String friendshipName, Double amount) {
+        Friendship friendship = user.getSpecificFriendship(friendshipName);
         friendship.split(amount);
     }
 
-    private List<String> getFriendshipParticipants(User splitter, String friendshipId) {
-        Friendship friendship = splitter.getSpecificFriendship(friendshipId);
+    private List<String> getFriendshipParticipants(User splitter, String friendshipName) {
+        Friendship friendship = splitter.getSpecificFriendship(friendshipName);
         return friendship.getMembersUsernames();
     }
 
@@ -63,6 +62,32 @@ public class MoneySplitService extends SplitWiseService {
         return members.size() > 1;
     }
 
+    public void payOff(String usernameToWhomIsPaid, Double amount, String debtorUsername) throws MoneySplitException {
+        User paidUser = userRepository.getById(usernameToWhomIsPaid).get();
+        Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(debtorUsername);
+        paidUserSideFriendship.payOff(debtorUsername, amount);
+
+        User debtor = userRepository.getById(debtorUsername).get();
+        Friendship debtorSideFriendship = debtor.getSpecificFriendship(usernameToWhomIsPaid);
+        debtorSideFriendship.payOff(usernameToWhomIsPaid, amount);
+
+        saveChanges();
+    }
+
+    public void groupPayOff(String usernameToWhomIsPaid, Double amount, String debtorUsername, String groupName) throws MoneySplitException {
+        User paidUser = userRepository.getById(usernameToWhomIsPaid).get();
+        Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(groupName);
+        paidUserSideFriendship.payOff(debtorUsername, amount);
+
+        List<String> groupMembersUsernames = paidUserSideFriendship.getMembersUsernames();
+        for (String username : groupMembersUsernames) {
+            User groupMember = userRepository.getById(username).get();
+            Friendship friendship = groupMember.getSpecificFriendship(groupName);
+            friendship.payOff(debtorUsername, amount);
+        }
+
+        saveChanges();
+    }
 
     private void saveChanges() throws MoneySplitException {
         try {
@@ -75,9 +100,9 @@ public class MoneySplitService extends SplitWiseService {
     }
 
 
-    public boolean isSplittingAllowed(String splitterUsername, String friendshipId) {
+    public boolean isMoneySharingAllowedBetween(String splitterUsername, String friendshipName) {
         User user = userRepository.getById(splitterUsername).get();
-        return user.isPartOfFriendship(friendshipId);
+        return user.isPartOfFriendship(friendshipName);
     }
 
 }

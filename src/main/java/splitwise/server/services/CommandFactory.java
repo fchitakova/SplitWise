@@ -11,6 +11,7 @@ public class CommandFactory {
     public static final String ADD_FRIEND_COMMAND = "add-friend %s";
     public static final String GET_STATUS_COMMAND = "get-status";
     public static final String PAYED_COMMAND = "payed %s %s";
+    public static final String PAYED_IN_GROUP_COMMAND = "payed-group %s %s %s";
     public static final String LOGOUT_COMMAND = "logout";
 
     private AuthenticationService authenticationService;
@@ -36,6 +37,10 @@ public class CommandFactory {
         }
         if (match(input, ADD_FRIEND_COMMAND)) {
             return new AddFriendCommand(input, friendshipService);
+        }
+
+        if (match(input, PAYED_COMMAND) || match(input, PAYED_IN_GROUP_COMMAND)) {
+            return new PayedCommand(input, moneySplitService);
         }
 
         if (matchCreateGroupCommandFormat(input)) {

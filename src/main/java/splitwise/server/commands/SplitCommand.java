@@ -16,7 +16,7 @@ public class SplitCommand extends Command {
     private MoneySplitService moneySplitService;
     private boolean isGroupSplit;
     private Double amount;
-    private String friendshipId;
+    private String friendshipName;
     private String splitReason;
 
 
@@ -28,10 +28,9 @@ public class SplitCommand extends Command {
 
     private void initializeCommandParameters(String input) {
         String[] commandParts = input.split("\\s+");
-
         isGroupSplit = commandParts[0].equalsIgnoreCase(SPLIT_GROUP_COMMAND);
         amount = Double.valueOf(commandParts[1]);
-        friendshipId = commandParts[2];
+        friendshipName = commandParts[2];
 
         StringBuilder splitReason = new StringBuilder();
         for (int i = 3; i < commandParts.length; i++) {
@@ -45,7 +44,7 @@ public class SplitCommand extends Command {
         if (!isCommandInvokerLoggedIn) {
             return LOGIN_OR_REGISTER;
         }
-        if (moneySplitService.isSplittingAllowed(commandInvokerUsername, friendshipId)) {
+        if (moneySplitService.isMoneySharingAllowed(commandInvokerUsername, friendshipName)) {
             String splitResult = split();
             return splitResult;
         }
@@ -55,7 +54,7 @@ public class SplitCommand extends Command {
 
     private String split() {
         try {
-            moneySplitService.split(commandInvokerUsername, friendshipId, amount, splitReason);
+            moneySplitService.split(commandInvokerUsername, friendshipName, amount, splitReason);
             String splittingResult = createSplitResponse();
             return splittingResult;
         } catch (MoneySplitException e) {
@@ -73,8 +72,8 @@ public class SplitCommand extends Command {
 
     private String createSplitResponse() {
         String response = isGroupSplit ?
-                String.format(GROUP_SPLITTING_RESULT, amount, friendshipId, splitReason) :
-                String.format(SPLITTING_RESULT, amount, friendshipId, splitReason);
+                String.format(GROUP_SPLITTING_RESULT, amount, friendshipName, splitReason) :
+                String.format(SPLITTING_RESULT, amount, friendshipName, splitReason);
         return response;
     }
 

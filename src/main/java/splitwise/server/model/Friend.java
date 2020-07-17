@@ -21,6 +21,11 @@ public class Friend implements Friendship, Serializable {
     }
 
     @Override
+    public void payOff(String username, Double amount) {
+        account = account - amount;
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }

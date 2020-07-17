@@ -35,9 +35,9 @@ public class User implements Serializable {
     }
 
 
-    public Friendship getSpecificFriendship(String friendshipId) {
+    public Friendship getSpecificFriendship(String friendshipName) {
         for (Friendship friendship : friendships) {
-            if (friendship.getName().equals(friendshipId)) {
+            if (friendship.getName().equals(friendshipName)) {
                 return friendship;
             }
         }
