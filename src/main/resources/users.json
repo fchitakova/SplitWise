@@ -14,7 +14,7 @@
           "groupMembers": [
             {
               "name": "user2",
-              "account": 0.25
+              "account": 0.0
             },
             {
               "name": "user3",
@@ -34,7 +34,7 @@
         "friendshipType": "splitwise.server.model.Friend",
         "friendshipData": {
           "name": "user3",
-          "account": -4.0
+          "account": 0.0
         }
       }
     ],
@@ -74,6 +74,16 @@
     ],
     "notifications": []
   },
+  "mimi": {
+    "username": "mimi",
+    "password": [
+      "o",
+      "o",
+      "o"
+    ],
+    "friendships": [],
+    "notifications": []
+  },
   "user3": {
     "username": "user3",
     "password": [
@@ -93,7 +103,7 @@
             },
             {
               "name": "user2",
-              "account": -0.25
+              "account": 0.0
             }
           ]
         }
@@ -102,7 +112,7 @@
         "friendshipType": "splitwise.server.model.Friend",
         "friendshipData": {
           "name": "user1",
-          "account": 4.0
+          "account": 0.0
         }
       }
     ],

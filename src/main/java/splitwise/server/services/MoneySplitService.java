@@ -14,8 +14,10 @@ import java.util.List;
 public class MoneySplitService extends SplitWiseService {
     public static final String SPLITTING_FAILED = "Split command failed.";
     public static final String SEE_STATUS = "You can view the status of all splits with get-status command.";
-    public static final String NOTIFICATION_FOR_FRIEND = "%s split %s LV with you. Splitting reason: %s. " + SEE_STATUS;
-    public static final String NOTIFICATION_FOR_GROUP_MEMBERS = "%s split %s LV with you and other members of %s group. Splitting reason: %s. " + SEE_STATUS;
+    public static final String SPLIT_NOTIFICATION_FOR_FRIEND = "%s split %s LV with you. Splitting reason: %s. " + SEE_STATUS;
+    public static final String SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS = "%s split %s LV with you and other members of %s group. Splitting reason: %s. " + SEE_STATUS;
+    public static final String PAYED_NOTIFICATION_FOR_FRIEND = "%s approved your payment %s LV [%s].";
+    public static final String PAYED_NOTIFICATION_FOR_GROUP_MEMBERS = "%s approved your payment %s LV [%s] in group: %s.";
 
     private static final Logger LOGGER = Logger.getLogger(MoneySplitService.class);
 
@@ -39,8 +41,8 @@ public class MoneySplitService extends SplitWiseService {
             split(groupMember, friendshipName, amount);
 
             String notification = isGroupFriendship ?
-                    String.format(NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, friendshipName, splitReason) :
-                    String.format(NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
+                    String.format(SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, friendshipName, splitReason) :
+                    String.format(SPLIT_NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
             sendNotification(groupMember, notification);
 
         }
@@ -62,19 +64,22 @@ public class MoneySplitService extends SplitWiseService {
         return members.size() > 1;
     }
 
-    public void payOff(String usernameToWhomIsPaid, Double amount, String debtorUsername) throws MoneySplitException {
+    public void payOff(String usernameToWhomIsPaid, Double amount, String debtorUsername, String splitReason) throws MoneySplitException {
         User paidUser = userRepository.getById(usernameToWhomIsPaid).get();
         Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(debtorUsername).get();
         paidUserSideFriendship.payOff(debtorUsername, amount);
 
         User debtor = userRepository.getById(debtorUsername).get();
         Friendship debtorSideFriendship = debtor.getSpecificFriendship(usernameToWhomIsPaid).get();
-        debtorSideFriendship.payOff(usernameToWhomIsPaid, amount);
+        debtorSideFriendship.payOff(usernameToWhomIsPaid, (-amount));
+
+        String notification = String.format(PAYED_NOTIFICATION_FOR_FRIEND, usernameToWhomIsPaid, Double.toString(amount), splitReason);
+        sendNotification(debtor, notification);
 
         saveChanges();
     }
 
-    public void groupPayOff(String usernameToWhomIsPaid, Double amount, String debtorUsername, String groupName) throws MoneySplitException {
+    public void groupPayOff(String usernameToWhomIsPaid, Double amount, String debtorUsername, String groupName, String splitReason) throws MoneySplitException {
         User paidUser = userRepository.getById(usernameToWhomIsPaid).get();
         Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(groupName).get();
         paidUserSideFriendship.payOff(debtorUsername, amount);
@@ -83,9 +88,10 @@ public class MoneySplitService extends SplitWiseService {
         for (String username : groupMembersUsernames) {
             User groupMember = userRepository.getById(username).get();
             Friendship friendship = groupMember.getSpecificFriendship(groupName).get();
-            friendship.payOff(debtorUsername, amount);
-        }
+            friendship.payOff(debtorUsername, (-amount));
 
+            String notification = String.format(PAYED_NOTIFICATION_FOR_GROUP_MEMBERS, usernameToWhomIsPaid, Double.toString(amount), groupMember, splitReason);
+        }
         saveChanges();
     }
 

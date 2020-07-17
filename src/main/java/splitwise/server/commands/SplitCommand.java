@@ -5,6 +5,7 @@ import splitwise.server.services.MoneySplitService;
 
 
 public class SplitCommand extends Command {
+    public static final String SPLIT_COMMAND = "split";
     public static final String SPLIT_GROUP_COMMAND = "split-group";
     public static final String SPLITTING_IN_GROUP_IS_ALLOWED_ONLY_FOR_MEMBERS = "You must be part of the group to be allowed to split with its members!";
     public static final String SPLITTING_IS_ALLOWED_ONLY_WITH_FRIENDS = "You can split only with friends. Ensure that friendship is established before starting splitting.";
@@ -32,8 +33,14 @@ public class SplitCommand extends Command {
         amount = Double.valueOf(commandParts[1]);
         friendshipName = commandParts[2];
 
+        setUpSplitReason(commandParts);
+    }
+
+    private void setUpSplitReason(String[] commandParts) {
         StringBuilder splitReason = new StringBuilder();
-        for (int i = 3; i < commandParts.length; i++) {
+        int splitReasonPartStartPosition = 3;
+
+        for (int i = splitReasonPartStartPosition; i < commandParts.length; i++) {
             splitReason.append(commandParts[i] + " ");
         }
         this.splitReason = (splitReason.toString()).trim();
