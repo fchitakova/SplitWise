@@ -101,7 +101,7 @@ public class MoneySplitService extends SplitWiseService {
             Friendship friendship = groupMember.getSpecificFriendship(groupName).get();
             friendship.payOff(debtorUsername, (-amount));
 
-            String notification = String.format(PAYED_NOTIFICATION_FOR_GROUP_MEMBERS, usernameToWhomIsPaid, Double.toString(amount), groupMember, splitReason);
+            String notification = String.format(PAYED_NOTIFICATION_FOR_GROUP_MEMBERS, usernameToWhomIsPaid, Double.toString(amount), splitReason, groupName);
             sendNotification(groupMember, notification);
         }
         saveChanges();

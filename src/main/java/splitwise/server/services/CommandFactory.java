@@ -9,8 +9,8 @@ public class CommandFactory {
     public static final String LOGIN_COMMAND = "login %s %s";
     public static final String REGISTER_COMMAND = "register %s %s";
     public static final String ADD_FRIEND_COMMAND = "add-friend %s";
-    public static final String GET_STATUS_COMMAND = "get-status";
     public static final String LOGOUT_COMMAND = "logout";
+    public static final String GET_STATUS_COMMAND = "get-status";
 
     private AuthenticationService authenticationService;
     private FriendshipService friendshipService;
@@ -27,6 +27,11 @@ public class CommandFactory {
         if (input.equalsIgnoreCase(LOGOUT_COMMAND)) {
             return new LogoutCommand(authenticationService);
         }
+
+        if (input.equalsIgnoreCase(GET_STATUS_COMMAND)) {
+            return new GetStatusCommand(moneySplitService);
+        }
+
         if (match(input, LOGIN_COMMAND)) {
             return new LoginCommand(input, authenticationService);
         }
@@ -46,9 +51,6 @@ public class CommandFactory {
         }
         if (matchSplitCommand(input)) {
             return new SplitCommand(input, moneySplitService);
-        }
-        if (input.equals(GET_STATUS_COMMAND)) {
-            return new GetStatusCommand(moneySplitService);
         }
 
         return new InvalidCommand(authenticationService);
