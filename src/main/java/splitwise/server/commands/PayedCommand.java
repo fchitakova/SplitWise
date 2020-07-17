@@ -4,11 +4,12 @@ import splitwise.server.exceptions.MoneySplitException;
 import splitwise.server.services.MoneySplitService;
 
 public class PayedCommand extends Command {
+    public static final String SEE_STATUS = "You can view the status of all splits with get-status command.";
     public static final String PAYED_COMMAND = "payed";
     public static final String PAYED_IN_GROUP_COMMAND = "payed-group";
     public static final String COMMAND_FAILED = "Command failed due to error. Try again later.";
-    public static final String SUCCESSFULLY_PAYED_RESULT = "Successfully updated friendship account between you and %s [%s]. ";
-    public static final String SUCCESSFULLY_PAYED_IN_GROUP_RESULT = "Successfully updated friendship account between you and %s in group:%s [%s].";
+    public static final String SUCCESSFULLY_PAYED_RESULT = "Successfully updated friendship account between you and %s [%s]. "+SEE_STATUS;
+    public static final String SUCCESSFULLY_PAYED_IN_GROUP_RESULT = "Successfully updated friendship account between you and %s in group:%s [%s]. "+SEE_STATUS;
 
 
     private MoneySplitService moneySplitService;

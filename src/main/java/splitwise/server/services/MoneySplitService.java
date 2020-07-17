@@ -16,8 +16,8 @@ public class MoneySplitService extends SplitWiseService {
     public static final String SEE_STATUS = "You can view the status of all splits with get-status command.";
     public static final String SPLIT_NOTIFICATION_FOR_FRIEND = "%s split %s LV with you. Splitting reason: %s. " + SEE_STATUS;
     public static final String SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS = "%s split %s LV with you and other members of %s group. Splitting reason: %s. " + SEE_STATUS;
-    public static final String PAYED_NOTIFICATION_FOR_FRIEND = "%s approved your payment %s LV [%s].";
-    public static final String PAYED_NOTIFICATION_FOR_GROUP_MEMBERS = "%s approved your payment %s LV [%s] in group: %s.";
+    public static final String PAYED_NOTIFICATION_FOR_FRIEND = "%s approved your payment %s LV [%s]." + SEE_STATUS;
+    public static final String PAYED_NOTIFICATION_FOR_GROUP_MEMBERS = "%s approved your payment %s LV [%s] in group: %s." + SEE_STATUS;
 
     private static final Logger LOGGER = Logger.getLogger(MoneySplitService.class);
 
@@ -91,6 +91,7 @@ public class MoneySplitService extends SplitWiseService {
             friendship.payOff(debtorUsername, (-amount));
 
             String notification = String.format(PAYED_NOTIFICATION_FOR_GROUP_MEMBERS, usernameToWhomIsPaid, Double.toString(amount), groupMember, splitReason);
+            sendNotification(groupMember, notification);
         }
         saveChanges();
     }
@@ -109,6 +110,11 @@ public class MoneySplitService extends SplitWiseService {
     public boolean isMoneySharingAllowedBetween(String splitterUsername, String friendshipName) {
         User user = userRepository.getById(splitterUsername).get();
         return user.isPartOfFriendship(friendshipName);
+    }
+
+    public String getSplittingStatusOfUser(String username) {
+        User user = userRepository.getById(username).get();
+        return user.getSplittingStatus();
     }
 
 }

@@ -47,8 +47,10 @@ public class CommandFactory {
         if (matchSplitCommand(input)) {
             return new SplitCommand(input, moneySplitService);
         }
+        if (input.equals(GET_STATUS_COMMAND)) {
+            return new GetStatusCommand(moneySplitService);
+        }
 
         return new InvalidCommand(authenticationService);
     }
-
 }

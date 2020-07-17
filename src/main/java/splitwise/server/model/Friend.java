@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class Friend implements Friendship, Serializable {
+    String SHOULD_TAKE_MONEY = "You owe %s %s LV ";
+    String SHOULD_GIVE_MONEY = "%s owes you %s LV";
     public static final double NEUTRAL_ACCOUNT_AMOUNT = 0.0;
     private String name;
     private Double account;
 
-    public Friend(String name){
+    public Friend(String name) {
         this.name = name;
         this.account = NEUTRAL_ACCOUNT_AMOUNT;
     }
@@ -32,16 +34,15 @@ public class Friend implements Friendship, Serializable {
 
     @Override
     public String getStatus() {
-        StringBuilder userStatus = new StringBuilder(getName() + ": ");
+        StringBuilder userStatus = new StringBuilder();
+
         if (account > 0.0) {
-            userStatus.append(SHOULD_GIVE_MONEY + account + '\n');
+            userStatus.append(String.format(SHOULD_GIVE_MONEY, Double.toString(account)));
         }
         if (account < 0.0) {
-            userStatus.append(SHOULD_TAKE_MONEY + account + '\n');
+            userStatus.append(String.format(SHOULD_TAKE_MONEY, getName(), Double.toString(-account)));
         }
-        if (account == 0.0) {
-            userStatus.append(NEUTRAL_DEBT + '\n');
-        }
+
         return userStatus.toString();
     }
 

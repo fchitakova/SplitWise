@@ -7,10 +7,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GroupFriendship implements Friendship, Serializable {
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String RED_STAR_SYMBOL = ANSI_RED + '*' + ANSI_RESET;
-
     private String groupName;
     private List<Friend> groupMembers;
 
@@ -21,10 +17,14 @@ public class GroupFriendship implements Friendship, Serializable {
 
     @Override
     public String getStatus() {
-        StringBuilder groupStatus = new StringBuilder(RED_STAR_SYMBOL + getName() + '\n');
+        StringBuilder groupStatus = new StringBuilder();
 
-        Function<Friend, String> getFriendStatus = friend -> friend.getStatus() + '\n';
-        groupMembers.forEach(member -> groupStatus.append(getFriendStatus.apply(member)));
+        for (Friend friend : this.groupMembers) {
+            String friendsStatus = friend.getStatus();
+            if (!friendsStatus.isBlank()) {
+                groupStatus.append(friendsStatus + '\n');
+            }
+        }
 
         return groupStatus.toString();
     }
