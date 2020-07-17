@@ -84,7 +84,6 @@ public class FileSystemUserRepository implements UserRepository {
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.registerTypeAdapter(Friendship.class, new FriendshipJsonSerializer());
             String data = gsonBuilder.create().toJson(users, USERS_COLLECTION_TYPE);
-            System.out.println(data);
             writeToDBFile(writer, data);
         } catch (IOException e) {
             throw new PersistenceException(FAILED_DATA_SAVING + CANNOT_CREATE_FILE_WRITER, e);

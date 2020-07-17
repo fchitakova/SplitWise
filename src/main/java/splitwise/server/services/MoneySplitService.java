@@ -29,14 +29,13 @@ public class MoneySplitService extends SplitWiseService {
         User splitter = userRepository.getById(splitterUsername).get();
         split(splitter, friendshipName, (-amount));
 
-        boolean isGroupFriendship = isGroupFriendship(splitter, friendshipName);
+        List<String> friendshipMembers = getFriendshipParticipants(splitter, friendshipName);
+        boolean isGroupFriendship = isGroupFriendship(friendshipMembers);
         if (!isGroupFriendship) {
             friendshipName = splitterUsername;
         }
 
-        List<String> friendshipMembers = getFriendshipParticipants(splitter, friendshipName);
         for (String memberUsername : friendshipMembers) {
-
             User groupMember = userRepository.getById(memberUsername).get();
             split(groupMember, friendshipName, amount);
 
@@ -60,19 +59,9 @@ public class MoneySplitService extends SplitWiseService {
     }
 
 
-    private boolean isGroupFriendship(User splitter, String friendshipId) {
-        return splitter.getSpecificFriendship(friendshipId) instanceof GroupFriendship;
+    private boolean isGroupFriendship(List<String> members) {
+        return members.size() > 1;
     }
-
-//    private void sendNotificationToFriendshipMember(User groupMember, String splitterUsername, String friendshipId, Double amount, String splitReason) {
-//        User splitter = userRepository.getById(splitterUsername).get();
-//        boolean isGroupFriendship = isGroupFriendship(splitter, friendshipId);
-//
-//        String notification = isGroupFriendship ?
-//                String.format(NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, friendshipId, splitReason) :
-//                String.format(NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
-//        sendNotification(groupMember, notification);
-//    }
 
 
     private void saveChanges() throws MoneySplitException {

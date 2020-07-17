@@ -42,7 +42,7 @@ public class SplitCommand extends Command {
 
     @Override
     public String execute() {
-        if (isCommandInvokerLoggedIn) {
+        if (!isCommandInvokerLoggedIn) {
             return LOGIN_OR_REGISTER;
         }
         if (moneySplitService.isSplittingAllowed(commandInvokerUsername, friendshipId)) {

@@ -46,7 +46,7 @@ public class User implements Serializable {
 
 
     public void pushNotification(String notification) {
-        this.notifications.push(notification);
+        this.notifications.add(notification);
     }
 
     public Deque<String> getNotifications() {
