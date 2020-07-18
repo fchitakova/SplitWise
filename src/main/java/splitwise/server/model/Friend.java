@@ -35,7 +35,7 @@ public class Friend extends Friendship implements Serializable {
             userStatus.append(String.format(SHOULD_GIVE_MONEY, name, Double.toString(account)));
         }
         if (account < 0.0) {
-            userStatus.append(String.format(SHOULD_TAKE_MONEY, name, Double.toString(account)));
+            userStatus.append(String.format(SHOULD_TAKE_MONEY, name, Double.toString(-account)));
         }
 
         return userStatus.toString();

@@ -61,7 +61,19 @@ public class CreateGroupCommand extends Command {
     }
 
     private boolean enoughGroupMembersArePresent() {
-        return participants.length >= MINIMUM_COUNT_OF_GROUP_MEMBERS;
+        return participants.length >= MINIMUM_COUNT_OF_GROUP_MEMBERS
+                && !isInvokerIncludedHimselfAsGroupParticipant();
+    }
+
+    private boolean isInvokerIncludedHimselfAsGroupParticipant() {
+        int countOfInvokerUsernameOccurrences = 0;
+
+        for (int i = 0; i < participants.length; i++) {
+            if (participants[i].equals(commandInvokerUsername)) {
+                ++countOfInvokerUsernameOccurrences;
+            }
+        }
+        return countOfInvokerUsernameOccurrences > 1;
     }
 
     private boolean allGroupMembersAreRegistered() {

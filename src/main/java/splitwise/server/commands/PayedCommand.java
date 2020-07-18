@@ -12,6 +12,7 @@ public class PayedCommand extends Command {
     public static final String SUCCESSFULLY_PAYED_IN_GROUP_RESULT = "Successfully updated friendship account between you and %s in group:%s [%s]. " + SEE_STATUS;
     public static final String ALLOWED_ONLY_FOR_GROUP_MEMBERS = "You must be group member to accept group payments.";
     public static final String ALLOWED_ONLY_FOR_FRIENDS = "Accepting payments of non-friend is not allowed.";
+    public static final String CANNOT_APPROVE_OWN_PAYMENT = "You can't approve your own payment!";
 
 
     private MoneySplitService moneySplitService;
@@ -65,8 +66,12 @@ public class PayedCommand extends Command {
     @Override
     public String execute() {
         if (isCommandInvokerLoggedIn) {
-            String commandResult = isPayedInGroup ? payedInGroup() : payed();
-            return commandResult;
+            if (commandInvokerUsername.equals(debtorUsername)) {
+                return CANNOT_APPROVE_OWN_PAYMENT;
+            } else {
+                String commandResult = isPayedInGroup ? payedInGroup() : payed();
+                return commandResult;
+            }
         }
         return LOGIN_OR_REGISTER;
     }

@@ -73,13 +73,9 @@ public class FriendshipService extends SplitWiseService {
     }
 
     private void addGroupMember(User memberToAdd, String groupName, List<String> members) {
-        List<String> participantsWithoutCurrent = members.stream().
-                filter(username -> (!username.equals(memberToAdd.getUsername()))).collect(Collectors.toList());
-
-
-        memberToAdd.addToGroup(groupName, participantsWithoutCurrent);
+        memberToAdd.addToGroup(groupName, members);
         String addedToGroupNotification = String.format(ADDED_TO_GROUP_NOTIFICATION, groupName,
-                participantsWithoutCurrent.stream().collect(Collectors.joining(", ")));
+                members.stream().collect(Collectors.joining(", ")));
 
         sendNotification(memberToAdd, addedToGroupNotification);
     }

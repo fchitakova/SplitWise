@@ -15,7 +15,7 @@ public class MoneySplitService extends SplitWiseService {
     public static final String SPLIT_NOTIFICATION_FOR_FRIEND = "%s split %s LV with you. Splitting reason: %s. " + SEE_STATUS;
     public static final String SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS = "%s split %s LV with you and other members of %s group. Splitting reason: %s. " + SEE_STATUS;
     public static final String PAYED_NOTIFICATION_FOR_FRIEND = "%s approved your payment %s LV [%s]." + SEE_STATUS;
-    public static final String PAYED_NOTIFICATION_FOR_GROUP_MEMBERS = "%s approved your payment %s LV [%s] in group: %s." + SEE_STATUS;
+    public static final String PAYED_NOTIFICATION_FOR_GROUP_MEMBERS = "%s approved %s  payment %s LV [%s] in group: %s." + SEE_STATUS;
 
     private static final Logger LOGGER = Logger.getLogger(MoneySplitService.class);
 
@@ -41,13 +41,11 @@ public class MoneySplitService extends SplitWiseService {
 
     public void splitInGroup(String splitterUsername, String groupName, Double amount, String splitReason) throws MoneySplitException {
         User splitter = userRepository.getById(splitterUsername).get();
-        splitter.splitInGroup(groupName, amount);
-
         GroupFriendship groupFriendship = splitter.getGroup(groupName);
 
         for (String username : groupFriendship.getMembersUsernames()) {
             User groupMember = userRepository.getById(username).get();
-            groupMember.splitInGroup(groupName, (-amount));
+            groupMember.splitInGroup(groupName, amount);
 
             String notification = String.format(SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, groupName, splitReason);
             sendNotification(groupMember, notification);
@@ -69,22 +67,34 @@ public class MoneySplitService extends SplitWiseService {
         saveChanges();
     }
 
-    public void groupPayOff(String usernameToWhomIsPayed, Double amount, String debtorUsername, String groupName, String splitReason) throws MoneySplitException {
+    public void groupPayOff(
+            String usernameToWhomIsPayed,
+            Double amount,
+            String debtorUsername,
+            String groupName,
+            String splitReason)
+            throws MoneySplitException {
         User payedUser = userRepository.getById(usernameToWhomIsPayed).get();
-        payedUser.payOffInGroup(groupName, debtorUsername, amount);
 
         GroupFriendship groupFriendship = payedUser.getGroup(groupName);
         for (String username : groupFriendship.getMembersUsernames()) {
             User groupMember = userRepository.getById(username).get();
-            groupMember.payOffInGroup(groupName, debtorUsername, (-amount));
+            groupMember.payOffInGroup(groupName, debtorUsername, amount);
 
-            String notification = String.format(PAYED_NOTIFICATION_FOR_GROUP_MEMBERS, usernameToWhomIsPayed, amount, splitReason, groupName);
-            sendNotification(groupMember, notification);
-
+            if (!groupMember.getUsername().equals(usernameToWhomIsPayed)) {
+                String notification =
+                        String.format(
+                                PAYED_NOTIFICATION_FOR_GROUP_MEMBERS,
+                                usernameToWhomIsPayed,
+                                debtorUsername,
+                                amount,
+                                splitReason,
+                                groupName);
+                sendNotification(groupMember, notification);
+            }
         }
         saveChanges();
     }
-
     private void saveChanges() throws MoneySplitException {
         try {
             userRepository.save();
