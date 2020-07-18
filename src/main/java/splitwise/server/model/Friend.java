@@ -6,7 +6,6 @@ import java.util.Objects;
 public class Friend extends Friendship implements Serializable {
     public static final String SHOULD_TAKE_MONEY = "You owe %s %s LV ";
     public static final String SHOULD_GIVE_MONEY = "%s owes you %s LV";
-    public static final double NEUTRAL_ACCOUNT_AMOUNT = 0.0;
 
     private Double account;
 
@@ -15,6 +14,9 @@ public class Friend extends Friendship implements Serializable {
         this.account = NEUTRAL_ACCOUNT_AMOUNT;
     }
 
+    public Double getAccount() {
+        return account;
+    }
 
     @Override
     public void split(Double amount) {
@@ -31,11 +33,11 @@ public class Friend extends Friendship implements Serializable {
     public String getStatus() {
         StringBuilder userStatus = new StringBuilder();
 
-        if (account > 0.0) {
-            userStatus.append(String.format(SHOULD_GIVE_MONEY, name, Double.toString(account)));
+        if (account > NEUTRAL_ACCOUNT_AMOUNT) {
+            userStatus.append(String.format(SHOULD_GIVE_MONEY, name, account));
         }
-        if (account < 0.0) {
-            userStatus.append(String.format(SHOULD_TAKE_MONEY, name, Double.toString(-account)));
+        if (account < NEUTRAL_ACCOUNT_AMOUNT) {
+            userStatus.append(String.format(SHOULD_TAKE_MONEY, name, -account));
         }
 
         return userStatus.toString();

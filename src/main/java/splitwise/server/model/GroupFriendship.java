@@ -6,6 +6,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class GroupFriendship extends Friendship implements Serializable {
+    public static final String OWES_MONEY = "%s owes %s LV";
+    public static final String SHOULD_TAKE_MONEY = "%s should take %s LV";
+
     private List<Friend> groupMembers;
 
     public GroupFriendship(String groupName, List<String> groupMembers) {
@@ -22,9 +25,14 @@ public class GroupFriendship extends Friendship implements Serializable {
         StringBuilder groupStatus = new StringBuilder();
 
         for (Friend friend : this.groupMembers) {
-            String friendsStatus = friend.getStatus();
-            if (!friendsStatus.isBlank()) {
-                groupStatus.append(friendsStatus + '\n');
+            Double account = friend.getAccount();
+            String friendName = friend.getName();
+
+            if (friend.getAccount() > NEUTRAL_ACCOUNT_AMOUNT) {
+                groupStatus.append(String.format(OWES_MONEY,friendName, account) + '\n');
+            }
+            if (friend.getAccount() < NEUTRAL_ACCOUNT_AMOUNT) {
+                groupStatus.append(String.format(SHOULD_TAKE_MONEY, friendName, account) + '\n');
             }
         }
         return groupStatus.toString();

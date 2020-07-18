@@ -61,7 +61,7 @@ public class MoneySplitService extends SplitWiseService {
         User debtor = userRepository.getById(debtorUsername).get();
         debtor.payOffWith(usernameToWhomIsPayed, (-amount));
 
-        String notification = String.format(PAYED_NOTIFICATION_FOR_FRIEND, usernameToWhomIsPayed, Double.toString(amount), splitReason);
+        String notification = String.format(PAYED_NOTIFICATION_FOR_FRIEND, usernameToWhomIsPayed, amount, splitReason);
         sendNotification(debtor, notification);
 
         saveChanges();

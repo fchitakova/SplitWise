@@ -4,6 +4,8 @@ package splitwise.server.model;
 import java.util.Objects;
 
 public abstract class Friendship {
+     public static final double NEUTRAL_ACCOUNT_AMOUNT = 0.0;
+
      protected String name;
 
      public abstract void split(Double amount);
