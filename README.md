@@ -1,6 +1,6 @@
 # **Project description:** https://github.com/fmi/java-course/blob/master/course-projects/splitwise.md
 
-Some commands' output format differs from those in project description.
+Some commands' output format differ from those in project description.
 
 ###### **Different commands:**
 
