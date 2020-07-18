@@ -5,6 +5,7 @@ import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public abstract class SplitWiseService{
     public static final String SEE_LOG_FILE = "See logging.log for more information.";
@@ -37,8 +38,12 @@ public abstract class SplitWiseService{
     }
 
     public boolean isGroupMember(String username, String groupName) {
-        User user = userRepository.getById(username).get();
-        return user.isGroupMember(groupName);
+        Optional<User> user = userRepository.getById(username);
+        if (user.isPresent()) {
+            return user.get().isGroupMember(groupName);
+        } else {
+            return false;
+        }
     }
 
 }

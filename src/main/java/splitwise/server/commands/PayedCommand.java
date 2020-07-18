@@ -13,6 +13,7 @@ public class PayedCommand extends Command {
     public static final String ALLOWED_ONLY_FOR_GROUP_MEMBERS = "You must be group member to accept group payments.";
     public static final String ALLOWED_ONLY_FOR_FRIENDS = "Accepting payments of non-friend is not allowed.";
     public static final String CANNOT_APPROVE_OWN_PAYMENT = "You can't approve your own payment!";
+    public static final String NOT_PART_OF_GROUP = "%s is not part of this group.";
 
 
     private MoneySplitService moneySplitService;
@@ -77,21 +78,32 @@ public class PayedCommand extends Command {
     }
 
     private String payedInGroup() {
-        if (isInvokerGroupMember()) {
-            try {
-                moneySplitService.groupPayOff(commandInvokerUsername, amount, debtorUsername, groupName, splitReason);
+        if (isGroupMember(commandInvokerUsername)) {
+            if (isGroupMember(debtorUsername)) {
+                try {
+                    moneySplitService.groupPayOff(
+                            commandInvokerUsername,
+                            amount,
+                            debtorUsername,
+                            groupName,
+                            splitReason);
 
-                String commandSuccessResult = String.format(SUCCESSFULLY_PAYED_IN_GROUP_RESULT, debtorUsername, groupName, splitReason);
-                return commandSuccessResult;
-            } catch (MoneySplitException e) {
-                return COMMAND_FAILED;
+                    String commandSuccessResult =
+                            String.format(
+                                    SUCCESSFULLY_PAYED_IN_GROUP_RESULT, debtorUsername, groupName, splitReason);
+                    return commandSuccessResult;
+                } catch (MoneySplitException e) {
+                    return COMMAND_FAILED;
+                }
+            } else {
+                return String.format(NOT_PART_OF_GROUP, debtorUsername);
             }
         }
         return ALLOWED_ONLY_FOR_GROUP_MEMBERS;
     }
 
-    private boolean isInvokerGroupMember() {
-        return moneySplitService.isGroupMember(commandInvokerUsername, groupName);
+    private boolean isGroupMember(String username) {
+        return moneySplitService.isGroupMember(username, groupName);
     }
 
     private String payed() {

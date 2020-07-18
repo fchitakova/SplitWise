@@ -11,6 +11,7 @@ public class CommandFactory {
     public static final String ADD_FRIEND_COMMAND = "add-friend %s";
     public static final String LOGOUT_COMMAND = "logout";
     public static final String GET_STATUS_COMMAND = "get-status";
+    public static final String HELP_COMMAND = "help";
 
     private AuthenticationService authenticationService;
     private FriendshipService friendshipService;
@@ -24,6 +25,11 @@ public class CommandFactory {
     }
 
     public Command createCommand(String input) {
+
+        if (input.equalsIgnoreCase(HELP_COMMAND)) {
+            return new HelpCommand(authenticationService);
+        }
+
         if (input.equalsIgnoreCase(LOGOUT_COMMAND)) {
             return new LogoutCommand(authenticationService);
         }
