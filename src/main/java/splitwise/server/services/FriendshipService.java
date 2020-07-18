@@ -29,10 +29,7 @@ public class FriendshipService extends SplitWiseService {
         this.activeUsers = activeUsers;
     }
 
-    /**
-     * This method assumes that both users represented by their usernames are already registered.
-     * Returns true if friendship is successfully created.
-     */
+
     public boolean createFriendship(String addingUsername, String addedUsername) throws FriendshipException {
         User addingUser = userRepository.getById(addingUsername).get();
         User addedUser = userRepository.getById(addedUsername).get();
@@ -61,10 +58,7 @@ public class FriendshipService extends SplitWiseService {
         }
     }
 
-    /**
-     * This method assumes that all participating users are already registered.
-     * Returns true if the group friendship is successfully created.
-     */
+
     public boolean createGroupFriendship(String groupName, List<String> membersUsernames) throws FriendshipException {
         List<User> members = membersUsernames.stream().map(username -> userRepository.getById(username).get()).collect(Collectors.toList());
         boolean groupCanBeCreated = !isAnyUserAlreadyMemberOfAGroupWithSameName(groupName, members);

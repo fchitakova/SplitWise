@@ -8,6 +8,7 @@ public class User implements Serializable {
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String RED_STAR_SYMBOL = ANSI_RED + '*' + ANSI_RESET;
+    public static final String NOT_ANY_OUTSTANDING_FINANCES = "You do not have any outstanding finances with friends.";
 
     private String username;
     private char[] password;
@@ -62,12 +63,14 @@ public class User implements Serializable {
     }
 
     public String getSplittingStatus() {
-        StringBuilder friendsStatus = new StringBuilder("Friends:\n");
-        StringBuilder groupsStatus = new StringBuilder("\nGroups:\n");
+        StringBuilder friendsStatus = new StringBuilder();
+        StringBuilder groupsStatus = new StringBuilder();
 
         for (Friendship friendship : friendships) {
-            String friendshipStatus = friendship.getStatus();
-            if (friendshipHasOutstandingAccounts(friendshipStatus)) {
+
+            StringBuilder friendshipStatus = new StringBuilder(friendship.getStatus());
+
+            if (anyOutstandingAccountsArePresent(friendshipStatus)) {
                 if (friendship instanceof Friend) {
                     friendsStatus.append(RED_STAR_SYMBOL + friendship.getStatus() + '\n');
                 } else {
@@ -75,11 +78,23 @@ public class User implements Serializable {
                 }
             }
         }
-        return friendsStatus.append("\n" + groupsStatus).toString();
+
+        StringBuilder status = new StringBuilder();
+        if (anyOutstandingAccountsArePresent(friendsStatus)) {
+            status.append("Friends:\n" + friendsStatus);
+        }
+        if (anyOutstandingAccountsArePresent(groupsStatus)) {
+            status.append("\nGroups:\n" + groupsStatus);
+        }
+        if (!anyOutstandingAccountsArePresent(status)) {
+            status.append(NOT_ANY_OUTSTANDING_FINANCES);
+        }
+
+        return status.toString();
     }
 
-    private boolean friendshipHasOutstandingAccounts(String friendshipStatus) {
-        return !friendshipStatus.isBlank();
+    private boolean anyOutstandingAccountsArePresent(StringBuilder friendshipStatus) {
+        return !friendshipStatus.toString().isBlank();
     }
 
 }

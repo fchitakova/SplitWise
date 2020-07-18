@@ -70,14 +70,14 @@ public class SplitWiseClientApplication {
 
     private Thread createCommandProcessorThread() {
         BufferedReader consoleInputReader = new BufferedReader(new InputStreamReader(System.in));
-        CommandProcessor userCommandsProcessor = new CommandProcessor(consoleInputReader, serverOutputWriter, this);
+        ServerOutputWriter userCommandsProcessor = new ServerOutputWriter(consoleInputReader, serverOutputWriter, this);
 
         Thread commandProcessor = new Thread(userCommandsProcessor);
         return commandProcessor;
     }
 
     private Thread createInputReaderThread() {
-        InputReader serverInputReader = new InputReader(this.serverInputReader, this);
+        ServerInputReader serverInputReader = new ServerInputReader(this.serverInputReader, this);
         Thread inputReader = new Thread(serverInputReader);
         return inputReader;
     }

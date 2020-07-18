@@ -6,21 +6,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class CommandProcessor implements Runnable {
+public class ServerOutputWriter implements Runnable {
     public static final String EXIT_COMMAND = "exit";
     public static final String SEE_LOG_FILES = "For more information see logs in logging.log";
     public static final String FAILED_READING_USER_INPUT_ERROR_MESSAGE = "Error occurred while reading user input. ";
     public static final String FAILED_CLOSING_CONSOLE_READER_ERROR_MESSAGE = "IO error occurred while closing user input reader.";
 
 
-    private static Logger LOGGER = Logger.getLogger(CommandProcessor.class);
+    private static Logger LOGGER = Logger.getLogger(ServerOutputWriter.class);
 
     private BufferedReader inputReader;
     private PrintWriter outputWriter;
     private SplitWiseClientApplication application;
 
 
-    public CommandProcessor(BufferedReader inputReader, PrintWriter outputWriter, SplitWiseClientApplication application) {
+    public ServerOutputWriter(BufferedReader inputReader, PrintWriter outputWriter, SplitWiseClientApplication application) {
         this.inputReader = inputReader;
         this.outputWriter = outputWriter;
         this.application = application;
