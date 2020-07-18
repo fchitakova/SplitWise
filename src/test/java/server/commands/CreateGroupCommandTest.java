@@ -3,14 +3,14 @@ package server.commands;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import server.TestConstants;
 import splitwise.server.commands.CreateGroupCommand;
 import splitwise.server.services.FriendshipService;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static server.TestConstants.TEST_USERNAME1;
-import static server.TestConstants.TEST_USERNAME2;
+import static server.TestConstants.*;
 import static splitwise.server.commands.Command.LOGIN_OR_REGISTER;
 import static splitwise.server.commands.CreateGroupCommand.NOT_ENOUGH_PARTICIPANTS;
 import static splitwise.server.commands.CreateGroupCommand.NOT_REGISTERED_PARTICIPANTS;
@@ -55,7 +55,7 @@ public class CreateGroupCommandTest {
     @Test
     public void testThatGroupCreationWithNotRegisteredParticipantReturnsNotAllowedResponse() {
         when(friendshipService.checkIfRegistered(anyString())).thenReturn(false);
-        when(friendshipService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME1);
+        when(friendshipService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME3);
         createGroupCommand = new CreateGroupCommand(CREATE_GROUP_COMMAND, friendshipService);
 
         String assertMessage = "Group creation with not registered participants is not allowed";
