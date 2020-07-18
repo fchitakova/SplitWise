@@ -3,6 +3,7 @@ package splitwise.server.services;
 import splitwise.server.model.Friend;
 import splitwise.server.model.GroupFriendship;
 
+import java.util.List;
 import java.util.Set;
 
 public class StatusMessageBuilder {
@@ -10,7 +11,7 @@ public class StatusMessageBuilder {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String RED_STAR_SYMBOL = ANSI_RED + '*' + ANSI_RESET;
 
-    public static String buildFriendsStatusMessage(Set<Friend> friends) {
+    public static String buildFriendsStatusMessage(List<Friend> friends) {
         StringBuilder friendsSplitStatus = new StringBuilder();
         for (Friend friend : friends) {
             String friendshipStatus = friend.getStatus();
@@ -31,7 +32,7 @@ public class StatusMessageBuilder {
         return !friendshipStatus.isBlank();
     }
 
-    public static String buildGroupFriendshipsStatusMessage(Set<GroupFriendship> groupFriendships) {
+    public static String buildGroupFriendshipsStatusMessage(List<GroupFriendship> groupFriendships) {
         StringBuilder groupsSplitStatus = new StringBuilder();
         for (GroupFriendship group : groupFriendships) {
             String groupStatus = group.getStatus();

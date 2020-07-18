@@ -30,18 +30,21 @@ public class FriendshipService extends SplitWiseService {
 
     public boolean createFriendship(String addingUsername, String addedUsername) throws FriendshipException {
         User addingUser = userRepository.getById(addingUsername).get();
-        User addedUser = userRepository.getById(addedUsername).get();
 
-        boolean isFriendshipEstablished = addingUser.addFriendship(addedUsername) &&
-                addedUser.addFriendship(addingUsername);
-
-        if (isFriendshipEstablished) {
-            String notificationMessage = String.format(RECEIVED_FRIENDSHIP_NOTIFICATION, addingUsername);
-            sendNotification(addedUser, notificationMessage);
-            saveChanges(false);
-            return true;
+        if (addingUser.hasFriend(addedUsername)) {
+            return false;
         }
-        return false;
+
+        addingUser.addFriendship(addedUsername);
+
+        User addedUser = userRepository.getById(addedUsername).get();
+        addedUser.addFriendship(addingUsername);
+
+        String notificationMessage = String.format(RECEIVED_FRIENDSHIP_NOTIFICATION, addingUsername);
+        sendNotification(addedUser, notificationMessage);
+        saveChanges(false);
+
+        return true;
     }
 
     private void saveChanges(boolean isGroupFriendship) throws FriendshipException {

@@ -14,15 +14,15 @@ public class User implements Serializable {
     private String username;
     private char[] password;
     private String fullName;
-    private final Set<Friend> friendships;
-    private final Set<GroupFriendship> groups;
+    private List<Friend> friendships;
+    private List<GroupFriendship> groups;
     private Deque<String> notifications;
 
     public User(String username, char[] password) {
         this.username = username;
         this.password = password;
-        this.friendships = new HashSet<>();
-        this.groups = new HashSet<>();
+        this.friendships = new ArrayList<>();
+        this.groups = new ArrayList<>();
         this.notifications = new ArrayDeque<>();
     }
 
@@ -34,12 +34,12 @@ public class User implements Serializable {
         return this.username.equals(username) && Arrays.equals(this.password, password);
     }
 
-    public boolean addFriendship(String friendsUsername) {
-        return friendships.add(new Friend(friendsUsername));
+    public void addFriendship(String friendsUsername) {
+        friendships.add(new Friend(friendsUsername));
     }
 
-    public boolean addToGroup(String groupName, List<String> members) {
-        return groups.add(new GroupFriendship(groupName, members));
+    public void addToGroup(String groupName, List<String> members) {
+        groups.add(new GroupFriendship(groupName, members));
     }
 
     public GroupFriendship getGroup(String groupName) {
@@ -51,27 +51,23 @@ public class User implements Serializable {
         return null;
     }
 
-    public boolean splitWithFriend(String friendsUsername, Double amount) {
+    public void splitWithFriend(String friendsUsername, Double amount) {
         for (Friendship friend : friendships) {
             if (friend.hasName(friendsUsername)) {
                 Double splitAmount = amount / SPLIT_PARTS_FOR_FRIENDSHIP;
                 friend.split(splitAmount);
-                return true;
             }
         }
-        return false;
     }
 
 
-    public boolean splitInGroup(String groupName, Double amount) {
+    public void splitInGroup(String groupName, Double amount) {
         for (GroupFriendship group : groups) {
             if (group.hasName(groupName)) {
                 Double splitAmount = amount / group.size();
                 group.split(splitAmount);
-                return true;
             }
         }
-        return false;
     }
 
     public boolean hasFriend(String username) {
