@@ -56,9 +56,7 @@ public class FileSystemUserRepository implements UserRepository {
     synchronized private void loadUserData() throws PersistenceException {
         try (FileReader reader = new FileReader(databaseFile)) {
             {
-                GsonBuilder gsonBuilder = new GsonBuilder();
-                gsonBuilder.registerTypeAdapter(Friendship.class, new FriendshipJsonDeserializer());
-                Gson gson = gsonBuilder.create();
+                Gson gson = new Gson();
                 Map<String, User> usersFromJson = gson.fromJson(reader, USERS_COLLECTION_TYPE);
                 if (usersFromJson != null) {
                     users.putAll(usersFromJson);
@@ -82,7 +80,6 @@ public class FileSystemUserRepository implements UserRepository {
     synchronized public void save() throws PersistenceException {
         try (FileWriter writer = new FileWriter(databaseFile, false)) {
             GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(Friendship.class, new FriendshipJsonSerializer());
             String data = gsonBuilder.create().toJson(users, USERS_COLLECTION_TYPE);
             writeToDBFile(writer, data);
         } catch (IOException e) {

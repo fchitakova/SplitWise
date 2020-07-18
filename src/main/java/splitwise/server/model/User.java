@@ -9,6 +9,7 @@ import static splitwise.server.services.StatusMessageBuilder.buildGroupFriendshi
 
 public class User implements Serializable {
     public static final String NOT_ANY_OUTSTANDING_FINANCES = "You do not have any outstanding finances with friends.";
+    public static final int SPLIT_PARTS_FOR_FRIENDSHIP = 2;
 
     private String username;
     private char[] password;
@@ -26,7 +27,7 @@ public class User implements Serializable {
     }
 
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
     public boolean checkCredentials(String username, char[] password) {
@@ -53,7 +54,7 @@ public class User implements Serializable {
     public boolean splitWithFriend(String friendsUsername, Double amount) {
         for (Friendship friend : friendships) {
             if (friend.hasName(friendsUsername)) {
-                Double splitAmount = amount / 2;
+                Double splitAmount = amount / SPLIT_PARTS_FOR_FRIENDSHIP;
                 friend.split(splitAmount);
                 return true;
             }

@@ -3,13 +3,10 @@ package splitwise.server.services;
 import org.apache.log4j.Logger;
 import splitwise.server.exceptions.MoneySplitException;
 import splitwise.server.exceptions.PersistenceException;
-import splitwise.server.model.Friendship;
 import splitwise.server.model.GroupFriendship;
 import splitwise.server.model.User;
 import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
-
-import java.util.List;
 
 
 public class MoneySplitService extends SplitWiseService {
@@ -47,6 +44,7 @@ public class MoneySplitService extends SplitWiseService {
         splitter.splitInGroup(groupName, amount);
 
         GroupFriendship groupFriendship = splitter.getGroup(groupName);
+
         for (String username : groupFriendship.getMembersUsernames()) {
             User groupMember = userRepository.getById(username).get();
             groupMember.splitInGroup(groupName, (-amount));
@@ -79,6 +77,7 @@ public class MoneySplitService extends SplitWiseService {
         for (String username : groupFriendship.getMembersUsernames()) {
             User groupMember = userRepository.getById(username).get();
             groupMember.payOffInGroup(groupName, debtorUsername, (-amount));
+
             String notification = String.format(PAYED_NOTIFICATION_FOR_GROUP_MEMBERS, usernameToWhomIsPayed, amount, splitReason, groupName);
             sendNotification(groupMember, notification);
 
@@ -97,7 +96,7 @@ public class MoneySplitService extends SplitWiseService {
     }
 
 
-    public String getSplittingStatusOfUser(String username) {
+    public String getStatus(String username) {
         User user = userRepository.getById(username).get();
         return user.getSplittingStatus();
     }

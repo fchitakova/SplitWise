@@ -14,7 +14,7 @@ public class GetStatusCommand extends Command {
     @Override
     public String execute() {
         if (isCommandInvokerLoggedIn) {
-            return moneySplitService.getSplittingStatusOfUser(commandInvokerUsername);
+            return moneySplitService.getStatus(commandInvokerUsername);
         } else {
             return LOGIN_OR_REGISTER;
         }

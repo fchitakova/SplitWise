@@ -23,6 +23,7 @@ public class SplitCommand extends Command {
 
     public SplitCommand(String input, MoneySplitService moneySplitService) {
         super(moneySplitService);
+
         this.moneySplitService = moneySplitService;
         initializeCommandParameters(input);
     }
@@ -67,6 +68,7 @@ public class SplitCommand extends Command {
     private String splitInGroupAndGetResult() throws MoneySplitException {
         if (isInvokerGroupMember()) {
             moneySplitService.splitInGroup(commandInvokerUsername, friendshipName, amount, splitReason);
+
             return getSuccessfulSplitResponse();
         }
 
@@ -76,6 +78,7 @@ public class SplitCommand extends Command {
     private String splitWithFriendAndGetResult() throws MoneySplitException {
         if (moneySplitService.areFriends(commandInvokerUsername, friendshipName)) {
             moneySplitService.split(commandInvokerUsername, friendshipName, amount, splitReason);
+
             return getSuccessfulSplitResponse();
         }
         return getSplitNotAllowedResponse();

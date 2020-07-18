@@ -8,8 +8,10 @@ public class PayedCommand extends Command {
     public static final String PAYED_COMMAND = "payed";
     public static final String PAYED_IN_GROUP_COMMAND = "payed-group";
     public static final String COMMAND_FAILED = "Command failed due to error. Try again later.";
-    public static final String SUCCESSFULLY_PAYED_RESULT = "Successfully updated friendship account between you and %s [%s]. "+SEE_STATUS;
-    public static final String SUCCESSFULLY_PAYED_IN_GROUP_RESULT = "Successfully updated friendship account between you and %s in group:%s [%s]. "+SEE_STATUS;
+    public static final String SUCCESSFULLY_PAYED_RESULT = "Successfully updated friendship account between you and %s [%s]. " + SEE_STATUS;
+    public static final String SUCCESSFULLY_PAYED_IN_GROUP_RESULT = "Successfully updated friendship account between you and %s in group:%s [%s]. " + SEE_STATUS;
+    public static final String ALLOWED_ONLY_FOR_GROUP_MEMBERS = "You must be group member to accept group payments.";
+    public static final String ALLOWED_ONLY_FOR_FRIENDS = "Accepting payments of non-friend is not allowed.";
 
 
     private MoneySplitService moneySplitService;
@@ -21,6 +23,7 @@ public class PayedCommand extends Command {
 
     public PayedCommand(String input, MoneySplitService moneySplitService) {
         super(moneySplitService);
+
         this.moneySplitService = moneySplitService;
         initializeCommandParameters(input);
     }
@@ -72,11 +75,14 @@ public class PayedCommand extends Command {
         if (isInvokerGroupMember()) {
             try {
                 moneySplitService.groupPayOff(commandInvokerUsername, amount, debtorUsername, groupName, splitReason);
+
+                String commandSuccessResult = String.format(SUCCESSFULLY_PAYED_IN_GROUP_RESULT, debtorUsername, groupName, splitReason);
+                return commandSuccessResult;
             } catch (MoneySplitException e) {
                 return COMMAND_FAILED;
             }
         }
-        return String.format(SUCCESSFULLY_PAYED_IN_GROUP_RESULT, debtorUsername, groupName, splitReason);
+        return ALLOWED_ONLY_FOR_GROUP_MEMBERS;
     }
 
     private boolean isInvokerGroupMember() {
@@ -87,11 +93,14 @@ public class PayedCommand extends Command {
         if (moneySplitService.areFriends(commandInvokerUsername, debtorUsername)) {
             try {
                 moneySplitService.payOff(commandInvokerUsername, amount, debtorUsername, splitReason);
+
+                String commandSuccessResult = String.format(SUCCESSFULLY_PAYED_RESULT, debtorUsername, splitReason);
+                return commandSuccessResult;
             } catch (MoneySplitException e) {
                 return COMMAND_FAILED;
             }
         }
-        return String.format(SUCCESSFULLY_PAYED_RESULT, debtorUsername, splitReason);
+        return ALLOWED_ONLY_FOR_FRIENDS;
     }
 
 }
