@@ -3,8 +3,6 @@ package splitwise.server.services;
 import org.apache.log4j.Logger;
 import splitwise.server.exceptions.FriendshipException;
 import splitwise.server.exceptions.PersistenceException;
-import splitwise.server.model.Friend;
-import splitwise.server.model.GroupFriendship;
 import splitwise.server.model.User;
 import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
@@ -34,19 +32,19 @@ public class FriendshipService extends SplitWiseService {
         User addingUser = userRepository.getById(addingUsername).get();
         User addedUser = userRepository.getById(addedUsername).get();
 
-        boolean isFriendshipEstablished = addingUser.addFriendship(new Friend(addedUsername)) &&
-                addedUser.addFriendship(new Friend(addingUsername));
+        boolean isFriendshipEstablished = addingUser.addFriendship(addedUsername) &&
+                addedUser.addFriendship(addingUsername);
 
         if (isFriendshipEstablished) {
             String notificationMessage = String.format(RECEIVED_FRIENDSHIP_NOTIFICATION, addingUsername);
             sendNotification(addedUser, notificationMessage);
-            saveFriendshipChanges(false);
+            saveChanges(false);
             return true;
         }
         return false;
     }
 
-    private void saveFriendshipChanges(boolean isGroupFriendship) throws FriendshipException {
+    private void saveChanges(boolean isGroupFriendship) throws FriendshipException {
         try {
             userRepository.save();
         } catch (PersistenceException e) {
@@ -61,17 +59,17 @@ public class FriendshipService extends SplitWiseService {
 
     public boolean createGroupFriendship(String groupName, List<String> membersUsernames) throws FriendshipException {
         List<User> members = membersUsernames.stream().map(username -> userRepository.getById(username).get()).collect(Collectors.toList());
-        boolean groupCanBeCreated = !isAnyUserAlreadyMemberOfAGroupWithSameName(groupName, members);
-        if (groupCanBeCreated) {
+
+        if (canGroupBeCreated(groupName, membersUsernames)) {
             members.stream().forEach(member -> addGroupMember(member, groupName, membersUsernames));
-            saveFriendshipChanges(true);
+            saveChanges(true);
             return true;
         }
         return false;
     }
 
-    private boolean isAnyUserAlreadyMemberOfAGroupWithSameName(String groupName, List<User> participants) {
-        return participants.stream().anyMatch(participant -> participant.isPartOfFriendship(groupName));
+    private boolean canGroupBeCreated(String groupName, List<String> membersUsernames) {
+        return !membersUsernames.stream().anyMatch(username -> isGroupMember(username, groupName));
     }
 
     private void addGroupMember(User memberToAdd, String groupName, List<String> members) {
@@ -79,7 +77,7 @@ public class FriendshipService extends SplitWiseService {
                 filter(username -> (!username.equals(memberToAdd.getUsername()))).collect(Collectors.toList());
 
 
-        memberToAdd.addFriendship(new GroupFriendship(groupName, participantsWithoutCurrent));
+        memberToAdd.addToGroup(groupName, participantsWithoutCurrent);
         String addedToGroupNotification = String.format(ADDED_TO_GROUP_NOTIFICATION, groupName,
                 participantsWithoutCurrent.stream().collect(Collectors.joining(", ")));
 

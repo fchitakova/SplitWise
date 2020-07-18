@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import splitwise.server.exceptions.MoneySplitException;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.model.Friendship;
+import splitwise.server.model.GroupFriendship;
 import splitwise.server.model.User;
 import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
@@ -26,83 +27,61 @@ public class MoneySplitService extends SplitWiseService {
         this.activeUsers = activeUsers;
     }
 
-    public void split(String splitterUsername, String friendshipName, Double amount, String splitReason) throws MoneySplitException {
+
+    public void split(String splitterUsername, String friendsName, Double amount, String splitReason) throws MoneySplitException {
         User splitter = userRepository.getById(splitterUsername).get();
+        User friendToSplitWith = userRepository.getById(friendsName).get();
 
-        List<String> friendshipMembers = getFriendshipParticipants(splitter, friendshipName);
+        splitter.splitWithFriend(friendsName, amount);
+        friendToSplitWith.splitWithFriend(splitterUsername, (-amount));
 
-        Double splitAmount = calculateSplitAmount(amount, friendshipMembers);
-        split(splitter, friendshipName, splitAmount);
+        String notification = String.format(SPLIT_NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
+        sendNotification(friendToSplitWith, notification);
 
-        boolean isGroupFriendship = isGroupFriendship(friendshipMembers);
-        if (!isGroupFriendship) {
-            friendshipName = splitterUsername;
-        }
+        saveChanges();
+    }
 
-        for (String memberUsername : friendshipMembers) {
-            User groupMember = userRepository.getById(memberUsername).get();
-            split(groupMember, friendshipName, (-splitAmount));
 
-            String notification = isGroupFriendship ?
-                    String.format(SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, friendshipName, splitReason) :
-                    String.format(SPLIT_NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
+    public void splitInGroup(String splitterUsername, String groupName, Double amount, String splitReason) throws MoneySplitException {
+        User splitter = userRepository.getById(splitterUsername).get();
+        splitter.splitInGroup(groupName, amount);
+
+        GroupFriendship groupFriendship = splitter.getGroup(groupName);
+        for (String username : groupFriendship.getMembersUsernames()) {
+            User groupMember = userRepository.getById(username).get();
+            groupMember.splitInGroup(groupName, (-amount));
+
+            String notification = String.format(SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, groupName, splitReason);
             sendNotification(groupMember, notification);
 
         }
         saveChanges();
     }
 
-    private Double calculateSplitAmount(Double amount, List<String> friendshipMembers) {
-        boolean isGroupFriendship = isGroupFriendship(friendshipMembers);
-        if (isGroupFriendship) {
-            return amount / friendshipMembers.size();
-        }
-        return amount / 2;
-    }
-
-    private void split(User user, String friendshipName, Double amount) {
-        Friendship friendship = user.getSpecificFriendship(friendshipName).get();
-        friendship.split(amount);
-    }
-
-    private List<String> getFriendshipParticipants(User splitter, String friendshipName) {
-        Friendship friendship = splitter.getSpecificFriendship(friendshipName).get();
-        return friendship.getMembersUsernames();
-    }
-
-
-    private boolean isGroupFriendship(List<String> members) {
-        return members.size() > 1;
-    }
-
-    public void payOff(String usernameToWhomIsPaid, Double amount, String debtorUsername, String splitReason) throws MoneySplitException {
-        User paidUser = userRepository.getById(usernameToWhomIsPaid).get();
-        Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(debtorUsername).get();
-        paidUserSideFriendship.payOff(debtorUsername, amount);
+    public void payOff(String usernameToWhomIsPayed, Double amount, String debtorUsername, String splitReason) throws MoneySplitException {
+        User payed = userRepository.getById(usernameToWhomIsPayed).get();
+        payed.payOffWith(debtorUsername, amount);
 
         User debtor = userRepository.getById(debtorUsername).get();
-        Friendship debtorSideFriendship = debtor.getSpecificFriendship(usernameToWhomIsPaid).get();
-        debtorSideFriendship.payOff(usernameToWhomIsPaid, (-amount));
+        debtor.payOffWith(usernameToWhomIsPayed, (-amount));
 
-        String notification = String.format(PAYED_NOTIFICATION_FOR_FRIEND, usernameToWhomIsPaid, Double.toString(amount), splitReason);
+        String notification = String.format(PAYED_NOTIFICATION_FOR_FRIEND, usernameToWhomIsPayed, Double.toString(amount), splitReason);
         sendNotification(debtor, notification);
 
         saveChanges();
     }
 
-    public void groupPayOff(String usernameToWhomIsPaid, Double amount, String debtorUsername, String groupName, String splitReason) throws MoneySplitException {
-        User paidUser = userRepository.getById(usernameToWhomIsPaid).get();
-        Friendship paidUserSideFriendship = paidUser.getSpecificFriendship(groupName).get();
-        paidUserSideFriendship.payOff(debtorUsername, amount);
+    public void groupPayOff(String usernameToWhomIsPayed, Double amount, String debtorUsername, String groupName, String splitReason) throws MoneySplitException {
+        User payedUser = userRepository.getById(usernameToWhomIsPayed).get();
+        payedUser.payOffInGroup(groupName, debtorUsername, amount);
 
-        List<String> groupMembersUsernames = paidUserSideFriendship.getMembersUsernames();
-        for (String username : groupMembersUsernames) {
+        GroupFriendship groupFriendship = payedUser.getGroup(groupName);
+        for (String username : groupFriendship.getMembersUsernames()) {
             User groupMember = userRepository.getById(username).get();
-            Friendship friendship = groupMember.getSpecificFriendship(groupName).get();
-            friendship.payOff(debtorUsername, (-amount));
-
-            String notification = String.format(PAYED_NOTIFICATION_FOR_GROUP_MEMBERS, usernameToWhomIsPaid, Double.toString(amount), splitReason, groupName);
+            groupMember.payOffInGroup(groupName, debtorUsername, (-amount));
+            String notification = String.format(PAYED_NOTIFICATION_FOR_GROUP_MEMBERS, usernameToWhomIsPayed, amount, splitReason, groupName);
             sendNotification(groupMember, notification);
+
         }
         saveChanges();
     }
@@ -117,11 +96,6 @@ public class MoneySplitService extends SplitWiseService {
         }
     }
 
-
-    public boolean isMoneySharingAllowedBetween(String splitterUsername, String friendshipName) {
-        User user = userRepository.getById(splitterUsername).get();
-        return user.isPartOfFriendship(friendshipName);
-    }
 
     public String getSplittingStatusOfUser(String username) {
         User user = userRepository.getById(username).get();

@@ -11,8 +11,8 @@ public class SplitCommand extends Command {
     public static final String SPLITTING_IS_ALLOWED_ONLY_WITH_FRIENDS = "You can split only with friends. Ensure that friendship is established before starting splitting.";
     public static final String COMMAND_FAILED = "Split command failed. try again later.";
     public static final String SEE_STATUS = "You can view the status of all splits with get-status command.";
-    public static final String SPLITTING_RESULT = "Split %s LV between you and %s for %s. " + SEE_STATUS;
-    public static final String GROUP_SPLITTING_RESULT = "Split %s LV between you and %s group members %s. " + SEE_STATUS;
+    public static final String SPLITTING_RESULT = "Split %s LV between you and [%s].Reason: %s. " + SEE_STATUS;
+    public static final String GROUP_SPLITTING_RESULT = "Split %s LV between you and [%s] group members. Reason: [%s]. " + SEE_STATUS;
 
     private MoneySplitService moneySplitService;
     private boolean isGroupSplit;
@@ -49,35 +49,51 @@ public class SplitCommand extends Command {
     @Override
     public String execute() {
         if (isCommandInvokerLoggedIn) {
-            String commandResult = isSplitAllowed() ? split() : createSplitNotAllowedResponse();
-            return commandResult;
+            String splitResult = split();
+            return splitResult;
         }
         return LOGIN_OR_REGISTER;
     }
 
-    private boolean isSplitAllowed() {
-        return moneySplitService.isMoneySharingAllowedBetween(commandInvokerUsername, friendshipName);
-    }
-
     private String split() {
         try {
-            moneySplitService.split(commandInvokerUsername, friendshipName, amount, splitReason);
-            String splittingResult = createSplitResponse();
-            return splittingResult;
+            String commandResult = isGroupSplit ? splitInGroupAndGetResult() : splitWithFriendAndGetResult();
+            return commandResult;
         } catch (MoneySplitException e) {
             return COMMAND_FAILED;
         }
     }
 
+    private String splitInGroupAndGetResult() throws MoneySplitException {
+        if (isInvokerGroupMember()) {
+            moneySplitService.splitInGroup(commandInvokerUsername, friendshipName, amount, splitReason);
+            return getSuccessfulSplitResponse();
+        }
 
-    private String createSplitNotAllowedResponse() {
+        return getSplitNotAllowedResponse();
+    }
+
+    private String splitWithFriendAndGetResult() throws MoneySplitException {
+        if (moneySplitService.areFriends(commandInvokerUsername, friendshipName)) {
+            moneySplitService.split(commandInvokerUsername, friendshipName, amount, splitReason);
+            return getSuccessfulSplitResponse();
+        }
+        return getSplitNotAllowedResponse();
+
+    }
+
+    private boolean isInvokerGroupMember() {
+        return moneySplitService.isGroupMember(commandInvokerUsername, friendshipName);
+    }
+
+    private String getSplitNotAllowedResponse() {
         String response = isGroupSplit ?
                 SPLITTING_IN_GROUP_IS_ALLOWED_ONLY_FOR_MEMBERS :
                 SPLITTING_IS_ALLOWED_ONLY_WITH_FRIENDS;
         return response;
     }
 
-    private String createSplitResponse() {
+    private String getSuccessfulSplitResponse() {
         String response = isGroupSplit ?
                 String.format(GROUP_SPLITTING_RESULT, amount, friendshipName, splitReason) :
                 String.format(SPLITTING_RESULT, amount, friendshipName, splitReason);

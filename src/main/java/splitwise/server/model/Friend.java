@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-public class Friend implements Friendship, Serializable {
+public class Friend extends Friendship implements Serializable {
     public static final String SHOULD_TAKE_MONEY = "You owe %s %s LV ";
     public static final String SHOULD_GIVE_MONEY = "%s owes you %s LV";
     public static final double NEUTRAL_ACCOUNT_AMOUNT = 0.0;
-    private String name;
+
     private Double account;
 
     public Friend(String name) {
@@ -27,28 +27,19 @@ public class Friend implements Friendship, Serializable {
         account = account - amount;
     }
 
-    @Override
-    public String getName() {
-        return this.name;
-    }
 
     @Override
     public String getStatus() {
         StringBuilder userStatus = new StringBuilder();
 
         if (account > 0.0) {
-            userStatus.append(String.format(SHOULD_GIVE_MONEY, getName(), Double.toString(account)));
+            userStatus.append(String.format(SHOULD_GIVE_MONEY, name, Double.toString(account)));
         }
         if (account < 0.0) {
-            userStatus.append(String.format(SHOULD_TAKE_MONEY, getName(), Double.toString(-account)));
+            userStatus.append(String.format(SHOULD_TAKE_MONEY, name, Double.toString(-account)));
         }
 
         return userStatus.toString();
-    }
-
-    @Override
-    public List<String> getMembersUsernames() {
-        return List.of(name);
     }
 
 

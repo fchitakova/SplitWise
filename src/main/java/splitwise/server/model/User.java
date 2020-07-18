@@ -3,23 +3,25 @@ package splitwise.server.model;
 import java.io.Serializable;
 import java.util.*;
 
+import static splitwise.server.services.StatusMessageBuilder.buildFriendsStatusMessage;
+import static splitwise.server.services.StatusMessageBuilder.buildGroupFriendshipsStatusMessage;
+
 
 public class User implements Serializable {
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String RED_STAR_SYMBOL = ANSI_RED + '*' + ANSI_RESET;
     public static final String NOT_ANY_OUTSTANDING_FINANCES = "You do not have any outstanding finances with friends.";
 
     private String username;
     private char[] password;
     private String fullName;
-    private final Set<Friendship> friendships;
+    private final Set<Friend> friendships;
+    private final Set<GroupFriendship> groups;
     private Deque<String> notifications;
 
     public User(String username, char[] password) {
         this.username = username;
         this.password = password;
         this.friendships = new HashSet<>();
+        this.groups = new HashSet<>();
         this.notifications = new ArrayDeque<>();
     }
 
@@ -31,70 +33,89 @@ public class User implements Serializable {
         return this.username.equals(username) && Arrays.equals(this.password, password);
     }
 
-    public boolean addFriendship(Friendship friendship) {
-        return friendships.add(friendship);
+    public boolean addFriendship(String friendsUsername) {
+        return friendships.add(new Friend(friendsUsername));
     }
 
-    public boolean isPartOfFriendship(String groupName) {
-        return friendships.stream().anyMatch(friendship -> friendship.getName().equals(groupName));
+    public boolean addToGroup(String groupName, List<String> members) {
+        return groups.add(new GroupFriendship(groupName, members));
     }
 
-
-    public Optional<Friendship> getSpecificFriendship(String friendshipName) {
-        for (Friendship friendship : friendships) {
-            if (friendship.getName().equals(friendshipName)) {
-                return Optional.of(friendship);
+    public GroupFriendship getGroup(String groupName) {
+        for (GroupFriendship group : groups) {
+            if (group.hasName(groupName)) {
+                return group;
             }
         }
-        return Optional.ofNullable(null);
+        return null;
+    }
+
+    public boolean splitWithFriend(String friendsUsername, Double amount) {
+        for (Friendship friend : friendships) {
+            if (friend.hasName(friendsUsername)) {
+                Double splitAmount = amount / 2;
+                friend.split(splitAmount);
+                return true;
+            }
+        }
+        return false;
     }
 
 
+    public boolean splitInGroup(String groupName, Double amount) {
+        for (GroupFriendship group : groups) {
+            if (group.hasName(groupName)) {
+                Double splitAmount = amount / group.size();
+                group.split(splitAmount);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasFriend(String username) {
+        return friendships.stream().anyMatch(group -> group.hasName(username));
+    }
+
+    public boolean isGroupMember(String groupName) {
+        return groups.stream().anyMatch(group -> group.hasName(groupName));
+    }
+
     public void pushNotification(String notification) {
-        this.notifications.add(notification);
+        notifications.add(notification);
     }
 
     public Deque<String> getNotifications() {
-        return this.notifications;
+        return notifications;
     }
 
     public void resetNotifications() {
-        this.notifications.clear();
+        notifications.clear();
     }
 
     public String getSplittingStatus() {
-        StringBuilder friendsStatus = new StringBuilder();
-        StringBuilder groupsStatus = new StringBuilder();
-
-        for (Friendship friendship : friendships) {
-
-            StringBuilder friendshipStatus = new StringBuilder(friendship.getStatus());
-
-            if (anyOutstandingAccountsArePresent(friendshipStatus)) {
-                if (friendship instanceof Friend) {
-                    friendsStatus.append(RED_STAR_SYMBOL + friendship.getStatus() + '\n');
-                } else {
-                    groupsStatus.append(RED_STAR_SYMBOL + friendship.getName() + ":\n" + friendshipStatus);
-                }
-            }
+        String status = buildFriendsStatusMessage(friendships) + buildGroupFriendshipsStatusMessage(groups);
+        if (status.isBlank()) {
+            return NOT_ANY_OUTSTANDING_FINANCES;
         }
 
-        StringBuilder status = new StringBuilder();
-        if (anyOutstandingAccountsArePresent(friendsStatus)) {
-            status.append("Friends:\n" + friendsStatus);
-        }
-        if (anyOutstandingAccountsArePresent(groupsStatus)) {
-            status.append("\nGroups:\n" + groupsStatus);
-        }
-        if (!anyOutstandingAccountsArePresent(status)) {
-            status.append(NOT_ANY_OUTSTANDING_FINANCES);
-        }
-
-        return status.toString();
+        return status;
     }
 
-    private boolean anyOutstandingAccountsArePresent(StringBuilder friendshipStatus) {
-        return !friendshipStatus.toString().isBlank();
+    public void payOffWith(String friendsUsername, Double amount) {
+        for (Friend friend : friendships) {
+            if (friend.hasName(friendsUsername)) {
+                friend.payOff(username, amount);
+            }
+        }
+    }
+
+    public void payOffInGroup(String groupName, String username, Double amount) {
+        for (GroupFriendship group : groups) {
+            if (group.hasName(groupName)) {
+                group.payOff(username, amount);
+            }
+        }
     }
 
 }

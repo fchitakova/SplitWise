@@ -1,17 +1,21 @@
 package splitwise.server.model;
 
 
-import java.util.List;
+public abstract class Friendship {
+     protected String name;
 
-public interface Friendship{
+     public abstract void split(Double amount);
 
-     void split(Double amount);
+     public abstract void payOff(String username, Double amount);
 
-     void payOff(String username, Double amount);
+     public abstract String getStatus();
 
-     String getName();
+     public String getName() {
+          return this.name;
+     }
 
-     String getStatus();
+     public boolean hasName(String name) {
+          return this.name.equalsIgnoreCase(name);
+     }
 
-     List<String> getMembersUsernames();
 }

@@ -69,10 +69,12 @@ public class CreateGroupCommand extends Command {
     }
 
     private String createGroup() {
-        String commandResult;
+        String commandResult = "";
         try {
             boolean isGroupCreated = friendshipService.createGroupFriendship(groupName, Arrays.asList(participants));
-            commandResult = isGroupCreated ? SUCCESSFULLY_CREATE_GROUP : ALREADY_TAKEN_GROUP_NAME;
+            if (!isGroupCreated) {
+                commandResult = ALREADY_TAKEN_GROUP_NAME;
+            }
         } catch (FriendshipException e) {
             commandResult = GROUP_CREATION_FAILED;
         }

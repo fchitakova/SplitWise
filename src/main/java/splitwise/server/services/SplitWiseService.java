@@ -31,4 +31,14 @@ public abstract class SplitWiseService{
         return username;
     }
 
+    public boolean areFriends(String username1, String username2) {
+        User user1 = userRepository.getById(username1).get();
+        return user1.hasFriend(username2);
+    }
+
+    public boolean isGroupMember(String username, String groupName) {
+        User user = userRepository.getById(username).get();
+        return user.isGroupMember(groupName);
+    }
+
 }

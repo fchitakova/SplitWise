@@ -69,10 +69,9 @@ public class PayedCommand extends Command {
     }
 
     private String payedInGroup() {
-        if (moneySplitService.isMoneySharingAllowedBetween(commandInvokerUsername, groupName)) {
+        if (isInvokerGroupMember()) {
             try {
-                moneySplitService.groupPayOff(
-                        commandInvokerUsername, amount, debtorUsername, groupName, splitReason);
+                moneySplitService.groupPayOff(commandInvokerUsername, amount, debtorUsername, groupName, splitReason);
             } catch (MoneySplitException e) {
                 return COMMAND_FAILED;
             }
@@ -80,8 +79,12 @@ public class PayedCommand extends Command {
         return String.format(SUCCESSFULLY_PAYED_IN_GROUP_RESULT, debtorUsername, groupName, splitReason);
     }
 
+    private boolean isInvokerGroupMember() {
+        return moneySplitService.isGroupMember(commandInvokerUsername, groupName);
+    }
+
     private String payed() {
-        if (moneySplitService.isMoneySharingAllowedBetween(commandInvokerUsername, debtorUsername)) {
+        if (moneySplitService.areFriends(commandInvokerUsername, debtorUsername)) {
             try {
                 moneySplitService.payOff(commandInvokerUsername, amount, debtorUsername, splitReason);
             } catch (MoneySplitException e) {
