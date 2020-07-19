@@ -4,7 +4,7 @@ Some commands' output format differ from those in project description.
 
 ###### **All supported commands:**
 
-               $ login <username> <password>    - Login user if credentials are valid and no other user is currently logged in.
+                $ login <username> <password>    - Login user if credentials are valid and no other user is currently logged in.
 
                 $ register <username> <password> - Registers user if <username> is not taken and not other user is currently logged in.
 
