@@ -24,13 +24,13 @@ public class SplitWiseServer {
     private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
 
     private ServerSocket serverSocket;
-    private ActiveUsers activeClients;
+    private ActiveUsers activeUsers;
     private CommandFactory commandFactory;
     private ExecutorService executorService;
 
-    public SplitWiseServer(ServerSocket serverSocket, ActiveUsers activeClients, CommandFactory commandFactory) {
+    public SplitWiseServer(ServerSocket serverSocket, ActiveUsers activeUsers, CommandFactory commandFactory) {
         this.serverSocket = serverSocket;
-        this.activeClients = activeClients;
+        this.activeUsers = activeUsers;
         this.commandFactory = commandFactory;
 
         executorService = Executors.newFixedThreadPool(MAXIMUM_CONNECTIONS_COUNT);
@@ -82,15 +82,15 @@ public class SplitWiseServer {
 
 
     private void notifyActiveUsersForShutdown() {
-        activeClients.sendMessageToAll(SERVER_STOPPED);
+        activeUsers.sendMessageToAll(SERVER_STOPPED);
     }
 
     public void addActiveClientConnection(Socket socket) {
-        this.activeClients.addClient(socket);
+        this.activeUsers.addActiveUsersConnection(socket);
     }
 
     public void removeClientConnection() {
-        activeClients.removeClient();
+        activeUsers.removeUser();
     }
 
     public String executeUserCommand(String userInput) {

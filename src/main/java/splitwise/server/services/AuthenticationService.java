@@ -34,7 +34,7 @@ public class AuthenticationService extends SplitWiseService {
 
 
     public void setUserAsActive(String username) {
-        activeUsers.setUsernameForCurrentClientConnection(username);
+        activeUsers.setUsernameOfCurrentConnection(username);
     }
 
     public Deque<String> getUserNotifications(String username) {
@@ -70,6 +70,6 @@ public class AuthenticationService extends SplitWiseService {
     }
 
     public void logoutUser() {
-        this.activeUsers.logoutClient();
+        this.activeUsers.logoutUser();
     }
 }

@@ -34,14 +34,13 @@ public class FileSystemUserRepository implements UserRepository {
 
     private static Type USERS_COLLECTION_TYPE = new TypeToken<Map<String,User>>(){}.getType();
 
-    private final Map<String, User> users;
+    private Map<String, User> users;
     private File databaseFile;
 
 
     public FileSystemUserRepository(String dbFilePath) throws PersistenceException {
         accessDBFile(dbFilePath);
         loadUserData();
-        users = new HashMap<>();
     }
 
     private void accessDBFile(String dbFilePath) throws PersistenceException {
@@ -59,6 +58,7 @@ public class FileSystemUserRepository implements UserRepository {
                 Gson gson = new Gson();
                 Map<String, User> usersFromJson = gson.fromJson(reader, USERS_COLLECTION_TYPE);
                 if (usersFromJson != null) {
+                    this.users = new HashMap<>();
                     users.putAll(usersFromJson);
                 }
             }

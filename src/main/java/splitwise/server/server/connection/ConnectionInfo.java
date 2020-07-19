@@ -2,11 +2,11 @@ package splitwise.server.server.connection;
 
 import java.net.Socket;
 
-public class ClientConnectionInfo {
+public class ConnectionInfo {
     private Socket clientSocket;
     private String username;
 
-    public ClientConnectionInfo(Socket clientSocket) {
+    public ConnectionInfo(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
 

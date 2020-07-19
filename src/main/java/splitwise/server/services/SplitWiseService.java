@@ -28,7 +28,7 @@ public abstract class SplitWiseService{
     }
 
     public String getCurrentSessionsUsername() {
-        String username = activeUsers.getUsernameOfCurrentClientConnection();
+        String username = activeUsers.getUsernameOfCurrentConnection();
         return username;
     }
 

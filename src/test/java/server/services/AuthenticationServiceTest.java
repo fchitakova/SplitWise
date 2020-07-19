@@ -20,15 +20,15 @@ import static org.mockito.Mockito.when;
 import static server.TestConstants.*;
 
 public class AuthenticationServiceTest {
-    private static ActiveUsers activeClients;
+    private static ActiveUsers activeUsers;
     private static UserRepository userRepository;
     private static AuthenticationService authenticationService;
 
     @BeforeClass
     public static void setUp() {
-        activeClients = Mockito.mock(ActiveUsers.class);
+        activeUsers = Mockito.mock(ActiveUsers.class);
         userRepository = Mockito.mock(FileSystemUserRepository.class);
-        authenticationService = new AuthenticationService(userRepository, activeClients);
+        authenticationService = new AuthenticationService(userRepository, activeUsers);
     }
 
 

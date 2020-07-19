@@ -59,7 +59,7 @@ public class LoginCommandTest {
 
 
     @Test
-    public void testThatLoginWithValidCredentialsAddsUserToActiveClients() {
+    public void testThatLoginWithValidCredentialsAddsUserToActiveUsers() {
         when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
         when(authenticationService.checkCredentialsValidity(TEST_USERNAME1, TEST_PASSWORD1)).thenReturn(true);
         when(authenticationService.getUserNotifications(TEST_USERNAME1)).thenReturn(new ArrayDeque<>());
