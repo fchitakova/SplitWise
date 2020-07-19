@@ -65,7 +65,7 @@ public class FriendshipServiceTest {
         users.add(new User(TEST_USERNAME3, TEST_PASSWORD1));
         when(friendshipService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME1);
 
-        friendshipService.createGroupFriendship(GROUP_NAME, List.of(TEST_USERNAME1, TEST_USERNAME2, TEST_USERNAME3));
+        friendshipService.createGroupFriendship(TEST_USERNAME1, GROUP_NAME, List.of(TEST_USERNAME1, TEST_USERNAME2, TEST_USERNAME3));
 
         String assertMessage = "Adding not active user to group must send him right notification";
 
@@ -77,6 +77,5 @@ public class FriendshipServiceTest {
             }
         }
     }
-
-
+    
 }

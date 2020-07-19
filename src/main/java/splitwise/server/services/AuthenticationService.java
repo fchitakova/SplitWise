@@ -12,10 +12,6 @@ import java.util.Deque;
 import java.util.Optional;
 
 public class AuthenticationService extends SplitWiseService {
-    public static final String RESETTING_NOTIFICATIONS_FAILED = "Resetting user notifications failed.";
-    public static final String USER_REGISTRATION_FAILED = "User registration failed.";
-
-
     private static final Logger LOGGER = Logger.getLogger(AuthenticationService.class);
 
     public AuthenticationService(UserRepository userRepository, ActiveUsers activeUsers){
@@ -26,8 +22,7 @@ public class AuthenticationService extends SplitWiseService {
     public boolean checkCredentialsValidity(String username, char[]password){
         Optional<User> user = userRepository.getById(username);
         if (user.isPresent()) {
-            boolean validCredentials = user.get().checkCredentials(username, password);
-            return validCredentials;
+            return user.get().checkCredentials(username, password);
         }
         return false;
     }
@@ -54,8 +49,8 @@ public class AuthenticationService extends SplitWiseService {
         try {
             userRepository.save();
         } catch (PersistenceException e) {
-            LOGGER.info(RESETTING_NOTIFICATIONS_FAILED);
-            LOGGER.error(RESETTING_NOTIFICATIONS_FAILED + "Reason: " + e.getMessage(), e);
+            LOGGER.info("Resetting user notifications failed. Reason: " + e.getMessage() + SEE_LOG_FILE);
+            LOGGER.error("Resetting user notifications failed.", e);
         }
     }
 
@@ -63,9 +58,10 @@ public class AuthenticationService extends SplitWiseService {
         try {
             userRepository.addUser(new User(username, password));
         } catch (PersistenceException e) {
-            LOGGER.info(USER_REGISTRATION_FAILED + SEE_LOG_FILE);
-            LOGGER.error(USER_REGISTRATION_FAILED + e.getMessage(), e);
-            throw new AuthenticationException(USER_REGISTRATION_FAILED, e);
+            LOGGER.info("User registration failed.Reason:" + e.getMessage() + SEE_LOG_FILE);
+            LOGGER.error("User registration failed.", e);
+
+            throw new AuthenticationException("User registration failed.", e);
         }
     }
 

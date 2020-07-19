@@ -24,10 +24,14 @@ public abstract class Friendship {
 
      @Override
      public boolean equals(Object o) {
-          if (this == o) return true;
-          if (!(o instanceof Friendship)) return false;
-          Friendship that = (Friendship) o;
-          return Objects.equals(getName(), that.getName());
+         if (this == o) {
+             return true;
+         }
+         if (!(o instanceof Friendship)) {
+             return false;
+         }
+         Friendship that = (Friendship) o;
+         return Objects.equals(getName(), that.getName());
      }
 
      @Override

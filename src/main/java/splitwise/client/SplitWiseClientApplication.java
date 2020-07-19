@@ -11,18 +11,12 @@ import java.net.Socket;
 public class SplitWiseClientApplication {
     public static final String SERVER_HOST = "127.0.0.1";
     public static final int SERVER_PORT = 8081;
-    public static final String SEE_LOG_FILES = "For more information see logs in logging.log";
-    private static final String CONNECTING_TO_SERVER_FAILED_INFO_MESSAGE = "Unable to connect to the server.It may be shut down. " + SEE_LOG_FILES;
-    private static final String FAILED_SOCKET_CREATION_ERROR_MESSAGE = "Socket creation failed because of IO exception.";
-    private static final String FAILED_SOCKET_CLOSE_ERROR_MESSAGE = "Cannot close socket connection because of I/O exception.";
-    private static final String FAILED_GET_SOCKET_IO_STREAMS_ERROR_MESSAGE = "Error occurred during getting socket IO streams.";
-
 
     private static final Logger LOGGER = Logger.getLogger(SplitWiseClientApplication.class);
 
     private Socket socket;
-    private BufferedReader serverInputReader;
-    private PrintWriter serverOutputWriter;
+    private BufferedReader socketInputReader;
+    private PrintWriter socketOutputWriter;
 
 
     public static void main(String[] args) {
@@ -30,7 +24,7 @@ public class SplitWiseClientApplication {
             SplitWiseClientApplication splitWiseClient = new SplitWiseClientApplication(SERVER_HOST, SERVER_PORT);
             splitWiseClient.start();
         } catch (IOException e) {
-            LOGGER.info(CONNECTING_TO_SERVER_FAILED_INFO_MESSAGE);
+            LOGGER.info("Unable to connect to the server.It may be shut down. For more information see logs in logging.log");
             LOGGER.error(e.getMessage(), e);
         }
     }
@@ -46,26 +40,26 @@ public class SplitWiseClientApplication {
             socket = new Socket(host, port);
             initializeSocketIOStreams();
         } catch (IOException e) {
-            throw new IOException(FAILED_SOCKET_CREATION_ERROR_MESSAGE, e);
+            throw new IOException("Socket creation failed because of IO exception.", e);
         }
     }
 
 
     private void initializeSocketIOStreams() throws IOException {
         try {
-            serverInputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            serverOutputWriter = new PrintWriter(socket.getOutputStream(), true);
+            socketInputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            socketOutputWriter = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
-            throw new IOException(FAILED_GET_SOCKET_IO_STREAMS_ERROR_MESSAGE, e);
+            throw new IOException("Error occurred during getting socket IO streams.", e);
         }
     }
 
     public void start() {
-        Thread serverInputReaderThread = new Thread(new ServerInputReader(serverInputReader, this));
-        serverInputReaderThread.start();
+        Thread serverInputReader = new Thread(new ServerInputReader(socketInputReader, this));
+        serverInputReader.start();
 
-        Thread serverOutputWriterThread = new Thread(new ServerOutputWriter(serverOutputWriter, this));
-        serverOutputWriterThread.start();
+        Thread serverOutputWriter = new Thread(new ServerOutputWriter(socketOutputWriter, this));
+        serverOutputWriter.start();
     }
 
 
@@ -73,7 +67,7 @@ public class SplitWiseClientApplication {
         try {
             socket.close();
         } catch (IOException e) {
-            LOGGER.error(FAILED_SOCKET_CLOSE_ERROR_MESSAGE, e);
+            LOGGER.error("Cannot close socket connection because of I/O exception.", e);
         }
     }
 

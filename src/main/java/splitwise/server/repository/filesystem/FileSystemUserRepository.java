@@ -20,17 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class FileSystemUserRepository implements UserRepository {
-    private static final String FAILED_DB_FILE_CREATION="IO error during DB file creation";
-    private static final String CANNOT_FIND_DB_FILE = "DB file cannot be found or inaccessible.";
-    private static final String CANNOT_LOAD_USER_DATA = "Users can not be loaded because of data corruption.";
 
-
-    private static final String CANNOT_CREATE_FILE_WRITER="""
-            IO exception occurred while constructing FileWriter.
-            The cause may be that file is a directory,file does not exist or cannot be opened""";
-
-    private static final String WRITING_TO_DB_FILE_FAILED = "IO error occurred while adding changes to DB file.";
-    private static final String FAILED_DATA_SAVING = "Saving data failed!Possible data loss!";
 
     private static Type USERS_COLLECTION_TYPE = new TypeToken<Map<String,User>>(){}.getType();
 
@@ -48,7 +38,7 @@ public class FileSystemUserRepository implements UserRepository {
             databaseFile = new File(dbFilePath);
             databaseFile.createNewFile();
         } catch (IOException e) {
-            throw new PersistenceException(FAILED_DB_FILE_CREATION, e);
+            throw new PersistenceException("IO error during DB file creation", e);
         }
     }
 
@@ -57,15 +47,15 @@ public class FileSystemUserRepository implements UserRepository {
             {
                 Gson gson = new Gson();
                 Map<String, User> usersFromJson = gson.fromJson(reader, USERS_COLLECTION_TYPE);
+                this.users = new HashMap<>();
                 if (usersFromJson != null) {
-                    this.users = new HashMap<>();
                     users.putAll(usersFromJson);
                 }
             }
         } catch (IOException e) {
-            throw new PersistenceException(CANNOT_FIND_DB_FILE, e);
+            throw new PersistenceException("DB file cannot be found or inaccessible.", e);
         } catch (JsonSyntaxException e) {
-            throw new PersistenceException(CANNOT_LOAD_USER_DATA, e);
+            throw new PersistenceException("Loading users data failed.", e);
         }
     }
 
@@ -83,16 +73,12 @@ public class FileSystemUserRepository implements UserRepository {
             String data = gsonBuilder.create().toJson(users, USERS_COLLECTION_TYPE);
             writeToDBFile(writer, data);
         } catch (IOException e) {
-            throw new PersistenceException(FAILED_DATA_SAVING + CANNOT_CREATE_FILE_WRITER, e);
+            throw new PersistenceException("IO error occurred while adding changes to DB file.", e);
         }
     }
 
-    private void writeToDBFile(FileWriter writer, String data) throws PersistenceException {
-        try {
-            writer.write(data);
-        } catch (IOException e) {
-            throw new PersistenceException(FAILED_DATA_SAVING + WRITING_TO_DB_FILE_FAILED, e);
-        }
+    private void writeToDBFile(FileWriter writer, String data) throws IOException {
+        writer.write(data);
     }
 
 

@@ -9,7 +9,6 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static splitwise.server.server.SplitWiseServer.SEE_LOG_FILE;
 
 public class ActiveUsers {
 
@@ -65,7 +64,7 @@ public class ActiveUsers {
             new PrintWriter(socket.getOutputStream(), true).println(message);
         } catch (IOException e) {
             String exceptionMessage = "Cannot send message to client with username:" + connectionInfo.getUsername() + ". ";
-            LOGGER.info(exceptionMessage + SEE_LOG_FILE);
+            LOGGER.info(exceptionMessage + "See logging.log for more information.");
             LOGGER.error(exceptionMessage, e);
         }
     }

@@ -13,10 +13,7 @@ import java.net.Socket;
 
 
 public class ClientConnection extends Thread{
-    private static final String ERROR_READING_SOCKET_INPUT = "Error reading client socket input.";
-    private static final String ERROR_DURING_GETTING_SOCKET_IO_STREAMS = "Error occurred during getting client socket I/O streams.";
     private static final String WELCOME_MESSAGE = "Welcome to SplitWise!";
-    private static final String ERROR_CLOSING_SOCKET = "Cannot close client socket connection because of I/O exception.";
 
     private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
 
@@ -36,12 +33,10 @@ public class ClientConnection extends Thread{
         try {
             socketInputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             socketOutputWriter = new PrintWriter(socket.getOutputStream(), true);
-
             this.socket = socket;
         } catch (IOException e) {
-
             closeSocketConnection();
-            throw new ClientConnectionException(ERROR_DURING_GETTING_SOCKET_IO_STREAMS, e);
+            throw new ClientConnectionException("Error occurred during getting client socket I/O streams.", e);
         }
     }
 
@@ -75,8 +70,8 @@ public class ClientConnection extends Thread{
             input = socketInputReader.readLine();
         } catch (IOException e) {
             closeSocketConnection();
-            LOGGER.info(ERROR_READING_SOCKET_INPUT);
-            LOGGER.error(ERROR_READING_SOCKET_INPUT, e);
+            LOGGER.info("Error reading client socket input.");
+            LOGGER.error("Error reading client socket input.", e);
         }
         return input;
     }
@@ -94,7 +89,8 @@ public class ClientConnection extends Thread{
         try {
             socket.close();
         } catch (IOException e) {
-            LOGGER.error(ERROR_CLOSING_SOCKET, e);
+            LOGGER.info("I/O exception while closing client socket.");
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

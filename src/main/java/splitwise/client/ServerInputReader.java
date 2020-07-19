@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 public class ServerInputReader implements Runnable {
-    private static final String SEE_LOG_FILES = "For more information see logs in logging.log";
-    private static final String INPUT_READING_FAILED = "Error occurred while getting SplitWise input.";
     private static final String APP_STOPPED = "app stopped";
     private static final String APPLICATION_IS_DOWN = "SplitWise is down. Try connecting later.";
     private static final String INPUT_MESSAGE_INDICATOR = "Server >>> ";
@@ -33,8 +31,8 @@ public class ServerInputReader implements Runnable {
                 print(input, System.out);
             } catch (IOException e) {
                 if (applicationIsRunning()) {
-                    LOGGER.info(INPUT_READING_FAILED + SEE_LOG_FILES);
-                    LOGGER.error(INPUT_READING_FAILED + e.getMessage(), e);
+                    LOGGER.info("Error occurred while getting SplitWise input.For more information see logs in logging.log");
+                    LOGGER.error("Error occurred while getting SplitWise input." + e.getMessage(), e);
                     return;
                 }
             }

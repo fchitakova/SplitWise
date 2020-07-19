@@ -10,7 +10,6 @@ import splitwise.server.server.ActiveUsers;
 
 
 public class MoneySplitService extends SplitWiseService {
-    public static final String SPLITTING_FAILED = "Split command failed.";
     public static final String SEE_STATUS = "You can view the status of all splits with get-status command.";
     public static final String SPLIT_NOTIFICATION_FOR_FRIEND = "%s split %s LV with you. Splitting reason: %s. " + SEE_STATUS;
     public static final String SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS = "%s split %s LV with you and other members of %s group. Splitting reason: %s. " + SEE_STATUS;
@@ -42,9 +41,10 @@ public class MoneySplitService extends SplitWiseService {
         try {
             userRepository.save();
         } catch (PersistenceException e) {
-            LOGGER.info(SPLITTING_FAILED + SEE_LOG_FILE);
-            LOGGER.error(SPLITTING_FAILED + e.getMessage(), e);
-            throw new MoneySplitException(SPLITTING_FAILED, e);
+            LOGGER.info("Split command failed. Reason: " + e.getMessage() + SEE_LOG_FILE);
+            LOGGER.error("Split command failed", e);
+
+            throw new MoneySplitException("Split command failed", e);
         }
     }
 
@@ -57,8 +57,16 @@ public class MoneySplitService extends SplitWiseService {
             User groupMember = userRepository.getById(username).get();
             groupMember.splitInGroup(groupName, amount);
 
-            String notification = String.format(SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS, splitterUsername, amount, groupName, splitReason);
-            sendNotification(groupMember, notification);
+            if (!username.equals(splitterUsername)) {
+                String notification =
+                        String.format(
+                                SPLIT_NOTIFICATION_FOR_GROUP_MEMBERS,
+                                splitterUsername,
+                                amount,
+                                groupName,
+                                splitReason);
+                sendNotification(groupMember, notification);
+            }
 
         }
         saveChanges();

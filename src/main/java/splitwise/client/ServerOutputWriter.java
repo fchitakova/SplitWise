@@ -9,10 +9,6 @@ import java.io.PrintWriter;
 
 public class ServerOutputWriter implements Runnable {
     public static final String EXIT_COMMAND = "exit";
-    public static final String SEE_LOG_FILES = "For more information see logs in logging.log";
-    public static final String FAILED_READING_USER_INPUT_ERROR_MESSAGE = "Error occurred while reading user input. ";
-    public static final String FAILED_CLOSING_CONSOLE_READER_ERROR_MESSAGE = "IO error occurred while closing user input reader.";
-
 
     private static Logger LOGGER = Logger.getLogger(ServerOutputWriter.class);
 
@@ -43,8 +39,8 @@ public class ServerOutputWriter implements Runnable {
         try {
             command = inputReader.readLine();
         } catch (IOException e) {
-            LOGGER.info(FAILED_READING_USER_INPUT_ERROR_MESSAGE + SEE_LOG_FILES);
-            LOGGER.error(FAILED_READING_USER_INPUT_ERROR_MESSAGE, e);
+            LOGGER.info("Error occurred while reading user input. For more information see logs in logging.log");
+            LOGGER.error("Error occurred while reading user input.", e);
         }
         return command;
     }
@@ -63,7 +59,7 @@ public class ServerOutputWriter implements Runnable {
         try {
             inputReader.close();
         } catch (IOException e) {
-            LOGGER.error(FAILED_CLOSING_CONSOLE_READER_ERROR_MESSAGE, e);
+            LOGGER.error("IO error occurred while closing user input reader.", e);
         }
     }
 

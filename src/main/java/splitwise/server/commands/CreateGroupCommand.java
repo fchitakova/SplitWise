@@ -10,9 +10,9 @@ import java.util.Arrays;
 public class CreateGroupCommand extends Command {
     public static final String NOT_ENOUGH_PARTICIPANTS = "Group friendship can be established with at least 3 participants.";
     public static final String NOT_REGISTERED_PARTICIPANTS = "All participants must be registered!";
-    public static final String SUCCESSFULLY_CREATE_GROUP = "Group friendship is successfully created." + START_SPLITTING;
     public static final String ALREADY_TAKEN_GROUP_NAME = "group name is already taken. Try with another name.";
     public static final String GROUP_CREATION_FAILED = "Group creation failed. Try again later.";
+    public static final String SUCCESSFULLY_CREATE_GROUP = "Group friendship is successfully created." + START_SPLITTING;
 
     public static final int MINIMUM_COUNT_OF_GROUP_MEMBERS = 3;
 
@@ -69,6 +69,19 @@ public class CreateGroupCommand extends Command {
         return friendshipService.checkIfRegistered(participants);
     }
 
+    private String createGroup() {
+        try {
+            if (friendshipService.canGroupBeCreated(groupName, Arrays.asList(participants))) {
+                friendshipService.createGroupFriendship(commandInvokerUsername, groupName, Arrays.asList(participants));
+                return SUCCESSFULLY_CREATE_GROUP;
+            } else {
+                return ALREADY_TAKEN_GROUP_NAME;
+            }
+        } catch (FriendshipException e) {
+            return GROUP_CREATION_FAILED;
+        }
+    }
+
     private boolean isInvokerIncludedHimselfAsGroupParticipant() {
         int countOfInvokerUsernameOccurrences = 0;
 
@@ -80,18 +93,4 @@ public class CreateGroupCommand extends Command {
         return countOfInvokerUsernameOccurrences > 1;
     }
 
-    private String createGroup() {
-        String commandResult;
-        try {
-            boolean isGroupCreated = friendshipService.createGroupFriendship(groupName, Arrays.asList(participants));
-            if (isGroupCreated) {
-                commandResult = SUCCESSFULLY_CREATE_GROUP;
-            } else {
-                commandResult = ALREADY_TAKEN_GROUP_NAME;
-            }
-        } catch (FriendshipException e) {
-            commandResult = GROUP_CREATION_FAILED;
-        }
-        return commandResult;
-    }
 }

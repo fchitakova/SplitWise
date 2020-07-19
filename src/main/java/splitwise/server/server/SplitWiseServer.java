@@ -15,10 +15,8 @@ import java.util.concurrent.Executors;
 
 public class SplitWiseServer {
     public static final int MAXIMUM_CONNECTIONS_COUNT = 100;
-    public static final String SEE_LOG_FILE = "See logging.log for more information.";
-    public static final String CONNECTION_CANNOT_BE_ESTABLISHED = "Error during establishing client connection. ";
+
     public static final String SERVER_STARTED = "SplitWise server started!";
-    public static final String CLOSING_SERVER_SOCKET_FAILED = "IO error while trying to close server socket.";
     public static final String SERVER_STOPPED = "app stopped";
 
     private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
@@ -61,8 +59,8 @@ public class SplitWiseServer {
             executorService.execute(clientConnection);
         } catch (IOException | ClientConnectionException e) {
             if (isServerRunning()) {
-                LOGGER.info(CONNECTION_CANNOT_BE_ESTABLISHED + SEE_LOG_FILE);
-                LOGGER.error(CONNECTION_CANNOT_BE_ESTABLISHED + "Reason: " + e.getMessage(), e);
+                LOGGER.info("Error during establishing client connection. See logging.log for more information.");
+                LOGGER.error("Error during establishing client connection." + "Reason: " + e.getMessage(), e);
             }
         }
     }
@@ -75,8 +73,8 @@ public class SplitWiseServer {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            LOGGER.info(CLOSING_SERVER_SOCKET_FAILED + SEE_LOG_FILE);
-            LOGGER.error(CLOSING_SERVER_SOCKET_FAILED, e);
+            LOGGER.info("IO error while closing server socket.See logging.log for more information.");
+            LOGGER.error(e);
         }
     }
 

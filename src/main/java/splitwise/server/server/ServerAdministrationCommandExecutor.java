@@ -9,7 +9,6 @@ import static splitwise.server.server.SplitWiseServer.*;
 public class ServerAdministrationCommandExecutor implements Runnable{
     public static final String STOP_COMMAND = "stop";
 
-    private static final String CANNOT_READ_CONSOLE_INPUT = "ServerConsoleReader cannot read console input stream.";
     private static Logger LOGGER = Logger.getLogger(ServerAdministrationCommandExecutor.class);
 
     private BufferedReader reader;
@@ -29,8 +28,8 @@ public class ServerAdministrationCommandExecutor implements Runnable{
             }
             splitWiseServer.stop();
         } catch (IOException e) {
-            LOGGER.info(CANNOT_READ_CONSOLE_INPUT + SEE_LOG_FILE);
-            LOGGER.error(CANNOT_READ_CONSOLE_INPUT,e);
+            LOGGER.info("ServerConsoleReader cannot read console input stream. See logging.log for more information.");
+            LOGGER.error("ServerConsoleReader cannot read console input stream.", e);
         }
     }
 }
