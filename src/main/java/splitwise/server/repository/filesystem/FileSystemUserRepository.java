@@ -39,9 +39,9 @@ public class FileSystemUserRepository implements UserRepository {
 
 
     public FileSystemUserRepository(String dbFilePath) throws PersistenceException {
-        users = new HashMap<>();
         accessDBFile(dbFilePath);
         loadUserData();
+        users = new HashMap<>();
     }
 
     private void accessDBFile(String dbFilePath) throws PersistenceException {

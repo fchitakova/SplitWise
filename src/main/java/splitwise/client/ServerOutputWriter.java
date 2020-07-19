@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class ServerOutputWriter implements Runnable {
@@ -20,8 +21,8 @@ public class ServerOutputWriter implements Runnable {
     private SplitWiseClientApplication application;
 
 
-    public ServerOutputWriter(BufferedReader inputReader, PrintWriter outputWriter, SplitWiseClientApplication application) {
-        this.inputReader = inputReader;
+    public ServerOutputWriter(PrintWriter outputWriter, SplitWiseClientApplication application) {
+        this.inputReader = new BufferedReader(new InputStreamReader(System.in));
         this.outputWriter = outputWriter;
         this.application = application;
     }

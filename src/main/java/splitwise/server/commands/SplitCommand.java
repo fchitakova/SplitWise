@@ -30,6 +30,7 @@ public class SplitCommand extends Command {
 
     private void initializeCommandParameters(String input) {
         String[] commandParts = input.split("\\s+");
+
         isGroupSplit = commandParts[0].equalsIgnoreCase(SPLIT_GROUP_COMMAND);
         amount = Double.valueOf(commandParts[1]);
         friendshipName = commandParts[2];

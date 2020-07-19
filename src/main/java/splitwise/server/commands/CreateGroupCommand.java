@@ -65,6 +65,10 @@ public class CreateGroupCommand extends Command {
                 && !isInvokerIncludedHimselfAsGroupParticipant();
     }
 
+    private boolean allGroupMembersAreRegistered() {
+        return friendshipService.checkIfRegistered(participants);
+    }
+
     private boolean isInvokerIncludedHimselfAsGroupParticipant() {
         int countOfInvokerUsernameOccurrences = 0;
 
@@ -76,15 +80,13 @@ public class CreateGroupCommand extends Command {
         return countOfInvokerUsernameOccurrences > 1;
     }
 
-    private boolean allGroupMembersAreRegistered() {
-        return friendshipService.checkIfRegistered(participants);
-    }
-
     private String createGroup() {
-        String commandResult = "";
+        String commandResult;
         try {
             boolean isGroupCreated = friendshipService.createGroupFriendship(groupName, Arrays.asList(participants));
-            if (!isGroupCreated) {
+            if (isGroupCreated) {
+                commandResult = SUCCESSFULLY_CREATE_GROUP;
+            } else {
                 commandResult = ALREADY_TAKEN_GROUP_NAME;
             }
         } catch (FriendshipException e) {

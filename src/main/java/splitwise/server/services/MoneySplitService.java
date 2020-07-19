@@ -27,9 +27,9 @@ public class MoneySplitService extends SplitWiseService {
 
     public void split(String splitterUsername, String friendsName, Double amount, String splitReason) throws MoneySplitException {
         User splitter = userRepository.getById(splitterUsername).get();
-        User friendToSplitWith = userRepository.getById(friendsName).get();
-
         splitter.splitWithFriend(friendsName, amount);
+
+        User friendToSplitWith = userRepository.getById(friendsName).get();
         friendToSplitWith.splitWithFriend(splitterUsername, (-amount));
 
         String notification = String.format(SPLIT_NOTIFICATION_FOR_FRIEND, splitterUsername, amount, splitReason);
@@ -38,12 +38,22 @@ public class MoneySplitService extends SplitWiseService {
         saveChanges();
     }
 
+    private void saveChanges() throws MoneySplitException {
+        try {
+            userRepository.save();
+        } catch (PersistenceException e) {
+            LOGGER.info(SPLITTING_FAILED + SEE_LOG_FILE);
+            LOGGER.error(SPLITTING_FAILED + e.getMessage(), e);
+            throw new MoneySplitException(SPLITTING_FAILED, e);
+        }
+    }
 
     public void splitInGroup(String splitterUsername, String groupName, Double amount, String splitReason) throws MoneySplitException {
         User splitter = userRepository.getById(splitterUsername).get();
-        GroupFriendship groupFriendship = splitter.getGroup(groupName);
 
+        GroupFriendship groupFriendship = splitter.getGroup(groupName);
         for (String username : groupFriendship.getMembersUsernames()) {
+
             User groupMember = userRepository.getById(username).get();
             groupMember.splitInGroup(groupName, amount);
 
@@ -95,16 +105,6 @@ public class MoneySplitService extends SplitWiseService {
         }
         saveChanges();
     }
-    private void saveChanges() throws MoneySplitException {
-        try {
-            userRepository.save();
-        } catch (PersistenceException e) {
-            LOGGER.info(SPLITTING_FAILED + SEE_LOG_FILE);
-            LOGGER.error(SPLITTING_FAILED + e.getMessage(), e);
-            throw new MoneySplitException(SPLITTING_FAILED, e);
-        }
-    }
-
 
     public String getStatus(String username) {
         User user = userRepository.getById(username).get();

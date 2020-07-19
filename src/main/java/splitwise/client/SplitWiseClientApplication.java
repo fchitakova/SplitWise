@@ -10,7 +10,7 @@ import java.net.Socket;
 
 public class SplitWiseClientApplication {
     public static final String SERVER_HOST = "127.0.0.1";
-    public static final int SERVER_PORT = 8080;
+    public static final int SERVER_PORT = 8081;
     public static final String SEE_LOG_FILES = "For more information see logs in logging.log";
     private static final String CONNECTING_TO_SERVER_FAILED_INFO_MESSAGE = "Unable to connect to the server.It may be shut down. " + SEE_LOG_FILES;
     private static final String FAILED_SOCKET_CREATION_ERROR_MESSAGE = "Socket creation failed because of IO exception.";
@@ -61,25 +61,11 @@ public class SplitWiseClientApplication {
     }
 
     public void start() {
-        Thread commandsProcessing = createCommandProcessorThread();
-        commandsProcessing.start();
+        Thread serverInputReaderThread = new Thread(new ServerInputReader(serverInputReader, this));
+        serverInputReaderThread.start();
 
-        Thread serverInputReader = createInputReaderThread();
-        serverInputReader.start();
-    }
-
-    private Thread createCommandProcessorThread() {
-        BufferedReader consoleInputReader = new BufferedReader(new InputStreamReader(System.in));
-        ServerOutputWriter userCommandsProcessor = new ServerOutputWriter(consoleInputReader, serverOutputWriter, this);
-
-        Thread commandProcessor = new Thread(userCommandsProcessor);
-        return commandProcessor;
-    }
-
-    private Thread createInputReaderThread() {
-        ServerInputReader serverInputReader = new ServerInputReader(this.serverInputReader, this);
-        Thread inputReader = new Thread(serverInputReader);
-        return inputReader;
+        Thread serverOutputWriterThread = new Thread(new ServerOutputWriter(serverOutputWriter, this));
+        serverOutputWriterThread.start();
     }
 
 

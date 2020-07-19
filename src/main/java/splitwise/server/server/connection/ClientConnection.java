@@ -33,11 +33,13 @@ public class ClientConnection extends Thread{
     }
 
     private void setUpSocketConnection(Socket socket) throws ClientConnectionException {
-        this.socket = socket;
         try {
             socketInputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             socketOutputWriter = new PrintWriter(socket.getOutputStream(), true);
+
+            this.socket = socket;
         } catch (IOException e) {
+
             closeSocketConnection();
             throw new ClientConnectionException(ERROR_DURING_GETTING_SOCKET_IO_STREAMS, e);
         }

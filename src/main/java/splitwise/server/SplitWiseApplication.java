@@ -19,7 +19,7 @@ import java.util.List;
 
 public class SplitWiseApplication
 {
-    public static final int SERVER_PORT = 8080;
+    public static final int SERVER_PORT = 8081;
     public static final String USER_REPOSITORY_CREATION_FAILED = "User repository creation failed. Reason: ";
     public static final String SEE_LOGS_FILE_FOR_MORE_INFO = "See logging.log file for more information.";
     public static final String FAILED_SERVER_SOCKET_CREATION = "I/O exception occurred during server socket creation!" ;
