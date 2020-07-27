@@ -69,10 +69,10 @@ public class SplitWiseClientApplication {
     public void stop() {
         try {
             socket.close();
-            closeUserInputReader();
         } catch (IOException e) {
             LOGGER.error(e);
         }
+        closeUserInputReader();
     }
 
     private void closeUserInputReader() {

@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.concurrent.atomic.AtomicReference;
 
 
-public class ClientConnection extends Thread{
-    private static final String WELCOME_MESSAGE = "Welcome to SplitWise!";
+public class ClientConnection extends Thread {
+    public static final String WELCOME_MESSAGE = "Welcome to SplitWise!";
+    public static final String EXIT_COMMAND = "exit";
 
     private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
 
@@ -25,6 +25,7 @@ public class ClientConnection extends Thread{
 
     public ClientConnection(Socket socket, SplitWiseServer splitWiseServer) throws ClientConnectionException {
         setUpSocketConnection(socket);
+
         this.splitWiseServer = splitWiseServer;
 
         sendMessageToClient(WELCOME_MESSAGE);
@@ -45,23 +46,22 @@ public class ClientConnection extends Thread{
     public void run() {
         splitWiseServer.addActiveClientConnection(socket);
 
-        while (isConnectionAlive()) {
-            processClientCommands();
-        }
+        processClientCommands();
 
         splitWiseServer.removeClientConnection();
-    }
-
-    private boolean isConnectionAlive() {
-        return !socket.isClosed();
     }
 
     private void processClientCommands() {
         String userInput = readClientInput();
 
-        if (isValid(userInput) && isConnectionAlive()) {
-            String serverResponse = splitWiseServer.executeUserCommand(userInput);
-            sendMessageToClient(serverResponse);
+        while (isConnectionAlive() && splitWiseServer.isRunning()) {
+            if (userInput.equals(EXIT_COMMAND)) {
+                closeSocketConnection();
+            } else {
+                String serverResponse = splitWiseServer.executeUserCommand(userInput);
+                sendMessageToClient(serverResponse);
+                userInput = readClientInput();
+            }
         }
     }
 
@@ -77,8 +77,9 @@ public class ClientConnection extends Thread{
         return input;
     }
 
-    private boolean isValid(String userInput) {
-        return userInput != null;
+
+    private boolean isConnectionAlive() {
+        return !socket.isClosed();
     }
 
 

@@ -11,7 +11,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 public class SplitWiseServer {
@@ -37,15 +36,20 @@ public class SplitWiseServer {
     }
 
     private void startServerAdministrationCommandExecutor() {
-        new Thread(new ServerAdministrationCommandExecutor(this)).start();
+        new ServerAdminCommandExecutor(this).start();
     }
 
 
     public void start() {
         System.out.println(SERVER_STARTED);
-        while (isServerRunning()) {
+
+        while (isRunning()) {
             acceptClientConnections();
         }
+    }
+
+    public boolean isRunning() {
+        return !serverSocket.isClosed();
     }
 
     private void acceptClientConnections() {
@@ -54,7 +58,7 @@ public class SplitWiseServer {
             ClientConnection clientConnection = new ClientConnection(clientSocket, this);
             executorService.execute(clientConnection);
         } catch (IOException | ClientConnectionException e) {
-            if (isServerRunning()) {
+            if (isRunning()) {
                 LOGGER.info("Error during establishing client connection. See logging.log for more information.");
                 LOGGER.error("Error during establishing client connection." + "Reason: " + e.getMessage(), e);
             }
@@ -62,14 +66,10 @@ public class SplitWiseServer {
     }
 
 
-    private boolean isServerRunning() {
-        return !serverSocket.isClosed();
-    }
-
-
     public void stop() {
         notifyActiveUsersForShutdown();
         executorService.shutdownNow();
+
         try {
             serverSocket.close();
         } catch (IOException e) {
@@ -94,7 +94,9 @@ public class SplitWiseServer {
     public String executeUserCommand(String userInput) {
         String trimmedUserInput = userInput.trim();
         Command command = commandFactory.createCommand(trimmedUserInput);
+
         String commandExecutionResult = command.execute();
+
         return commandExecutionResult;
     }
 

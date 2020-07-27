@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class ServerOutputWriter implements Runnable {
@@ -27,26 +26,24 @@ public class ServerOutputWriter implements Runnable {
     public void run() {
         while (application.isRunning()) {
             String userInput = getUserInput();
+            sendToServer(userInput);
+
             if (equalsExitCommand(userInput)) {
                 application.stop();
-            } else {
-                sendToServer(userInput);
             }
-
-            application.stop();
         }
     }
 
     private String getUserInput() {
         String command = "";
         try {
-            command = inputReader.readLine();
-        } catch (IOException e) {
-            if (application.isRunning()) {
-                LOGGER.info(
-                        "Error occurred while reading user input. For more information see logs in logging.log");
-                LOGGER.error("Error occurred while reading user input.", e);
+            if (inputReader.ready()) {
+                command = inputReader.readLine();
             }
+        } catch (IOException e) {
+            LOGGER.info(
+                    "Error occurred while reading user input. For more information see logs in logging.log");
+            LOGGER.error("Error occurred while reading user input.", e);
         }
         return command;
     }

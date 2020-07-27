@@ -14,9 +14,9 @@ import java.util.Map;
 
 public class ActiveUsers {
 
-    private static Logger LOGGER = Logger.getLogger(ActiveUsers.class);
+    private static final Logger LOGGER = Logger.getLogger(ActiveUsers.class);
 
-    private Map<Thread, ConnectionInfo> activeUsers;
+    private final Map<Thread, ConnectionInfo> activeUsers;
 
     public ActiveUsers() {
         this.activeUsers = new HashMap<>();
