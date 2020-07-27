@@ -3,7 +3,7 @@ package splitwise.server.commands;
 import splitwise.server.services.AuthenticationService;
 
 public class LogoutCommand extends Command{
-    public static final String GOODBYE_MESSAGE = "Split Wise Server: GoodBye";
+    public static final String GOODBYE_MESSAGE = "*GoodBye*";
 
     private AuthenticationService authenticationService;
 

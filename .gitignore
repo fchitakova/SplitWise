@@ -4,5 +4,5 @@ out/
 *.iml
 *.class
 target/
-src/main/resources/users.json
+*.json
 

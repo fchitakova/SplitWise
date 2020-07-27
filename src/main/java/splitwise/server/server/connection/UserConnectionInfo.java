@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class ConnectionInfo {
-    private Socket clientSocket;
+public class UserConnectionInfo {
+    private Socket socket;
     private String username;
 
-    public ConnectionInfo(Socket clientSocket) {
-        this.clientSocket = clientSocket;
+    public UserConnectionInfo(Socket clientSocket) {
+        this.socket = clientSocket;
     }
 
     public String getUsername() {
@@ -24,8 +24,8 @@ public class ConnectionInfo {
         return this.username.equals(username);
     }
 
-    public OutputStream getClientConnectionOutputStream() throws IOException {
-        return clientSocket.getOutputStream();
+    public Socket getSocket() {
+        return socket;
     }
 
 }
