@@ -17,21 +17,24 @@ public class ServerOutputWriter implements Runnable {
     private SplitWiseClientApplication application;
 
 
-    public ServerOutputWriter(PrintWriter outputWriter, SplitWiseClientApplication application) {
-        this.inputReader = new BufferedReader(new InputStreamReader(System.in));
+    public ServerOutputWriter(BufferedReader reader, PrintWriter outputWriter, SplitWiseClientApplication application) {
+        this.inputReader = reader;
         this.outputWriter = outputWriter;
         this.application = application;
     }
 
     @Override
     public void run() {
-        String userInput = getUserInput();
-        while (!equalsExitCommand(userInput)) {
-            sendToServer(userInput);
-            userInput = getUserInput();
+        while (application.isRunning()) {
+            String userInput = getUserInput();
+            if (equalsExitCommand(userInput)) {
+                application.stop();
+            } else {
+                sendToServer(userInput);
+            }
+
+            application.stop();
         }
-        application.stop();
-        closeUserInputReader();
     }
 
     private String getUserInput() {
@@ -39,8 +42,11 @@ public class ServerOutputWriter implements Runnable {
         try {
             command = inputReader.readLine();
         } catch (IOException e) {
-            LOGGER.info("Error occurred while reading user input. For more information see logs in logging.log");
-            LOGGER.error("Error occurred while reading user input.", e);
+            if (application.isRunning()) {
+                LOGGER.info(
+                        "Error occurred while reading user input. For more information see logs in logging.log");
+                LOGGER.error("Error occurred while reading user input.", e);
+            }
         }
         return command;
     }
@@ -52,14 +58,6 @@ public class ServerOutputWriter implements Runnable {
     private void sendToServer(String input) {
         if (!input.isBlank()) {
             outputWriter.println(input);
-        }
-    }
-
-    private void closeUserInputReader() {
-        try {
-            inputReader.close();
-        } catch (IOException e) {
-            LOGGER.error("IO error occurred while closing user input reader.", e);
         }
     }
 

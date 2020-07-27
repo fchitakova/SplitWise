@@ -16,6 +16,7 @@ public class SplitWiseClientApplication {
 
     private Socket socket;
     private BufferedReader socketInputReader;
+    private BufferedReader userInputReader;
     private PrintWriter socketOutputWriter;
 
 
@@ -32,6 +33,8 @@ public class SplitWiseClientApplication {
     public SplitWiseClientApplication(String host, int port) throws IOException {
         createSocketConnection(host, port);
         initializeSocketIOStreams();
+
+        userInputReader = new BufferedReader(new InputStreamReader(System.in));
     }
 
 
@@ -58,7 +61,7 @@ public class SplitWiseClientApplication {
         Thread serverInputReader = new Thread(new ServerInputReader(socketInputReader, this));
         serverInputReader.start();
 
-        Thread serverOutputWriter = new Thread(new ServerOutputWriter(socketOutputWriter, this));
+        Thread serverOutputWriter = new Thread(new ServerOutputWriter(userInputReader, socketOutputWriter, this));
         serverOutputWriter.start();
     }
 
@@ -66,13 +69,26 @@ public class SplitWiseClientApplication {
     public void stop() {
         try {
             socket.close();
+            closeUserInputReader();
         } catch (IOException e) {
-            LOGGER.error("Cannot close socket connection because of I/O exception.", e);
+            LOGGER.error(e);
+        }
+    }
+
+    private void closeUserInputReader() {
+        try {
+            userInputReader.close();
+        } catch (IOException e) {
+            LOGGER.error("IO error occurred while closing user input reader.", e);
         }
     }
 
     public boolean isStopped() {
         return socket.isClosed();
+    }
+
+    public boolean isRunning() {
+        return !isStopped();
     }
 
 }

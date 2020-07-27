@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import splitwise.server.exceptions.PersistenceException;
-import splitwise.server.model.Friendship;
 import splitwise.server.model.User;
 import splitwise.server.repository.UserRepository;
 
@@ -33,7 +32,7 @@ public class FileSystemUserRepository implements UserRepository {
         loadUserData();
     }
 
-    private void accessDBFile(String dbFilePath) throws PersistenceException {
+    synchronized private void accessDBFile(String dbFilePath) throws PersistenceException {
         try {
             databaseFile = new File(dbFilePath);
             databaseFile.createNewFile();
@@ -71,19 +70,15 @@ public class FileSystemUserRepository implements UserRepository {
         try (FileWriter writer = new FileWriter(databaseFile, false)) {
             GsonBuilder gsonBuilder = new GsonBuilder();
             String data = gsonBuilder.create().toJson(users, USERS_COLLECTION_TYPE);
-            writeToDBFile(writer, data);
+            writer.write(data);
         } catch (IOException e) {
             throw new PersistenceException("IO error occurred while adding changes to DB file.", e);
         }
     }
 
-    private void writeToDBFile(FileWriter writer, String data) throws IOException {
-        writer.write(data);
-    }
-
 
     @Override
-    synchronized public Optional<User> getById(String username) {
+    public Optional<User> getById(String username) {
         User user = this.users.get(username);
         return Optional.ofNullable(user);
     }

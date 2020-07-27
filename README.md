@@ -2,9 +2,10 @@
 
 Some commands' output format differ from those in project description.
 
-###### **All supported commands:**
+### **Supported commands:**
 
    
+  
      $ login <username> <password> - Login user if credentials are valid and no other user is currently logged in.
 
      $ register <username> <password> - Registers user if <username> is not taken and not other user is currently logged in.
@@ -31,7 +32,7 @@ Some commands' output format differ from those in project description.
 
      $ help - Shows all supported commands.
 
-###### **Additional commands:**
+### **Additional commands:**
 
 1. To properly stop SplitWiseApplication use `stop` command.
 

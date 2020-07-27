@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class SplitWiseServer {
@@ -47,11 +48,6 @@ public class SplitWiseServer {
         }
     }
 
-    private boolean isServerRunning() {
-        return !serverSocket.isClosed();
-    }
-
-
     private void acceptClientConnections() {
         try {
             Socket clientSocket = serverSocket.accept();
@@ -66,8 +62,12 @@ public class SplitWiseServer {
     }
 
 
+    private boolean isServerRunning() {
+        return !serverSocket.isClosed();
+    }
 
-    public void stop(){
+
+    public void stop() {
         notifyActiveUsersForShutdown();
         executorService.shutdownNow();
         try {

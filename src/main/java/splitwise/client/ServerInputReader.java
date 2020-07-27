@@ -25,12 +25,12 @@ public class ServerInputReader implements Runnable {
 
     @Override
     public void run() {
-        while (applicationIsRunning()) {
+        while (application.isRunning()) {
             try {
                 String input = getInput();
                 print(input, System.out);
             } catch (IOException e) {
-                if (applicationIsRunning()) {
+                if (application.isRunning()) {
                     LOGGER.info("Error occurred while getting SplitWise input.For more information see logs in logging.log");
                     LOGGER.error("Error occurred while getting SplitWise input." + e.getMessage(), e);
                     return;
@@ -39,9 +39,6 @@ public class ServerInputReader implements Runnable {
         }
     }
 
-    private boolean applicationIsRunning() {
-        return !application.isStopped();
-    }
 
     private String getInput() throws IOException {
         return reader.readLine();

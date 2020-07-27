@@ -1,5 +1,7 @@
 package splitwise.server.server.connection;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class ConnectionInfo {
@@ -22,8 +24,8 @@ public class ConnectionInfo {
         return this.username.equals(username);
     }
 
-    public Socket getSocket() {
-        return clientSocket;
+    public OutputStream getClientConnectionOutputStream() throws IOException {
+        return clientSocket.getOutputStream();
     }
 
 }

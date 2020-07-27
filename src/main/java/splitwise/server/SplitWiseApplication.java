@@ -10,12 +10,10 @@ import splitwise.server.server.SplitWiseServer;
 import splitwise.server.services.AuthenticationService;
 import splitwise.server.services.FriendshipService;
 import splitwise.server.services.MoneySplitService;
-import splitwise.server.services.SplitWiseService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class SplitWiseApplication
 {
@@ -59,12 +57,12 @@ public class SplitWiseApplication
             userRepository = new FileSystemUserRepository(DB_FILE_PATH);
             commandFactory = new CommandFactory(new AuthenticationService(userRepository, activeUsers),
                     new FriendshipService(userRepository, activeUsers),new MoneySplitService(userRepository,activeUsers));
+            return true;
         } catch (PersistenceException e) {
             LOGGER.info("User repository creation failed. Reason: " + e.getMessage());
             LOGGER.error("User repository creation failed. Reason: " + e.getMessage(), e);
             return false;
         }
-        return true;
     }
 
 }
