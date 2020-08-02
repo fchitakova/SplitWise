@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public abstract class SplitWiseService{
-    public static final String SEE_LOG_FILE = "See logging.log for more information.";
+    public static final String SEE_LOG_FILE = "See error.log for more information.";
     
     protected UserRepository userRepository;
     protected ActiveUsers activeUsers;

@@ -1,14 +1,13 @@
 package splitwise.server.server.connection;
 
-import java.io.IOException;
-import java.io.OutputStream;
+
 import java.net.Socket;
 
-public class UserConnectionInfo {
+public class ClientConnectionInfo {
     private Socket socket;
     private String username;
 
-    public UserConnectionInfo(Socket clientSocket) {
+    public ClientConnectionInfo(Socket clientSocket) {
         this.socket = clientSocket;
     }
 

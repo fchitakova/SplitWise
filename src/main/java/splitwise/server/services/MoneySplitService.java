@@ -1,12 +1,14 @@
 package splitwise.server.services;
 
-import org.apache.log4j.Logger;
+import logger.Logger;
 import splitwise.server.exceptions.MoneySplitException;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.model.GroupFriendship;
 import splitwise.server.model.User;
 import splitwise.server.repository.UserRepository;
 import splitwise.server.server.ActiveUsers;
+
+import static splitwise.server.SplitWiseApplication.LOGGER;
 
 
 public class MoneySplitService extends SplitWiseService {
@@ -16,7 +18,6 @@ public class MoneySplitService extends SplitWiseService {
     public static final String PAYED_NOTIFICATION_FOR_FRIEND = "%s approved your payment %s LV [%s]." + SEE_STATUS;
     public static final String PAYED_NOTIFICATION_FOR_GROUP_MEMBERS = "%s approved %s  payment %s LV [%s] in group: %s." + SEE_STATUS;
 
-    private static final Logger LOGGER = Logger.getLogger(MoneySplitService.class);
 
     public MoneySplitService(UserRepository userRepository, ActiveUsers activeUsers) {
         this.userRepository = userRepository;

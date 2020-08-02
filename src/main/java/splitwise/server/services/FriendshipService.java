@@ -1,6 +1,6 @@
 package splitwise.server.services;
 
-import org.apache.log4j.Logger;
+
 import splitwise.server.exceptions.FriendshipException;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.model.User;
@@ -10,13 +10,12 @@ import splitwise.server.server.ActiveUsers;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static splitwise.server.SplitWiseApplication.LOGGER;
+
 public class FriendshipService extends SplitWiseService {
     public static final String START_SPLITTING = "You can start splitting!";
     public static final String RECEIVED_FRIENDSHIP_NOTIFICATION = "%s added you as a friend. " + START_SPLITTING;
     public static final String ADDED_TO_GROUP_NOTIFICATION = "You have been added to group %s with participants: %s ." + START_SPLITTING;
-
-
-    private static final Logger LOGGER = Logger.getLogger(FriendshipService.class);
 
     public FriendshipService(UserRepository userRepository, ActiveUsers activeUsers) {
         this.userRepository = userRepository;

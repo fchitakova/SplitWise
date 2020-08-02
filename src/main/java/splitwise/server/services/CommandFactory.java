@@ -24,7 +24,7 @@ public class CommandFactory {
         this.moneySplitService = moneySplitService;
     }
 
-    public Command createCommand(String input) {
+    public Command getCommand(String input) {
 
         if (input.equalsIgnoreCase(HELP_COMMAND)) {
             return new HelpCommand(authenticationService);

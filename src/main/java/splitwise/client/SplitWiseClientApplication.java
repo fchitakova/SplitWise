@@ -1,18 +1,19 @@
 package splitwise.client;
 
-import org.apache.log4j.Logger;
+import logger.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Path;
 
 public class SplitWiseClientApplication {
     public static final String SERVER_HOST = "127.0.0.1";
     public static final int SERVER_PORT = 8081;
 
-    private static final Logger LOGGER = Logger.getLogger(SplitWiseClientApplication.class);
+    static Logger LOGGER;
 
     private Socket socket;
     private BufferedReader socketInputReader;
@@ -21,11 +22,15 @@ public class SplitWiseClientApplication {
 
 
     public static void main(String[] args) {
+        Path logDirectory = Path.of(args[0]);
+        Path logFile = Path.of(args[1]);
+        LOGGER = new Logger(logDirectory, logFile);
+
         try {
             SplitWiseClientApplication splitWiseClient = new SplitWiseClientApplication(SERVER_HOST, SERVER_PORT);
             splitWiseClient.start();
         } catch (IOException e) {
-            LOGGER.info("Unable to connect to the server.It may be shut down. For more information see logs in logging.log");
+            LOGGER.info("Unable to connect to the server.It may be shut down. For more information see logs in error.log");
             LOGGER.error(e.getMessage(), e);
         }
     }
@@ -70,7 +75,7 @@ public class SplitWiseClientApplication {
         try {
             socket.close();
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error(e.getMessage(), e);
         }
         closeUserInputReader();
     }

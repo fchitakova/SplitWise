@@ -1,6 +1,6 @@
 package splitwise.server.services;
 
-import org.apache.log4j.Logger;
+import logger.Logger;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.exceptions.AuthenticationException;
 import splitwise.server.model.User;
@@ -11,8 +11,9 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
 
+import static splitwise.server.SplitWiseApplication.LOGGER;
+
 public class AuthenticationService extends SplitWiseService {
-    private static final Logger LOGGER = Logger.getLogger(AuthenticationService.class);
 
     public AuthenticationService(UserRepository userRepository, ActiveUsers activeUsers){
         this.userRepository = userRepository;

@@ -32,7 +32,7 @@ public class GroupFriendship extends Friendship implements Serializable {
                 groupStatus.append(String.format(OWES_MONEY,friendName, account) + '\n');
             }
             if (friend.getAccount() < NEUTRAL_ACCOUNT_AMOUNT) {
-                groupStatus.append(String.format(SHOULD_TAKE_MONEY, friendName, account) + '\n');
+                groupStatus.append(String.format(SHOULD_TAKE_MONEY, friendName, (-account)) + '\n');
             }
         }
         return groupStatus.toString();

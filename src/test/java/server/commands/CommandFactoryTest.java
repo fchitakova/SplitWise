@@ -33,7 +33,7 @@ public class CommandFactoryTest {
         String logoutWithParameter = "logout abc";
 
         String assertMessage = "Logout command does not support parameters.";
-        Command command = commandFactory.createCommand(logoutWithParameter);
+        Command command = commandFactory.getCommand(logoutWithParameter);
 
         assertTrue(assertMessage, (command instanceof InvalidCommand));
     }
@@ -43,7 +43,7 @@ public class CommandFactoryTest {
         String createGroupCommand = "create-group myGroup user1 user2";
 
         String assertMessage = "CommandFactory does not recognize create-group command.";
-        Command command = commandFactory.createCommand(createGroupCommand);
+        Command command = commandFactory.getCommand(createGroupCommand);
 
         assertTrue(assertMessage, command instanceof CreateGroupCommand);
     }
@@ -53,7 +53,7 @@ public class CommandFactoryTest {
         String splitCommand = "split 5 ico_h limes and oranges";
 
         String assertMessage = "Split command format is not recognized.";
-        Command command = commandFactory.createCommand(splitCommand);
+        Command command = commandFactory.getCommand(splitCommand);
 
         assertTrue(assertMessage, command instanceof SplitCommand);
     }
@@ -63,7 +63,7 @@ public class CommandFactoryTest {
         String splitCommand = "split five ico_h limes and oranges";
 
         String assertMessage = "Parsing Split command with invalid money amount argument must return InvalidCommand.";
-        Command command = commandFactory.createCommand(splitCommand);
+        Command command = commandFactory.getCommand(splitCommand);
 
         assertTrue(assertMessage, command instanceof InvalidCommand);
     }

@@ -1,9 +1,10 @@
 package splitwise.client;
 
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import static splitwise.client.SplitWiseClientApplication.LOGGER;
 
 
 public class ServerInputReader implements Runnable {
@@ -11,8 +12,6 @@ public class ServerInputReader implements Runnable {
     private static final String SERVER_IS_DOWN = "SplitWise is down. Try connecting later.";
     private static final String INPUT_MESSAGE_INDICATOR = "Server >>> ";
 
-
-    private static Logger LOGGER = Logger.getLogger(ServerInputReader.class);
 
     private BufferedReader reader;
     private SplitWiseClientApplication application;
@@ -31,7 +30,7 @@ public class ServerInputReader implements Runnable {
                 processServerInput(input);
             } catch (IOException e) {
                 if (application.isRunning()) {
-                    LOGGER.info("Error occurred while getting SplitWise input.For more information see logs in logging.log");
+                    LOGGER.info("Error occurred while getting SplitWise input.For more information see logs in error.log");
                     LOGGER.error("Error occurred while getting SplitWise input." + e.getMessage(), e);
                 }
             }

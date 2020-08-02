@@ -1,6 +1,6 @@
 package splitwise.server;
 
-import org.apache.log4j.Logger;
+import logger.Logger;
 import splitwise.server.services.CommandFactory;
 import splitwise.server.exceptions.PersistenceException;
 import splitwise.server.repository.UserRepository;
@@ -13,14 +13,13 @@ import splitwise.server.services.MoneySplitService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.file.Path;
 
 
-public class SplitWiseApplication
-{
+public class SplitWiseApplication {
     public static final int SERVER_PORT = 8081;
-    private static final String DB_FILE_PATH = "src/main/resources/users.json";
 
-    private static Logger LOGGER = Logger.getLogger(SplitWiseApplication.class);
+    public static Logger LOGGER;
 
     private static ServerSocket serverSocket;
     private static ActiveUsers activeUsers;
@@ -29,19 +28,25 @@ public class SplitWiseApplication
 
 
     public static void main(String[] args) {
-        if (initializeSplitWiseDependencies()) {
+        Path logsDirectory = Path.of(args[1]);
+        Path logFile = Path.of(args[2]);
+        LOGGER = new Logger(logsDirectory, logFile);
+
+        String dbFilePath = args[0];
+        if (resolveSplitWiseDependencies(dbFilePath)) {
             SplitWiseServer splitWiseServer = new SplitWiseServer(serverSocket, activeUsers, commandFactory);
             splitWiseServer.start();
         } else {
-            LOGGER.info("SplitWise application cannot be started because of missing dependencies.See logging.log file for more information.");
+            LOGGER.info("SplitWise application cannot be started because of missing dependencies.See error.log file for more information.");
         }
     }
 
-    private static boolean initializeSplitWiseDependencies() {
-        return instantiateServerSocket() && instantiateCommandFactory();
+
+    private static boolean resolveSplitWiseDependencies(String dbFilePath) {
+        return createServerSocket() && createRepository(dbFilePath) && createCommandFactory();
     }
 
-    private static boolean instantiateServerSocket() {
+    private static boolean createServerSocket() {
         try {
             serverSocket = new ServerSocket(SERVER_PORT);
             return true;
@@ -51,18 +56,24 @@ public class SplitWiseApplication
         }
     }
 
-    private static boolean instantiateCommandFactory(){
+    private static boolean createRepository(String dbFilePath) {
         try {
-            activeUsers = new ActiveUsers();
-            userRepository = new FileSystemUserRepository(DB_FILE_PATH);
-            commandFactory = new CommandFactory(new AuthenticationService(userRepository, activeUsers),
-                    new FriendshipService(userRepository, activeUsers),new MoneySplitService(userRepository,activeUsers));
-            return true;
+            userRepository = new FileSystemUserRepository(dbFilePath);
         } catch (PersistenceException e) {
             LOGGER.info("User repository creation failed. Reason: " + e.getMessage());
             LOGGER.error("User repository creation failed. Reason: " + e.getMessage(), e);
+
             return false;
         }
+        return true;
+    }
+
+    private static boolean createCommandFactory() {
+        activeUsers = new ActiveUsers();
+        commandFactory = new CommandFactory(new AuthenticationService(userRepository, activeUsers),
+                new FriendshipService(userRepository, activeUsers), new MoneySplitService(userRepository, activeUsers));
+
+        return true;
     }
 
 }

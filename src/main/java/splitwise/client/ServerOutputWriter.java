@@ -1,15 +1,14 @@
 package splitwise.client;
 
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static splitwise.client.SplitWiseClientApplication.LOGGER;
+
 public class ServerOutputWriter implements Runnable {
     public static final String EXIT_COMMAND = "exit";
-
-    private static Logger LOGGER = Logger.getLogger(ServerOutputWriter.class);
 
     private BufferedReader inputReader;
     private PrintWriter outputWriter;
@@ -42,7 +41,7 @@ public class ServerOutputWriter implements Runnable {
             }
         } catch (IOException e) {
             LOGGER.info(
-                    "Error occurred while reading user input. For more information see logs in logging.log");
+                    "Error occurred while reading user input. For more information see logs in error.log");
             LOGGER.error("Error occurred while reading user input.", e);
         }
         return command;

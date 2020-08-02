@@ -1,7 +1,6 @@
 package splitwise.server.server.connection;
 
 
-import org.apache.log4j.Logger;
 import splitwise.server.exceptions.ClientConnectionException;
 import splitwise.server.server.SplitWiseServer;
 
@@ -11,12 +10,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import static splitwise.server.SplitWiseApplication.LOGGER;
+
 
 public class ClientConnection extends Thread {
     public static final String WELCOME_MESSAGE = "Welcome to SplitWise!";
     public static final String EXIT_COMMAND = "exit";
-
-    private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
 
     private Socket socket;
     private BufferedReader socketInputReader;

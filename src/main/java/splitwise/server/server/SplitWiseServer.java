@@ -1,6 +1,7 @@
 package splitwise.server.server;
 
-import org.apache.log4j.Logger;
+
+import logger.Logger;
 import splitwise.server.commands.Command;
 import splitwise.server.exceptions.ClientConnectionException;
 import splitwise.server.server.connection.ClientConnection;
@@ -12,14 +13,14 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static splitwise.server.SplitWiseApplication.LOGGER;
+
 
 public class SplitWiseServer {
     public static final int MAXIMUM_CONNECTIONS_COUNT = 100;
 
     public static final String SERVER_STARTED = "SplitWise server started!";
     public static final String SERVER_STOPPED = "app stopped";
-
-    private static Logger LOGGER = Logger.getLogger(ClientConnection.class);
 
     private ServerSocket serverSocket;
     private ActiveUsers activeUsers;
@@ -59,7 +60,7 @@ public class SplitWiseServer {
             executorService.execute(clientConnection);
         } catch (IOException | ClientConnectionException e) {
             if (isRunning()) {
-                LOGGER.info("Error during establishing client connection. See logging.log for more information.");
+                LOGGER.info("Error during establishing client connection. See error.log for more information.");
                 LOGGER.error("Error during establishing client connection." + "Reason: " + e.getMessage(), e);
             }
         }
@@ -73,8 +74,8 @@ public class SplitWiseServer {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            LOGGER.info("IO error while closing server socket.See logging.log for more information.");
-            LOGGER.error(e);
+            LOGGER.info("IO error while closing server socket.See error.log for more information.");
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -93,7 +94,7 @@ public class SplitWiseServer {
 
     public String executeUserCommand(String userInput) {
         String trimmedUserInput = userInput.trim();
-        Command command = commandFactory.createCommand(trimmedUserInput);
+        Command command = commandFactory.getCommand(trimmedUserInput);
 
         String commandExecutionResult = command.execute();
 

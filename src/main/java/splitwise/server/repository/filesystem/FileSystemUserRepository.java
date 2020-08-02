@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class FileSystemUserRepository implements UserRepository {
-
-
     private static Type USERS_COLLECTION_TYPE = new TypeToken<Map<String,User>>(){}.getType();
 
     private Map<String, User> users;
