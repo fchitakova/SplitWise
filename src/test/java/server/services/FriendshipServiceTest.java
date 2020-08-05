@@ -1,5 +1,6 @@
 package server.services;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,7 +35,7 @@ public class FriendshipServiceTest {
         users = List.of(new User(TEST_USERNAME1, TEST_PASSWORD1), new User(TEST_USERNAME2, TEST_PASSWORD1), new User(TEST_USERNAME3, TEST_PASSWORD1));
         setUpUserRepository();
         activeUsers = Mockito.mock(ActiveUsers.class);
-        friendshipService = new FriendshipService(userRepository,activeUsers);
+        friendshipService = new FriendshipService(userRepository, activeUsers);
     }
 
     public static void setUpUserRepository() {
@@ -57,22 +58,14 @@ public class FriendshipServiceTest {
 
 
     @Test
-    @Ignore
     public void testThatSuccessfulGroupCreationSendsNotificationsToAllNonActiveParticipatingUsers() throws FriendshipException {
-        users = new ArrayList<>();
-        users.add(new User(TEST_USERNAME1, TEST_PASSWORD1));
-        users.add(new User(TEST_USERNAME2, TEST_PASSWORD1));
-        users.add(new User(TEST_USERNAME3, TEST_PASSWORD1));
-        when(friendshipService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME1);
-
         friendshipService.createGroupFriendship(TEST_USERNAME1, GROUP_NAME, List.of(TEST_USERNAME1, TEST_USERNAME2, TEST_USERNAME3));
 
         String assertMessage = "Adding not active user to group must send him right notification";
 
         for (User currentUser : users) {
-            String participantsUsernamesWithoutCurrent = users.stream().filter(user -> user != currentUser).map(User::getUsername).collect(Collectors.joining(", "));
-            String notification = String.format(ADDED_TO_GROUP_NOTIFICATION, GROUP_NAME, participantsUsernamesWithoutCurrent);
-            if (!currentUser.getNotifications().contains(notification)) {
+            String notification = String.format(ADDED_TO_GROUP_NOTIFICATION, GROUP_NAME, users.stream().map(User::getUsername).collect(Collectors.joining(", ")));
+            if (!currentUser.getUsername().equals(TEST_USERNAME1) && !currentUser.getNotifications().contains(notification)) {
                 fail(assertMessage);
             }
         }

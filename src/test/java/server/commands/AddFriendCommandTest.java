@@ -14,6 +14,7 @@ import static org.mockito.Mockito.*;
 import static server.TestConstants.*;
 import static splitwise.server.commands.AddFriendCommand.FRIENDSHIP_CANNOT_BE_ESTABLISHED;
 import static splitwise.server.commands.AddFriendCommand.USER_NOT_FOUND;
+import static splitwise.server.commands.Command.LOGIN_OR_REGISTER;
 
 public class AddFriendCommandTest {
     public static String ADD_FRIEND_COMMAND = "add-friend " + TEST_USERNAME1;

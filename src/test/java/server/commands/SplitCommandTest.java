@@ -9,6 +9,7 @@ import splitwise.server.services.MoneySplitService;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static server.TestConstants.*;
+import static splitwise.server.commands.Command.LOGIN_OR_REGISTER;
 import static splitwise.server.commands.SplitCommand.SPLITTING_IN_GROUP_IS_ALLOWED_ONLY_FOR_MEMBERS;
 import static splitwise.server.commands.SplitCommand.SPLITTING_IS_ALLOWED_ONLY_WITH_FRIENDS;
 
