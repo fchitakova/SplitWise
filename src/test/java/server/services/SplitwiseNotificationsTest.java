@@ -20,56 +20,58 @@ import static server.TestConstants.TEST_PASSWORD1;
 import static server.TestConstants.TEST_USERNAME1;
 
 public class SplitwiseNotificationsTest {
-    private static UserRepository userRepository;
-    private static ActiveUsers activeUsers;
-    private static SplitWiseService splitWiseService;
+  private static UserRepository userRepository;
+  private static ActiveUsers activeUsers;
+  private static SplitWiseService splitWiseService;
 
-    @BeforeClass
-    public static void setUp() throws AuthenticationException {
-        activeUsers = Mockito.mock(ActiveUsers.class);
-        userRepository = Mockito.mock(FileSystemUserRepository.class);
-        splitWiseService = new FriendshipService(userRepository, activeUsers);
-    }
+  @BeforeClass
+  public static void setUp() throws AuthenticationException {
+    activeUsers = Mockito.mock(ActiveUsers.class);
+    userRepository = Mockito.mock(FileSystemUserRepository.class);
+    splitWiseService = new FriendshipService(userRepository, activeUsers);
+  }
 
+  @Test
+  public void testThatNotificationsForNotActiveUserArePushedToHisNotificationsQueue()
+      throws PersistenceException {
+    User testUser = new User(TEST_USERNAME1, TEST_PASSWORD1);
+    when(activeUsers.isActive(TEST_USERNAME1)).thenReturn(false);
+    when(userRepository.getById(TEST_USERNAME1)).thenReturn(Optional.of(testUser));
 
-    @Test
-    public void testThatNotificationsForNotActiveUserArePushedToHisNotificationsQueue() throws PersistenceException {
-        User testUser = new User(TEST_USERNAME1, TEST_PASSWORD1);
-        when(activeUsers.isActive(TEST_USERNAME1)).thenReturn(false);
-        when(userRepository.getById(TEST_USERNAME1)).thenReturn(Optional.of(testUser));
+    splitWiseService.sendNotification(testUser, "notification");
 
-        splitWiseService.sendNotification(testUser, "notification");
+    String assertMessage =
+        "Notifications of not active user must be pushed in his notifications queue.";
+    boolean expectedAssertCondition = testUser.getNotifications().contains("notification");
 
-        String assertMessage = "Notifications of not active user must be pushed in his notifications queue.";
-        boolean expectedAssertCondition = testUser.getNotifications().contains("notification");
+    assertTrue(assertMessage, expectedAssertCondition);
+  }
 
-        assertTrue(assertMessage, expectedAssertCondition);
-    }
+  @Test
+  public void testThatNotificationsForActiveUserAreNotPushedToHisNotificationsQueue()
+      throws PersistenceException {
+    User testUser = new User(TEST_USERNAME1, TEST_PASSWORD1);
+    when(activeUsers.isActive(TEST_USERNAME1)).thenReturn(true);
+    when(userRepository.getById(TEST_USERNAME1)).thenReturn(Optional.of(testUser));
 
-    @Test
-    public void testThatNotificationsForActiveUserAreNotPushedToHisNotificationsQueue() throws PersistenceException {
-        User testUser = new User(TEST_USERNAME1, TEST_PASSWORD1);
-        when(activeUsers.isActive(TEST_USERNAME1)).thenReturn(true);
-        when(userRepository.getById(TEST_USERNAME1)).thenReturn(Optional.of(testUser));
+    splitWiseService.sendNotification(testUser, "notification");
 
-        splitWiseService.sendNotification(testUser, "notification");
+    String assertMessage =
+        "Notifications of active user must not be pushed in his notifications queue.";
+    boolean expectedAssertCondition = !testUser.getNotifications().contains("notification");
 
-        String assertMessage = "Notifications of active user must not be pushed in his notifications queue.";
-        boolean expectedAssertCondition = !testUser.getNotifications().contains("notification");
+    assertTrue(assertMessage, expectedAssertCondition);
+  }
 
-        assertTrue(assertMessage, expectedAssertCondition);
-    }
+  @Test
+  public void testThatNotificationsOfActiveUserAreSentInRealTime() throws PersistenceException {
+    when(activeUsers.isActive(TEST_USERNAME1)).thenReturn(true);
 
-    @Test
-    public void testThatNotificationsOfActiveUserAreSentInRealTime() throws PersistenceException {
-        when(activeUsers.isActive(TEST_USERNAME1)).thenReturn(true);
+    splitWiseService.sendNotification(new User(TEST_USERNAME1, TEST_PASSWORD1), "notification");
 
-        splitWiseService.sendNotification(new User(TEST_USERNAME1, TEST_PASSWORD1), "notification");
+    String failureMessage = "Notifications of active user must be send in real time.";
 
-        String failureMessage = "Notifications of active user must be send in real time.";
-
-        verify(activeUsers, description(failureMessage)).sendMessageToUser(TEST_USERNAME1, "notification");
-    }
-
-
+    verify(activeUsers, description(failureMessage))
+        .sendMessageToUser(TEST_USERNAME1, "notification");
+  }
 }

@@ -15,94 +15,104 @@ import static splitwise.server.commands.RegisterCommand.*;
 import static splitwise.server.commands.RegisterCommand.ALREADY_LOGGED_IN;
 
 public class RegisterCommandTest {
-    public static String REGISTER_COMMAND = "register " + TEST_USERNAME1 + " testPassword";
+  public static String REGISTER_COMMAND = "register " + TEST_USERNAME1 + " testPassword";
 
-    private static AuthenticationService authenticationService;
-    private static RegisterCommand registerCommand;
+  private static AuthenticationService authenticationService;
+  private static RegisterCommand registerCommand;
 
-    @BeforeClass
-    public static void setUp(){
-        authenticationService = Mockito.mock(AuthenticationService.class);
-        registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
-    }
+  @BeforeClass
+  public static void setUp() {
+    authenticationService = Mockito.mock(AuthenticationService.class);
+    registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
+  }
 
-    @After
-    public void resetDependencies(){
-        reset(authenticationService);
-    }
+  @After
+  public void resetDependencies() {
+    reset(authenticationService);
+  }
 
+  @Test
+  public void testThatRegistrationAttemptWhenAlreadyLoggedInReturnsMessageThatThisIsNotAllowed() {
+    when(authenticationService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME1);
+    registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
 
-    @Test
-    public void testThatRegistrationAttemptWhenAlreadyLoggedInReturnsMessageThatThisIsNotAllowed(){
-        when(authenticationService.getCurrentSessionsUsername()).thenReturn(TEST_USERNAME1);
-        registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
+    String assertMessage =
+        "Registration attempt when already logged in did not return response that this is not allowed.";
+    String expectedResponse = ALREADY_LOGGED_IN;
+    String actualResponse = registerCommand.execute();
 
-         String assertMessage = "Registration attempt when already logged in did not return response that this is not allowed.";
-         String expectedResponse = ALREADY_LOGGED_IN;
-         String actualResponse = registerCommand.execute();
+    assertEquals(assertMessage, expectedResponse, actualResponse);
+  }
 
-         assertEquals(assertMessage,expectedResponse,actualResponse);
-    }
+  @Test
+  public void testThatRegistrationAttemptWithNotTakenUsernameCallsRegisterUser()
+      throws AuthenticationException {
+    when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
+    registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
+    when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
 
-    @Test
-    public void testThatRegistrationAttemptWithNotTakenUsernameCallsRegisterUser() throws AuthenticationException {
-        when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
-        registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
-        when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
+    registerCommand.execute();
 
-        registerCommand.execute();
+    String failureMessage = "Registration with not taken username must be successful.";
 
-        String failureMessage = "Registration with not taken username must be successful.";
+    verify(authenticationService, description(failureMessage))
+        .registerUser(TEST_USERNAME1, TEST_PASSWORD1);
+  }
 
-        verify(authenticationService, description(failureMessage)).registerUser(TEST_USERNAME1, TEST_PASSWORD1);
-    }
+  @Test
+  public void testThatRegistrationAttemptWithTakenUsernameReturnsTakenUsernameResponse() {
+    when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
+    registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
+    when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(true);
 
-    @Test
-    public void testThatRegistrationAttemptWithTakenUsernameReturnsTakenUsernameResponse() {
-        when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
-        registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
-        when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(true);
+    String assertMessage =
+        "Registration attempt with taken username did not return right taken username response.";
+    String response = registerCommand.execute();
 
-        String assertMessage = "Registration attempt with taken username did not return right taken username response.";
-        String response = registerCommand.execute();
+    assertEquals(assertMessage, TAKEN_USERNAME, response);
+  }
 
-        assertEquals(assertMessage,TAKEN_USERNAME,response);
-    }
+  @Test
+  public void testThatRegistrationWithNonTakenUsernameReturnsSuccessfulRegistrationResponse() {
+    when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
 
-    @Test
-    public void testThatRegistrationWithNonTakenUsernameReturnsSuccessfulRegistrationResponse(){
-        when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
+    String assertMessage =
+        "Registration attempt with idle username did not return right successful registration response";
+    String response = registerCommand.execute();
 
-        String assertMessage = "Registration attempt with idle username did not return right successful registration response";
-        String response = registerCommand.execute();
+    assertEquals(assertMessage, RegisterCommand.SUCCESSFUL_REGISTRATION, response);
+  }
 
-        assertEquals(assertMessage,RegisterCommand.SUCCESSFUL_REGISTRATION,response);
-    }
+  @Test
+  public void testWhenRegistrationFailDueToRepositoryExceptionReturnsRightMessage()
+      throws AuthenticationException {
+    when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
+    doThrow(AuthenticationException.class)
+        .when(authenticationService)
+        .registerUser(TEST_USERNAME1, TEST_PASSWORD1);
 
-    @Test
-    public void testWhenRegistrationFailDueToRepositoryExceptionReturnsRightMessage() throws AuthenticationException {
-        when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
-        doThrow(AuthenticationException.class).when(authenticationService).registerUser(TEST_USERNAME1,TEST_PASSWORD1);
+    String assertMessage =
+        "Not right message is returner when userService.registerUser() throws exception.";
+    String response = registerCommand.execute();
 
-        String assertMessage="Not right message is returner when userService.registerUser() throws exception.";
-        String response = registerCommand.execute();
+    assertEquals(assertMessage, RegisterCommand.REGISTRATION_FAILED, response);
+  }
 
-        assertEquals(assertMessage,RegisterCommand.REGISTRATION_FAILED,response);
-    }
+  @Test
+  public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned()
+      throws AuthenticationException {
+    when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
+    when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
+    registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
 
-    @Test
-    public void testThatIfUserServiceThrowExceptionFailedCommandMessageIsReturned() throws AuthenticationException {
-       when(authenticationService.getCurrentSessionsUsername()).thenReturn(null);
-       when(authenticationService.checkIfRegistered(TEST_USERNAME1)).thenReturn(false);
-       registerCommand = new RegisterCommand(REGISTER_COMMAND, authenticationService);
+    doThrow(new AuthenticationException("dummy message", new Throwable()))
+        .when(authenticationService)
+        .registerUser(TEST_USERNAME1, TEST_PASSWORD1);
 
-       doThrow(new AuthenticationException("dummy message", new Throwable())).when(authenticationService).registerUser(TEST_USERNAME1,TEST_PASSWORD1);
+    String assertMessage =
+        "When UserServiceException is thrown not right command failure response is returned";
+    String actualCommandResult = registerCommand.execute();
 
-       String assertMessage = "When UserServiceException is thrown not right command failure response is returned";
-       String actualCommandResult = registerCommand.execute();
-
-       assertEquals(assertMessage,actualCommandResult,REGISTRATION_FAILED);
-    }
+    assertEquals(assertMessage, actualCommandResult, REGISTRATION_FAILED);
+  }
 }
-
-
