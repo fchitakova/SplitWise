@@ -8,10 +8,10 @@ import splitwise.server.commands.AddFriendCommand;
 import splitwise.server.exceptions.FriendshipException;
 import splitwise.server.services.FriendshipService;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static server.TestConstants.*;
+import static server.TestConstants.TEST_USERNAME1;
+import static server.TestConstants.TEST_USERNAME2;
 import static splitwise.server.commands.AddFriendCommand.FRIENDSHIP_CANNOT_BE_ESTABLISHED;
 import static splitwise.server.commands.AddFriendCommand.USER_NOT_FOUND;
 import static splitwise.server.commands.Command.LOGIN_OR_REGISTER;
@@ -26,9 +26,9 @@ public class AddFriendCommandTest {
     public static void setUp() {
         friendshipCreator = Mockito.mock(FriendshipService.class);
     }
-
+    
     @After
-    public void resetDependencies(){
+    public void resetDependencies() {
         reset(friendshipCreator);
     }
 
@@ -66,11 +66,11 @@ public class AddFriendCommandTest {
         when(friendshipCreator.checkIfRegistered(TEST_USERNAME1)).thenReturn(true);
         doThrow(new FriendshipException("dummy message", new Throwable())).when(friendshipCreator).createFriendship(TEST_USERNAME2, TEST_USERNAME1);
         addFriendCommand = new AddFriendCommand(ADD_FRIEND_COMMAND, friendshipCreator);
-
+    
         String assertMessage = "When UserServiceException is thrown not right command failure response is returned";
         String actualResult = addFriendCommand.execute();
-
-        assertEquals(assertMessage,FRIENDSHIP_CANNOT_BE_ESTABLISHED,actualResult);
+    
+        assertEquals(assertMessage, FRIENDSHIP_CANNOT_BE_ESTABLISHED, actualResult);
     }
 
 }
