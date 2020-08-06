@@ -3,6 +3,9 @@ package splitwise.server.commands;
 import splitwise.server.exceptions.MoneySplitException;
 import splitwise.server.services.MoneySplitService;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class SplitCommand extends Command {
     public static final String SPLIT_COMMAND = "split";
     public static final String SPLIT_GROUP_COMMAND = "split-group";
@@ -28,11 +31,11 @@ public class SplitCommand extends Command {
     
     private void initializeCommandParameters(String input) {
 	String[] commandParts = input.split("\\s+");
-	
+ 
 	isGroupSplit = commandParts[0].equalsIgnoreCase(SPLIT_GROUP_COMMAND);
-	amount = Double.valueOf(commandParts[1]);
+	amount = BigDecimal.valueOf(Double.parseDouble(commandParts[1])).setScale(2, RoundingMode.FLOOR).doubleValue();
 	friendshipName = commandParts[2];
-	
+ 
 	setUpSplitReason(commandParts);
     }
     
@@ -67,17 +70,14 @@ public class SplitCommand extends Command {
     private String splitInGroupAndGetResult() throws MoneySplitException {
 	if(isInvokerGroupMember()) {
 	    moneySplitService.splitInGroup(commandInvokerUsername, friendshipName, amount, splitReason);
-	    
 	    return getSuccessfulSplitResponse();
 	}
-	
 	return getSplitNotAllowedResponse();
     }
     
     private String splitWithFriendAndGetResult() throws MoneySplitException {
 	if(moneySplitService.areFriends(commandInvokerUsername, friendshipName)) {
 	    moneySplitService.split(commandInvokerUsername, friendshipName, amount, splitReason);
-	    
 	    return getSuccessfulSplitResponse();
 	}
 	return getSplitNotAllowedResponse();

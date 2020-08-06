@@ -1,6 +1,8 @@
 package splitwise.server.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 public class Friend extends Friendship implements Serializable {
@@ -20,12 +22,17 @@ public class Friend extends Friendship implements Serializable {
     
     @Override
     public void split(Double amount) {
-	account = account + amount;
+	account = getInRightPrecision(account + amount);
+    }
+    
+    private Double getInRightPrecision(Double amount) {
+	RoundingMode mode = amount>0 ? RoundingMode.FLOOR : RoundingMode.CEILING;
+	return BigDecimal.valueOf(amount).setScale(2, mode).doubleValue();
     }
     
     @Override
     public void payOff(String username, Double amount) {
-	account = account - amount;
+	account = getInRightPrecision(account - amount);
     }
     
     @Override
