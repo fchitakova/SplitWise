@@ -1,5 +1,14 @@
 # **Project description:** https://github.com/fmi/java-course/blob/master/course-projects/splitwise.md
 
+###### To start SplitWiseApplication the following command line arguments must be provided:
+  1. Path for DB file (e.g. src/main/resources/users.json)
+  2. Path for log directory (e.g. src/main/java/Splitwise/server/AppData)
+  3. Log file name (e.g. error.log)
+  
+######   To start the SplitWiseClientApplication the following command line arguments must be provided:
+  1. Path for log directory (e.g. src/main/java/Splitwise/client/AppData)
+  2. Log file name (e.g. error.log)
+
 Some commands' output format differ from those in project description.
 
 ### **Supported commands:**
